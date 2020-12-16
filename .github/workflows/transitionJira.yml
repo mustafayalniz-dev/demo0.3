@@ -1,0 +1,21 @@
+name: Transition Jira Issue when Pull Request Merged
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  push:
+    name: Transition Jira Issue when Pull Request Merged
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Jira Processing
+        env:
+          JIRA_USERNAME: ${{ secrets.JIRA_USERNAME }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        run: |
+          npm install node-fetch
+          npm install fs inquirer dotenv
+          node scripts/transitionJira.js

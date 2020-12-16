@@ -1,0 +1,90 @@
+name: Create upstream merge or Pull Request
+on:
+  pull_request:
+    branches:
+      - release_*
+    types: [closed]
+
+jobs:
+  generate-matrix:
+    name: Generate matrix for PR or merge action of ${{  github.head_ref }}
+    if: github.event.pull_request.merged == true && !contains(github.event.pull_request.labels.*.name, 'temporary')
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.MY_PERSONAL_ACCESS_TOKEN }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+      - run: git config user.name github-actions
+      - run: git config user.email github-actions@github.com
+      - name: Set matrix for build
+        id: set-matrix
+        run: |
+          npm install compare-versions
+          (( $(( (`date +\%s` / 604800 + 1) % 2 )) )) && node scripts/upstream_list.js ${{ github.base_ref }} ${{  github.head_ref }}
+          echo "::set-output name=matrix::$( node scripts/upstream_list.js ${{ github.base_ref }} )"
+  merge-upstream-release:
+    name: Merge ${{  github.head_ref }} to Upstream Release "${{ matrix.upstream_release }}"
+    if: github.event.pull_request.merged == true && !contains(github.event.pull_request.labels.*.name, 'temporary')
+    needs: generate-matrix
+    strategy:
+      matrix: ${{fromJson(needs.generate-matrix.outputs.matrix)}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Merge ${{  github.head_ref }} -> ${{ matrix.upstream_release }}
+        if:   ${{ matrix.upstream_release }} != ''
+        continue-on-error: true
+        id: upstream-merge
+        uses: devmasx/merge-branch@v1.3.1
+        with:
+          type: now
+          from_branch: ${{  github.head_ref }}
+          target_branch: ${{ matrix.upstream_release }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: pull-request ${{  github.head_ref }} to Upstream Release "${{ matrix.upstream_release }}"
+        if: steps.upstream-merge.outcome == 'failure'
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: ${{  github.head_ref }}
+          destination_branch: ${{ matrix.upstream_release }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_title: "Pulling ${{ github.head_ref }} into ${{ matrix.upstream_release }} "
+          pr_body: "*An automated PR for Release Train Branch ${{ matrix.upstream_release }} * "
+          pr_reviewer: ${{ matrix.reviewers }}
+          pr_assignee: ${{ matrix.assignees }}
+  merge-to-develop:
+    name: Merge ${{  github.head_ref }} to Develop Branch
+    if: github.event.pull_request.merged == true && !contains(github.event.pull_request.labels.*.name, 'temporary')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: set assignees and reviewers
+        run: | 
+          echo "assignees=$(node scripts/getPRMeta.js assignees)" >> $GITHUB_ENV
+          echo "reviewers=$(node scripts/getPRMeta.js reviewers)" >> $GITHUB_ENV
+      - name: Merge ${{  github.head_ref }} -> develop
+        if:   ${{ matrix.upstream_release }} != ''
+        continue-on-error: true
+        id: develop-merge
+        uses: devmasx/merge-branch@v1.3.1
+        with:
+          type: now
+          from_branch: ${{  github.head_ref }}
+          target_branch: develop
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: pull-request ${{  github.head_ref }} to develop"
+        if:   steps.develop-merge.outcome == 'failure'
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: ${{  github.head_ref }}
+          destination_branch: develop
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          pr_title: "Pulling ${{ github.head_ref }} into develop "
+          pr_body: "*An automated PR for Release Train Branch develop * "
+          pr_reviewer: ${{ env.reviewers }}
+          pr_assignee: ${{ env.assignees }}

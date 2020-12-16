@@ -1,0 +1,27 @@
+name: Create pull request to release train branch.
+
+on:
+  pull_request:
+    branches:
+      - release_*
+    types: [opened]
+
+jobs:
+  release-train-pr:
+    if: contains(github.event.pull_request.body, '/sandbox-create')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Invoke TeamCity build to provision and deploy environment 
+      run: |
+        curl --request POST  https://tc.dbm.q2w.spin.pm/app/rest/buildQueue \
+                --header "Content-Type:application/xml" \
+                --header "Authorization: Bearer ${{ secrets.TEAMCITY_BUILD_TOKEN }}" \
+                -d "<build><buildType id=\"DevOps_Sandbox_PerPullRequestSandboxEnvironment\"/><properties><property name=\"env.GITHUB_REF\" value=\"$GITHUB_REF\"/></properties></build>"
+    - name: Slack Notification (TODO enter proper data)
+      uses: rtCamp/action-slack-notify@master
+      env:
+        SLACK_CHANNEL: devops
+        SLACK_MESSAGE: 'The per pull request sandbox build and environment is being executed..'
+        SLACK_TITLE: 'The sandbox for Pull Request is being created. $GITHUB_REF '
+        SLACK_USERNAME: devops
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

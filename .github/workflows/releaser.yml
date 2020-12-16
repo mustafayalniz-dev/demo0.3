@@ -1,0 +1,22 @@
+name: "Releaser"
+on:
+  workflow_dispatch
+
+jobs:
+  releaser:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+    - run: git config user.name github-actions
+    - run: git config user.email github-actions@github.com
+    - run: yarn
+    - name: Merge to Master and Create GitHub Release
+      env:
+        JIRA_USERNAME: ${{ secrets.JIRA_USERNAME }}
+        JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        PUSH_GITHUB_USER: ${{ secrets.PUSH_GITHUB_USER }}
+      run: |
+        npm install node-fetch util promisify inquirer
+        node scripts/releaser.js

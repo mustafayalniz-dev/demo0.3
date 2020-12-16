@@ -1,0 +1,60 @@
+name: Create pull request to release train branch.
+
+on:
+  pull_request:
+    branches:
+      - develop
+    types: [closed]
+
+jobs:
+  generate-matrix:
+    name: Generate matrix for pull request action to latest release branch
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.body, '/release-train')
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.MY_PERSONAL_ACCESS_TOKEN }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+      - run: git config user.name github-actions
+      - run: git config user.email github-actions@github.com
+      - name: Set matrix for build
+        id: set-matrix
+        run: |
+          npm install compare-versions
+          echo "::set-output name=matrix::$( node scripts/auto_pullrequest.js )"
+  release-train-sync:
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.body, '/release-train')
+    needs: generate-matrix
+    strategy:
+      matrix: ${{fromJson(needs.generate-matrix.outputs.matrix)}}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.MY_PERSONAL_ACCESS_TOKEN }}
+        fetch-depth: 0
+    - name: pull-request
+      if:   ${{ matrix.latest_release_branch }} != ''
+      uses: repo-sync/pull-request@v2
+      with:
+        source_branch: ${{  github.head_ref }}
+        destination_branch: ${{ matrix.latest_release_branch }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        pr_title: "Pulling ${{ github.head_ref }} into ${{ matrix.latest_release_branch }} "
+        pr_body: "*An automated PR for Release Train Branch ${{ matrix.latest_release_branch }} * "
+        pr_reviewer: ${{ matrix.reviewers }}
+        pr_assignee: ${{ matrix.assignees }}
+    - name: Slack Notification (TODO enter proper data)
+      uses: rtCamp/action-slack-notify@master
+      env:
+        SLACK_CHANNEL: qa
+        SLACK_MESSAGE: 'New Pull Request created for Release Train branch .'
+        SLACK_TITLE: 'Automated PR to Release Train'
+        SLACK_USERNAME: qa
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
