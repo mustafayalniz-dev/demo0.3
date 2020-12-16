@@ -1,4 +1,4 @@
-name: Transition Jira Issue when Pull Request Merged
+name: Transition Jira Issues to Build Ready as Pull Request Merged
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   push:
-    name: Transition Jira Issue when Pull Request Merged
+    name: Transition Jira Issue To Build Ready when Pull Request Merged
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
@@ -18,4 +18,4 @@ jobs:
         run: |
           npm install node-fetch
           npm install fs inquirer dotenv
-          node scripts/transitionJira.js
+          node scripts/transitionJiraToBuildReady.js

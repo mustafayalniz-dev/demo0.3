@@ -2,7 +2,7 @@ var jiraUtils = require("./jira-utils")
 const fetch = require("node-fetch")
 
 const webAdminTokenUrl = "https://web.spin.pm/api/v1/auth_tokens"
-const webAdminPushUrl = "https://web.spin.pm/mobile_build"
+const webAdminPushUrl = "https://web.spin.pm/api/v1/releases"
 
 async function main() {
   await buildDataFromJiraAndPushToAdmin()
@@ -25,10 +25,13 @@ async function buildDataFromJiraAndPushToAdmin() {
   var allIssues = await issues.concat(linkedIssues)
   const releaseUrl = await getReleaseUrl()
 
-  var payload = {
+  const payload = {
     release_name: jiraUtils.releaseName(),
     release_url: releaseUrl,
-    build_group_name: process.env.BITRISE_GIT_TAG,
+    build_group_name:
+      process.env.BITRISE_GIT_TAG ||
+      process.env.BITRISE_GIT_COMMIT ||
+      process.env.BITRISE_GIT_MESSAGE,
     build_group_tickets: allIssues,
     mobile_build_name: process.env.BITRISE_BUILD_NUMBER,
     mobile_build_type: process.env.BITRISE_TRIGGERED_WORKFLOW_TITLE,
@@ -36,24 +39,24 @@ async function buildDataFromJiraAndPushToAdmin() {
   }
 
   console.log(payload)
-//  const token_response = await getJWT()
 
-//  try {
-//    JSON.parse(token_response)
-//  } catch (e) {
-//    console.log("Invalid Token Received")
-//    return false
-//  }
-//  const jwt = token_response.json().jwt
-//  await postPayloadToAdmin(jwt, payload)
+  const token_response = await getJWT()
+  const { jwt } = await token_response.json()
+  const adminPostResult = await postPayloadToAdmin(jwt, payload)
+  console.log(adminPostResult)
+  var statusesBR = ["Build Ready"]
 
-//  await transitionIssues(allIssues)
+  const issuesBR = await getJiraTickets(statusesBR)
+  const linkedIssuesBR = await getLinkedIssues(statusesBR)
+  const buildReadyIssues = await issuesBR.concat(linkedIssuesBR)
+
+  await transitionIssues(buildReadyIssues)
 }
 
 async function transitionIssues(issues) {
   issues.forEach(async function (issue, index) {
-    var issue_id = issue.replace(/https:\/\/spinbikes.atlassian.net\/browse\/browse\//, "")
-    var eNoQA = await jiraUtils.isEngineeringNoQA(issue_id)
+    const issue_id = issue.replace(/https:\/\/spinbikes.atlassian.net\/browse\//, "")
+    const eNoQA = await jiraUtils.isEngineeringNoQA(issue_id)
 
     if (eNoQA) {
       console.log("Transitioning " + index + " ticket " + issue_id + " to ReleaseReady")
@@ -66,7 +69,6 @@ async function transitionIssues(issues) {
 }
 
 async function getJiraTickets(statuses) {
-  await jiraUtils.loadJiraCredentials()
   const ticketsRDE = await jiraUtils.listForTicketsForProject(jiraUtils.projectName)
 
   var issueURLList = []
@@ -108,40 +110,36 @@ async function getLinkedIssues(statuses) {
   return linkedIssueURLList
 }
 
-async function headersForToken() {
-  const headers =
-    "{  'Accept': 'application/json', 'Content-Type': 'application/json', 'Cookie': 'null', 'api-version': '1.1' }"
-  return headers
-}
-
 async function getJWT() {
-  const headersToSend = headersForToken()
+  const headersToSend = {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    Cookie: "null",
+    "api-version": "1.1",
+  }
 
-  const requestBody =
-    '{ "userUniqueKey": ' +
-    process.env.ADMIN_USER_UNIQUE_KEY +
-    ', "refreshToken": ' +
-    process.env.ADMIN_USER_REFRESH_TOKEN +
-    ', "grant_type": "refresh_token" }'
+  const requestBody = {
+    userUniqueKey: process.env.ADMIN_USER_UNIQUE_KEY,
+    refreshToken: process.env.ADMIN_USER_REFRESH_TOKEN,
+    grant_type: "refresh_token",
+  }
 
   return await fetch(webAdminTokenUrl, {
     method: "post",
-    body: requestBody,
+    body: JSON.stringify(requestBody),
     headers: headersToSend,
   })
 }
 
-async function headersWithAuth(jwt) {
-  const auth = "Basic " + global.Buffer.from(jwt).toString("base64")
-  const header = '{ "Content-Type": "application/json" }, { "Authorization": ' + auth + " }"
-
-  return header
-}
-
 async function postPayloadToAdmin(jwt, requestBody) {
-  const headersToSend = headersWithAuth(jwt)
+  const headersToSend = {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+    Cookie: "null",
+    "api-version": "1.1",
+    Authorization: `Bearer: ${jwt}`,
+  }
 
-  console.log(webAdminPushUrl)
   return await fetch(webAdminPushUrl, {
     method: "post",
     body: JSON.stringify(requestBody),

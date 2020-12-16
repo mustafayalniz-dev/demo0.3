@@ -56,11 +56,13 @@ module.exports = {
 
   transitionRequest: async function (ticket, transitionId) {
     const requestBody = { transition: { id: transitionId } }
-    return await fetch(`${this.baseUrl}${this.issueBaseUrl}${ticket}${this.transitionUrl}`, {
+    const transitionStatus =  await fetch(`${this.baseUrl}${this.issueBaseUrl}${ticket}${this.transitionUrl}`, {
       method: "post",
       body: JSON.stringify(requestBody),
       headers: this.headersWithAuth({ "Content-Type": "application/json" }),
     })
+
+    return transitionStatus
   },
 
   logResponse: async function (ticket, response) {
@@ -201,14 +203,14 @@ module.exports = {
         const linksToTicketsThatBlockWrapper = searchResponseJson.issues[
           issue
         ].fields.issuelinks.filter((link) => link.type.inward === "is blocked by")
-        try {
-          Array.prototype.push.apply(
-            linkedIssues,
-            linksToTicketsThatBlockWrapper.map((link) => link.inwardIssue.key)
-          )
-        } catch (err) {
-          console.log(err)
-        }
+        for(var link in linksToTicketsThatBlockWrapper){
+		if ( linksToTicketsThatBlockWrapper[link].inwardIssue !== undefined ) {
+			lissue = linksToTicketsThatBlockWrapper[link].inwardIssue.key
+			if ( lissue  !== 'undefined' ) {
+				linkedIssues.push( lissue )
+			}
+		}
+	}
       }
     }
     return linkedIssues

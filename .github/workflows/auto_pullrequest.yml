@@ -50,11 +50,3 @@ jobs:
         pr_body: "*An automated PR for Release Train Branch ${{ matrix.latest_release_branch }} * "
         pr_reviewer: ${{ matrix.reviewers }}
         pr_assignee: ${{ matrix.assignees }}
-    - name: Slack Notification (TODO enter proper data)
-      uses: rtCamp/action-slack-notify@master
-      env:
-        SLACK_CHANNEL: qa
-        SLACK_MESSAGE: 'New Pull Request created for Release Train branch .'
-        SLACK_TITLE: 'Automated PR to Release Train'
-        SLACK_USERNAME: qa
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}

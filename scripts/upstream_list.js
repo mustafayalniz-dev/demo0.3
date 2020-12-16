@@ -14,7 +14,7 @@ if (currentBranch === "") {
   return 1
 }
 
-const versionNumber = currentBranch.replace(/release\_(\d+\.\d+\.\d+).*/, "$1")
+const versionNumber = currentBranch.replace(/release\_(\d+\.\d+\.\d+)/, "$1")
 
 async function getBranchArray() {
   var test = child_process.execSync("git branch --remote -a | grep release")
@@ -31,13 +31,13 @@ async function getBranchArray() {
 async function getMinorVersionArray(array) {
   var matrixJson = ""
 
-  var releaseBranchRegex = new RegExp("^release_[0-9]+.[0-9]+.[0-9]+.*$")
+  var releaseBranchRegex = new RegExp("^release_[0-9]+.[0-9]+.[0-9]+$")
 
   array.forEach(function (item) {
     if (!releaseBranchRegex.test(item)) {
       return
     }
-    var versionNumberInRemote = item.replace(/release\_(\d+\.\d+\.\d+).*/, "$1")
+    var versionNumberInRemote = item.replace(/release\_(\d+\.\d+\.\d+)/, "$1")
 
     if (compareVersions(versionNumber, versionNumberInRemote) === -1) {
       if (matrixJson != "") {

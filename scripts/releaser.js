@@ -77,8 +77,6 @@ async function transitionAllIssues() {
   const linkedIssues = await getLinkedIssues(statuses)
   var allIssues = await issues.concat(linkedIssues)
 
-  console.log("Listing all issues")
-  console.log(allIssues)
   await transitionIssuesAsReleased(allIssues)
 }
 
@@ -96,7 +94,6 @@ async function transitionIssuesAsReleased(issues) {
 }
 
 async function getJiraTickets(statuses) {
-//  await jiraUtils.loadJiraCredentials()
   const ticketsRDE = await jiraUtils.listForTicketsForProject(jiraUtils.projectName)
 
   var issueURLList = []
