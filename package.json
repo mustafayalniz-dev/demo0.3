@@ -1,4 +1,8 @@
 {
   "name": "SpinBikes",
-  "version": "2.23.1"
+  "version": "2.24.9",
+  "dependencies": {
+    "inquirer": "^7.3.3",
+    "node-fetch": "^2.6.1"
+  }
 }

@@ -127,6 +127,32 @@ module.exports = {
     const searchResponse = await fetch(`${this.baseUrl}${jqlSearchUrl}`, {
       headers: this.headersWithAuth({}),
     })
+
+    const searchResponseJson = await searchResponse.json()
+
+    if (Object.keys(searchResponseJson.issues).length > 0) {
+      return true
+    }
+
+    return false
+  },
+
+  isInStatuses: async function (issue_id, statuses) {
+
+    const statusesQuoted = statuses.map(status => "\"" + status + "\"");
+
+    var stringStatuses = statusesQuoted.join(",")
+
+    const jqlSearch = encodeURIComponent(
+      `issueKey="${issue_id}" AND status in ( ${
+        stringStatuses
+      } )`
+    )
+
+    const jqlSearchUrl = this.jqlSearchBaseUrl + jqlSearch
+    const searchResponse = await fetch(`${this.baseUrl}${jqlSearchUrl}`, {
+      headers: this.headersWithAuth({}),
+    })
     const searchResponseJson = await searchResponse.json()
 
     if (Object.keys(searchResponseJson.issues).length > 0) {
@@ -147,6 +173,7 @@ module.exports = {
     const searchResponse = await fetch(`${this.baseUrl}${jqlSearchUrl}`, {
       headers: this.headersWithAuth({}),
     })
+
     const searchResponseJson = await searchResponse.json()
 
     if (Object.keys(searchResponseJson.issues).length > 0) {
@@ -194,9 +221,9 @@ module.exports = {
     let linkedIssues = []
 
     for (var issue in searchResponseJson.issues) {
-      if (!statuses.includes(searchResponseJson.issues[issue].fields.status.name)) {
-        continue
-      }
+//      if (!statuses.includes(searchResponseJson.issues[issue].fields.status.name)) {
+//        continue
+//      }
 
       if ("issuelinks" in searchResponseJson.issues[issue].fields) {
         // if tickets aren't linked as blockers to the wrapper, this won't touch them
@@ -206,6 +233,9 @@ module.exports = {
         for(var link in linksToTicketsThatBlockWrapper){
 		if ( linksToTicketsThatBlockWrapper[link].inwardIssue !== undefined ) {
 			lissue = linksToTicketsThatBlockWrapper[link].inwardIssue.key
+   			lissue_id = lissue.replace(/https:\/\/spinbikes.atlassian.net\/browse\//, "")
+			lissueStatusOk = await this.isInStatuses(lissue_id, statuses)
+			console.log(lissue_id + ": " + lissueStatusOk)
 			if ( lissue  !== 'undefined' ) {
 				linkedIssues.push( lissue )
 			}
