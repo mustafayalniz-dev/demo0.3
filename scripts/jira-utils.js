@@ -116,9 +116,7 @@ module.exports = {
 
   isEngineeringNoQA: async function (issue_id) {
     const jqlSearch = encodeURIComponent(
-      `project = "${
-        this.projectName
-      }" AND fixVersion = "${this.releaseName()}" AND issueKey="${issue_id}" AND labels in ( "${
+      `issueKey="${issue_id}" AND labels in ( "${
         this.engineeringNoQALabel
       }" )`
     )
@@ -164,9 +162,7 @@ module.exports = {
 
   isInReview: async function (issue_id) {
     const jqlSearch = encodeURIComponent(
-      `project = "${
-        this.projectName
-      }" AND fixVersion = "${this.releaseName()}" AND issueKey="${issue_id}" AND status="In Review"`
+      `issueKey="${issue_id}" AND status="In Review"`
     )
 
     const jqlSearchUrl = this.jqlSearchBaseUrl + jqlSearch
@@ -185,9 +181,7 @@ module.exports = {
 
   isReleaseReady: async function (issue_id) {
     const jqlSearch = encodeURIComponent(
-      `project = "${
-        this.projectName
-      }" AND fixVersion = "${this.releaseName()}" AND issueKey="${issue_id}" AND status="Product Release Ready" `
+      `issueKey="${issue_id}" AND status="Product Release Ready" `
     )
 
     const jqlSearchUrl = this.jqlSearchBaseUrl + jqlSearch
