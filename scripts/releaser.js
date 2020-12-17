@@ -8,7 +8,7 @@ const JIRA_API_TOKEN = process.env.JIRA_API_TOKEN
 const getJiraVersions = "https://spinbikes.atlassian.net/rest/api/2/project/RDE/versions"
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
-const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
+const PERSONAL_ACCESS_TOKEN = process.env.MY_PERSONAL_ACCESS_TOKEN
 const githubReleasesUrl = "https://api.github.com/repos/spin-org/spin-mobile/releases"
 
 const GITHUB_REF = process.env.GITHUB_REF
