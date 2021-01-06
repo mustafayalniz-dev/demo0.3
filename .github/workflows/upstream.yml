@@ -37,7 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Merge ${{  github.head_ref }} -> ${{ matrix.upstream_release }}
-        if:   contains(${{ matrix.upstream_release }}, 'release')
+        if:   ${{ matrix.upstream_release }} != ''
         continue-on-error: true
         id: upstream-merge
         uses: devmasx/merge-branch@v1.3.1
@@ -47,7 +47,7 @@ jobs:
           target_branch: ${{ matrix.upstream_release }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: pull-request ${{  github.head_ref }} to Upstream Release "${{ matrix.upstream_release }}"
-        if: steps.upstream-merge.outcome == 'failure' && contains(${{ matrix.upstream_release }}, 'release')
+        if: steps.upstream-merge.outcome == 'failure' && ${{ matrix.upstream_release }} != ''
         uses: repo-sync/pull-request@v2
         with:
           source_branch: ${{  github.head_ref }}
