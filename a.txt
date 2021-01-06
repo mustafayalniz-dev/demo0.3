@@ -1,5 +1,5 @@
 qqqq
 a
-b
-ccab
+bb
+ccbb
 d
