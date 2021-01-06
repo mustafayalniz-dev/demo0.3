@@ -1,6 +1,7 @@
 qqqq
 a
 bb
-ccbbcc
+ccqqa
 d
-f
+e
+g
