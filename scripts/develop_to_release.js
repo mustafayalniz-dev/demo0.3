@@ -9,6 +9,10 @@ const PERSONAL_ACCESS_TOKEN = process.env.MY_PERSONAL_ACCESS_TOKEN
 const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
 
+const githubAuth =
+  "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
+const githubPullRequestUrl = "https://api.github.com/repos/spin-org/spin-mobile/pulls"
+
 async function main() {
   await processCommits()
 
@@ -30,10 +34,6 @@ async function processCommits() {
   
   getBranchSha("master")
 }
-
-const githubAuth =
-  "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
-const githubPullRequestUrl = "https://api.github.com/repos/spin-org/spin-mobile/pulls"
 
 async function getBranchSha(sourceBranch) {
   const response = await fetch(branchHeadsUrl, {
