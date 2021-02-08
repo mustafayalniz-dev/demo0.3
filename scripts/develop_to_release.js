@@ -5,7 +5,7 @@ const JIRA_USERNAME = process.env.JIRA_USERNAME
 const JIRA_API_TOKEN = process.env.JIRA_API_TOKEN
 
 const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
-
+const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
 
 async function main() {
   await processCommits()
@@ -25,6 +25,42 @@ async function processCommits() {
 
   console.log(commitsUrls)
   
+  getBranchSha("master")
+}
+
+const githubAuth =
+  "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
+const githubPullRequestUrl = "https://api.github.com/repos/spin-org/spin-mobile/pulls"
+
+async function getBranchSha(sourceBranch) {
+  const response = await fetch(branchHeadsUrl, {
+    method: "get",
+    headers: { Authorization: githubAuth },
+  })
+  for (var key in response.json() ) {
+	if var['ref'] == "refs/heads/master" {
+             shaBranch=var.object.sha
+        }
+  }
+  console.log(shaBranch)
+
+#  return await response.json()
+
+}
+
+async function createPullRequest() {
+  const requestBody = {
+    title: `Pulling "${prTitle}" into ${targetBranchName}`,
+    head: conflictBranchName,
+    base: targetBranchName,
+    body: `Automated PR to keep ${targetBranchName} up to date. Please resolve conflicts before merging!`,
+  }
+  const response = await fetch(githubPullRequestUrl, {
+    method: "post",
+    body: JSON.stringify(requestBody),
+    headers: { Authorization: githubAuth },
+  })
+  return await response.json()
 }
 
 
