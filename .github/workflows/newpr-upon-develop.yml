@@ -20,7 +20,7 @@ jobs:
         uses: hmarr/debug-action@v1.0.0
       - name: Check comments
         run: |
-          npm install compare-versions
+          npm install compare-versions node-fetch fs
           node scripts/develop_to_release.js
 
 #scripts/develop_to_release.js
