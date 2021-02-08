@@ -43,10 +43,11 @@ async function getBranchSha(sourceBranch) {
  
   headsContent=await response.json()
 
-  console.log(headsContent)
   console.log("Now looping")
   for (var key in headsContent ) {
+        console.log(key['ref'])
 	if ( key['ref'] == "refs/heads/master" ) {
+             console.log("Setting shaBranch ")
              shaBranch=key.object.sha
         }
   }
