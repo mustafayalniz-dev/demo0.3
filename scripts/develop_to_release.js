@@ -20,8 +20,6 @@ async function headersWithAuth(headers) {
 }
 
 async function processCommits() {
-  var branch = event.ref.replace("refs/heads/", "")
-  var issueIdRegex = new RegExp("^[[A-Z]+-[0-9]+].+$")
  
   var commitsUrls=event.pull_request.commits.href
 
