@@ -29,7 +29,7 @@ async function headersWithAuthGithub(headers) {
 
 async function createBranchAndApplyCommits() {
 
-  let newBranchName = "new-branch" + Math.random().toString(36).substring(7);
+  let newBranchName = Math.random().toString(36).substring(7);
  
   var commitsUrl=event.pull_request.commits_url
 
