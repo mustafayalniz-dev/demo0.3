@@ -50,6 +50,7 @@ async function getBranchSha(sourceBranch) {
   try {
   	headsArr = JSON.parse(headsContent);
   } catch (e) {
+        console.log("heads content empty")
 	headsArr = []
   }
   console.log(headsArr)
