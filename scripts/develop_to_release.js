@@ -32,7 +32,9 @@ async function processCommits() {
 
   console.log(commitsUrls)
   
-  getBranchSha("master")
+  sourceBranchSha=getBranchSha("master")
+ 
+  console.log(sourceBranchSha)
 }
 
 async function getBranchSha(sourceBranch) {
