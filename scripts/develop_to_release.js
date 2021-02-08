@@ -46,7 +46,7 @@ async function getBranchSha(sourceBranch) {
   var shaBranch=""
 
   for (key in headsContent) {
-     console.log(Arr[key]);
+     console.log(headsContent[key]);
   };
 
 
