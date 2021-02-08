@@ -38,7 +38,7 @@ async function getBranchSha(sourceBranch) {
     headers: { Authorization: githubAuth },
   })
   for (var key in response.json() ) {
-	if var['ref'] == "refs/heads/master" {
+	if ( var['ref'] == "refs/heads/master" ) {
              shaBranch=var.object.sha
         }
   }
