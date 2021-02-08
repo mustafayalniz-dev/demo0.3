@@ -53,11 +53,11 @@ async function getBranchSha(sourceBranch) {
   }
   for(var i = 0; i < headsArr.length; i++)
   {
-    console.log(headArr[i].ref)
+    console.log(headsArr[i].ref)
     console.log("Looping now")
-    if ( headArr[i].ref == "refs/heads/master" ) {
+    if ( headsArr[i].ref == "refs/heads/master" ) {
              console.log("Setting shaBranch ")
-             shaBranch=headArr[i].object.sha
+             shaBranch=headsArr[i].object.sha
      }
 
   }
