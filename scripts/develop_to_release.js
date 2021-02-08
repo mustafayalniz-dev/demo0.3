@@ -70,10 +70,15 @@ async function getCommitsFromUrl(commitsUrl) {
 
   commitsContent=await response.json()
 
-  console.log("Printing commits url")
-  console.log(commitsContent)
+  let commitShas = []
 
-  return commitsContent
+  for ( key in commitsContent) {
+	commitShas.push(commitsContent[key].sha)
+  }
+  console.log("Printing commits shas")
+  console.log(commitShas)
+
+  return commitShas
 
 }
 
