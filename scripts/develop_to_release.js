@@ -21,9 +21,8 @@ async function main() {
 
 main()
 
-async function headersWithAuth(headers) {
-  const auth =
-    "Basic " + global.Buffer.from(JIRA_USERNAME + ":" + JIRA_API_TOKEN).toString("base64")
+async function headersWithAuthGithub(headers) {
+  const auth = "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
   return Object.assign(headers, { Authorization: auth })
 }
 
@@ -53,10 +52,12 @@ async function createNewBranch(sourceBranchSha, newBranchName) {
   }
   console.log(requestBody)
 
+  var headers = await headersWithAuthGithub({ "Accept": "application/vnd.github.v3+json" })
+
   const response = await fetch(newBranchUrl, {
     method: "post",
     body: JSON.stringify(requestBody),
-    headers: { Authorization: githubAuth },
+    headers: headers,
   })
   return await response.json()
 
