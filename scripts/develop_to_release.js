@@ -51,6 +51,8 @@ async function createNewBranch(sourceBranchSha, newBranchName) {
     "ref": "refs/heads/" + newBranchName,
     "sha": sourceBranchSha
   }
+  console.log(requestBody)
+
   const response = await fetch(newBranchUrl, {
     method: "post",
     body: JSON.stringify(requestBody),
