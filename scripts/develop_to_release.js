@@ -46,6 +46,8 @@ async function getBranchSha(sourceBranch) {
   console.log("Now looping")
   console.log(headsContent)
   var headsArr=[]
+  var shaBranch=""
+
   try {
   	headsArr = JSON.parse(headsContent);
   } catch (e) {
