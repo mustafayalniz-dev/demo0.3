@@ -23,7 +23,7 @@ async function processCommits() {
  
   var commitsUrls=event.pull_request.commits.href
 
-  console.log("Commits URL: " + commitsUrls)
+  console.log(event)
   
 }
 
