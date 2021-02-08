@@ -3,6 +3,8 @@ const fs = require("fs")
 
 const JIRA_USERNAME = process.env.JIRA_USERNAME
 const JIRA_API_TOKEN = process.env.JIRA_API_TOKEN
+const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
+const PERSONAL_ACCESS_TOKEN = process.env.MY_PERSONAL_ACCESS_TOKEN
 
 const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
