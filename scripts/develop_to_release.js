@@ -40,7 +40,12 @@ async function getBranchSha(sourceBranch) {
     method: "get",
     headers: { Authorization: githubAuth },
   })
-  for (var key in response.json() ) {
+ 
+  headsContent=await response.json()
+
+  console.log(headsContent)
+  console.log("Now looping")
+  for (var key in headsContent ) {
 	if ( key['ref'] == "refs/heads/master" ) {
              shaBranch=key.object.sha
         }
