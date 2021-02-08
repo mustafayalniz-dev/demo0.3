@@ -8,13 +8,14 @@ const PERSONAL_ACCESS_TOKEN = process.env.MY_PERSONAL_ACCESS_TOKEN
 
 const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
+const newBranchUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
 
 const githubAuth =
   "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
 const githubPullRequestUrl = "https://api.github.com/repos/spin-org/spin-mobile/pulls"
 
 async function main() {
-  await processCommits()
+  await createBranchAndApplyCommits()
 
 }
 
@@ -26,7 +27,9 @@ async function headersWithAuth(headers) {
   return Object.assign(headers, { Authorization: auth })
 }
 
-async function processCommits() {
+async function createBranchAndApplyCommits() {
+
+  let newBranchName = "new-branch" + Math.random().toString(36).substring(7);
  
   var commitsUrl=event.pull_request.commits_url
 
@@ -35,9 +38,28 @@ async function processCommits() {
   commits = await getCommitsFromUrl(commitsUrl)
   
   sourceBranchSha=await getBranchSha("master")
- 
-  console.log(sourceBranchSha)
+   
+  newBranchResponse = await createNewBranch(sourceBranchSha, newBranchName)
+
+  console.log(newBranchName)
+  console.log(newBranchResponse)
 }
+
+async function createNewBranch(sourceBranchSha, newBranchName) {
+
+  const requestBody = {
+    "ref": "refs/heads/" + newBranchName,
+    "sha": sourceBranchSha
+  }
+  const response = await fetch(newBranchUrl, {
+    method: "post",
+    body: JSON.stringify(requestBody),
+    headers: { Authorization: githubAuth },
+  })
+  return await response.json()
+
+}
+
 
 async function getBranchSha(sourceBranch) {
   const response = await fetch(branchHeadsUrl, {
