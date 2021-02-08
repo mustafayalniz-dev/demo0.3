@@ -28,11 +28,13 @@ async function headersWithAuth(headers) {
 
 async function processCommits() {
  
-  var commitsUrls=event.pull_request.commits_url
+  var commitsUrl=event.pull_request.commits_url
 
-  console.log(commitsUrls)
+  console.log(commitsUrl)
+
+  commits = await getCommitsFromUrl(commitsUrl)
   
-  sourceBranchSha=getBranchSha("master")
+  sourceBranchSha=await getBranchSha("master")
  
   console.log(sourceBranchSha)
 }
@@ -56,6 +58,22 @@ async function getBranchSha(sourceBranch) {
   return shaBranch
 
 //  return await response.json()
+
+}
+
+async function getCommitsFromUrl(commitsUrl) {
+
+  const response = await fetch(commitsUrl, {
+    method: "get",
+    headers: { Authorization: githubAuth },
+  })
+
+  commitsContent=await response.json()
+
+  console.log("Printing commits url")
+  console.log(commitsContent)
+
+  return commitsContent
 
 }
 
