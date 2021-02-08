@@ -9,6 +9,7 @@ const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git
 
 async function main() {
   await processCommits()
+
 }
 
 main()
@@ -38,13 +39,13 @@ async function getBranchSha(sourceBranch) {
     headers: { Authorization: githubAuth },
   })
   for (var key in response.json() ) {
-	if ( var['ref'] == "refs/heads/master" ) {
-             shaBranch=var.object.sha
+	if ( key['ref'] == "refs/heads/master" ) {
+             shaBranch=key.object.sha
         }
   }
   console.log(shaBranch)
 
-#  return await response.json()
+//  return await response.json()
 
 }
 
@@ -62,6 +63,5 @@ async function createPullRequest() {
   })
   return await response.json()
 }
-
 
 
