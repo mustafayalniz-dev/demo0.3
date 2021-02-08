@@ -21,9 +21,9 @@ async function headersWithAuth(headers) {
 
 async function processCommits() {
  
-  var commitsUrls=event.pull_request.commits.href
+  var commitsUrls=event.pull_request.commits_url
 
-  console.log(event)
+  console.log(commitsUrls)
   
 }
 
