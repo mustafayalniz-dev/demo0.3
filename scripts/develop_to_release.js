@@ -55,6 +55,8 @@ async function createNewBranch(sourceBranchSha, newBranchName) {
 
   var headers = await headersWithAuthGithub({ "Accept": "application/vnd.github.v3+json" })
 
+  console.log(headers)
+
   const response = await fetch(newBranchUrl, {
     method: "post",
     body: JSON.stringify(requestBody),
