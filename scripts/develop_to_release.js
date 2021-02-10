@@ -33,7 +33,9 @@ async function createBranchAndApplyCommits() {
   let newBranchName = Math.random().toString(36).substring(7);
  
   var commitsUrl=event.pull_request.commits_url
+  var merge_commit_sha=event.pull_request.merge_commit_sha
 
+  console.log("Merge commit sha : " + merge_commit_sha)
   console.log(commitsUrl)
 
   commits = await getCommitsFromUrl(commitsUrl)
