@@ -16,8 +16,6 @@ jobs:
         with:
           token: ${{ secrets.MY_PERSONAL_ACCESS_TOKEN }}
           fetch-depth: 0
-      - name: Debug Action
-        uses: hmarr/debug-action@v1.0.0
       - name: Check comments
         run: |
           npm install compare-versions node-fetch fs
