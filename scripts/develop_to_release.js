@@ -23,7 +23,7 @@ async function main() {
 main()
 
 async function headersWithAuthGithub(headers) {
-  const auth = "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + CREATE_BRANCH_TOKEN).toString("base64")
+  const auth = "token " + global.Buffer.from(CREATE_BRANCH_TOKEN)
   return Object.assign(headers, { Authorization: auth })
 }
 
