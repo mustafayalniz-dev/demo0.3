@@ -23,7 +23,7 @@ async function main() {
 main()
 
 async function headersWithAuthGithub(headers) {
-  const auth = "token " + global.Buffer.from(CREATE_BRANCH_TOKEN).toString()
+  const auth = "token " + CREATE_BRANCH_TOKEN
   return Object.assign(headers, { Authorization: auth })
 }
 
