@@ -37,7 +37,7 @@ async function createBranchAndApplyCommits() {
 
   commits = await getCommitsFromUrl(commitsUrl)
   
-  sourceBranchSha=await getBranchSha("master")
+  sourceBranchSha=await getBranchSha("develop")
    
   newBranchResponse = await createNewBranch(sourceBranchSha, newBranchName)
 
