@@ -6,6 +6,7 @@ const JIRA_API_TOKEN = process.env.JIRA_API_TOKEN
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.MY_PERSONAL_ACCESS_TOKEN
 const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
+//const CREATE_BRANCH_TOKEN = "3ef1eb5be20f42a469f63024a658c45a22c6ce14"
 
 const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
@@ -16,6 +17,7 @@ const githubAuth =
 const githubPullRequestUrl = "https://api.github.com/repos/spin-org/spin-mobile/pulls"
 
 async function main() {
+
   await createBranchAndApplyCommits()
 
 }
@@ -23,7 +25,7 @@ async function main() {
 main()
 
 async function headersWithAuthGithub(headers) {
-  const auth = "token " + CREATE_BRANCH_TOKEN
+  const auth = "token " + process.env.CREATE_BRANCH_TOKEN
   return Object.assign(headers, { Authorization: auth })
 }
 
