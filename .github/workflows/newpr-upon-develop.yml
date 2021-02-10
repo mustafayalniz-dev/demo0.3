@@ -17,6 +17,9 @@ jobs:
           token: ${{ secrets.MY_PERSONAL_ACCESS_TOKEN }}
           fetch-depth: 0
       - name: Check comments
+        env:
+          CREATE_BRANCH_TOKEN: ${{ secrets.CREATE_BRANCH_TOKEN }}
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.MY_PERSONAL_ACCESS_TOKEN }}
         run: |
           npm install compare-versions node-fetch fs
           node scripts/develop_to_release.js
