@@ -64,6 +64,7 @@ async function createBranchAndApplyCommits() {
   try {
       responseExec = await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
   } catch (e) {
+    console.log("error occured")
     if (e.message.includes("conflicts")) {
       console.log(e.message)
     }
