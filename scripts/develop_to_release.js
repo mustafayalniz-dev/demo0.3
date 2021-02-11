@@ -61,15 +61,15 @@ async function createBranchAndApplyCommits() {
 
   console.log("Executing cherry pick")
 
-  try {
-      responseExec = await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
-  } catch (e) {
-    console.log("error occured")
-    if (e.message.includes("conflicts")) {
-      console.log(e.message)
-    }
-
+  await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`, (error, stdout, stderr) => {
+  if (error) {
+    console.error(`exec error: ${error}`);
+    return;
   }
+  console.log(`stdout: ${stdout}`);
+  console.error(`stderr: ${stderr}`);
+  })
+
  
   console.log("Cherry pick complete")
 }
