@@ -24,6 +24,11 @@ async function main() {
 
 main()
 
+async function cleanCherryPick(checkoutTarget, cherryPick, pushTargetBranch) {
+  await exec(`${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
+}
+
+
 async function headersWithAuthGithub(headers) {
   const auth = "token " + CREATE_BRANCH_TOKEN
   return Object.assign(headers, { Authorization: auth })
@@ -52,9 +57,13 @@ async function createBranchAndApplyCommits() {
   const checkoutTarget = `git checkout ${newBranchName}`
   const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}` // the `-m 1` part is because we're cherry-picking a merge commit and we have to specify if "1" or "2" is the base parent. i know, it's weird: https://git-scm.com/docs/git-cherry-pick#Documentation/git-cherry-pick.txt--mparent-number
   const pushTargetBranch = `git push origin ${newBranchName}`
- 
-  await exec(`${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
 
+  try {
+      await exec(`${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
+  } catch (e) {
+      console.log("e:", e)
+  }
+ 
 }
 
 async function createNewBranch(sourceBranchSha, newBranchName) {
