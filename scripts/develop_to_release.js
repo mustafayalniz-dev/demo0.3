@@ -63,9 +63,11 @@ async function createBranchAndApplyCommits() {
 
   try {
       responseExec = await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
-      console.log(responseExec)
   } catch (e) {
-      console.log("e:", e)
+    if (e.message.includes("conflicts")) {
+      console.log(e.message)
+    }
+
   }
  
   console.log("Cherry pick complete")
