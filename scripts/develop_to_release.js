@@ -25,7 +25,7 @@ async function main() {
 
 main()
 
-async function cleanCherryPick(checkoutTarget, cherryPick, pushTargetBranch) {
+async function cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTargetBranch) {
   await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
 }
 
@@ -77,7 +77,7 @@ async function createBranchAndApplyCommits() {
 //  })
 
   try {
-    cleanCherryPick(checkoutTarget, cherryPick, pushTargetBranch)
+    cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTargetBranch)
   } catch (e) {
     console.log("e:", e)
     if (e.message.includes("conflicts")) {
