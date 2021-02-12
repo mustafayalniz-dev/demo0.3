@@ -98,7 +98,7 @@ async function createNewBranch(sourceBranchSha, newBranchName) {
 
 async function getBranchSha(sourceBranch) {
   branchHeadsUrlOfBranch=branchHeadsUrl + sourceBranch
-  const response = await fetch(branchHeadsUrlOrBranch, {
+  const response = await fetch(branchHeadsUrlOfBranch, {
     method: "get",
     headers: { Authorization: githubAuth },
   })
