@@ -69,7 +69,7 @@ async function createBranchAndApplyCommits() {
 
   await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`, (error, stdout, stderr) => {
   if (error) {
-    if (e.message.includes("conflicts")) {
+    if (error.message.includes("conflicts")) {
         console.log("conflict occured pushing conflict ")
         commitConflict(addAll, commitAll, pushTargetBranch)
     }
