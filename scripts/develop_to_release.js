@@ -1,6 +1,6 @@
 const fetch = require("node-fetch")
 const fs = require("fs")
-const { exec } = require("child_process");
+const exec = promisify(require("child_process").exec)
 
 const JIRA_USERNAME = process.env.JIRA_USERNAME
 const JIRA_API_TOKEN = process.env.JIRA_API_TOKEN
@@ -25,9 +25,12 @@ async function main() {
 main()
 
 async function cleanCherryPick(checkoutTarget, cherryPick, pushTargetBranch) {
-  await exec(`${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
+  await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
 }
 
+async function commitConflict(addAll, commitAll, pushTargetBranch) {
+  await exec(`${addAll} && ${commitAll} && ${pushTargetBranch}`)
+}
 
 async function headersWithAuthGithub(headers) {
   const auth = "token " + CREATE_BRANCH_TOKEN
@@ -73,12 +76,12 @@ async function createBranchAndApplyCommits() {
 //  })
 
   try {
-    await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
+    cleanCherryPick(checkoutTarget, cherryPick, pushTargetBranch)
   } catch (e) {
     console.log("e:", e)
     if (e.message.includes("conflicts")) {
       console.log("conflict occured pushing conflict ")
-      await exec(`${addAll} && ${commitAll} && ${pushTargetBranch}`)
+      commitConflict(addAll, commitAll, pushTargetBranch)
     }
   }
 
