@@ -67,30 +67,30 @@ async function createBranchAndApplyCommits() {
 
   console.log("Executing cherry pick")
 
-  await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`, (error, stdout, stderr) => {
-  if (error) {
-    if (error.message.includes("conflicts")) {
-        console.log("conflict occured pushing conflict ")
-        await commitConflict(addAll, commitAll, pushTargetBranch)
-    }
-    console.error(`exec error: ${error}`);
-    return;
-  }
-  console.log(`stdout: ${stdout}`);
-  console.error(`stderr: ${stderr}`);
-  })
-
-//  try {
-//    const { stdout, stderr } = cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTargetBranch)
-//    console.log('stdout:', stdout);
-//    console.log('stderr:', stderr);
-//  } catch (e) {
-//    console.log("errike:", e)
-//    if (e.message.includes("conflicts")) {
-//      console.log("conflict occured pushing conflict ")
-//      commitConflict(addAll, commitAll, pushTargetBranch)
+//  await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`, (error, stdout, stderr) => {
+//  if (error) {
+//    if (error.message.includes("conflicts")) {
+//        console.log("conflict occured pushing conflict ")
+//        await commitConflict(addAll, commitAll, pushTargetBranch)
 //    }
+//    console.error(`exec error: ${error}`);
+//    return;
 //  }
+//  console.log(`stdout: ${stdout}`);
+//  console.error(`stderr: ${stderr}`);
+//  })
+
+  try {
+    const { e, stdout, stderr } = await cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTargetBranch)
+    console.log('stdout:', stdout);
+    console.log('stderr:', stderr);
+  } catch (e) {
+    console.log("errike:", e)
+    if (e.message.includes("conflicts")) {
+      console.log("conflict occured pushing conflict ")
+      await commitConflict(addAll, commitAll, pushTargetBranch)
+    }
+  }
 
 
  
