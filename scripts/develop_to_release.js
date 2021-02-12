@@ -77,9 +77,11 @@ async function createBranchAndApplyCommits() {
 //  })
 
   try {
-    cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTargetBranch)
+    const { stdout, stderr } = cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTargetBranch)
+    console.log('stdout:', stdout);
+    console.log('stderr:', stderr);
   } catch (e) {
-    console.log("e:", e)
+    console.log("errike:", e)
     if (e.message.includes("conflicts")) {
       console.log("conflict occured pushing conflict ")
       commitConflict(addAll, commitAll, pushTargetBranch)
