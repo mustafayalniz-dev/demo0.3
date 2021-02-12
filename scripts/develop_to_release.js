@@ -62,7 +62,7 @@ async function createBranchAndApplyCommits() {
   const checkoutTarget = `git checkout release_branch_${newBranchName}`
   const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}` // the `-m 1` part is because we're cherry-picking a merge commit and we have to specify if "1" or "2" is the base parent. i know, it's weird: https://git-scm.com/docs/git-cherry-pick#Documentation/git-cherry-pick.txt--mparent-number
   const pushTargetBranch = `git push origin release_branch_${newBranchName}`
-  const addAll = `git add *`
+  const addAll = `git add -A`
   const commitAll = `git commit -m "committing conflicts"`
 
   console.log("Executing cherry pick")
@@ -71,7 +71,7 @@ async function createBranchAndApplyCommits() {
   if (error) {
     if (error.message.includes("conflicts")) {
         console.log("conflict occured pushing conflict ")
-        commitConflict(addAll, commitAll, pushTargetBranch)
+        await commitConflict(addAll, commitAll, pushTargetBranch)
     }
     console.error(`exec error: ${error}`);
     return;
