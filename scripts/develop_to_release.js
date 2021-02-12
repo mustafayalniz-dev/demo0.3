@@ -4,7 +4,7 @@ const fs = require("fs")
 const exec = promisify(require("child_process").exec)
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
-const PERSONAL_ACCESS_TOKEN = process.env.MY_PERSONAL_ACCESS_TOKEN
+const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
 const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
 
 const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
