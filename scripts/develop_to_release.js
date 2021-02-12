@@ -3,8 +3,6 @@ const { promisify } = require("util")
 const fs = require("fs")
 const exec = promisify(require("child_process").exec)
 
-const JIRA_USERNAME = process.env.JIRA_USERNAME
-const JIRA_API_TOKEN = process.env.JIRA_API_TOKEN
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.MY_PERSONAL_ACCESS_TOKEN
 const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
@@ -40,88 +38,63 @@ async function headersWithAuthGithub(headers) {
 
 async function createBranchAndApplyCommits() {
 
-  let newBranchName = Math.random().toString(36).substring(7);
+  let newBranchNameSuffix = Math.random().toString(36).substring(7);
  
-  var commitsUrl=event.pull_request.commits_url
   var merge_commit_sha=event.pull_request.merge_commit_sha
+  var origin_pr_title=event.pull_request.title
 
-  console.log("Merge commit sha : " + merge_commit_sha)
-  console.log(commitsUrl)
-
-  commits = await getCommitsFromUrl(commitsUrl)
+  console.log("PR Title ")
+  console.log(origin_pr_title)
   
-  sourceBranchSha=await getBranchSha("release_branch")
-   
-  console.log(sourceBranchSha)
-  newBranchResponse = await createNewBranch(sourceBranchSha, "release_branch_" + newBranchName)
-
-  console.log("release_branch_" +newBranchName)
-  console.log(newBranchResponse)
+  sourceBranchSha=await getSourceBranchSha("release_branch")
+  
+  newBranchFromReleaseBranch="release_branch_" + newBranchNameSuffix 
+  newBranchResponse = await createNewBranch(sourceBranchSha, newBranchFromReleaseBranch)
 
   const fetchTarget = `git fetch`
-  const checkoutTarget = `git checkout release_branch_${newBranchName}`
-  const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}` // the `-m 1` part is because we're cherry-picking a merge commit and we have to specify if "1" or "2" is the base parent. i know, it's weird: https://git-scm.com/docs/git-cherry-pick#Documentation/git-cherry-pick.txt--mparent-number
-  const pushTargetBranch = `git push origin release_branch_${newBranchName}`
+  const checkoutTarget = `git checkout release_branch_${newBranchNameSuffix}`
+  const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
+  const pushTargetBranch = `git push origin ${newBranchFromReleaseBranch}`
   const addAll = `git add -A`
-  const commitAll = `git commit -m "committing conflicts"`
+  const commitAll = `git commit -m "Github Action commits conflict"`
   const setEmail = `git config --global user.email "githubaction@spin.pm"`
   const setIdentity = `git config --global user.name "Spin Github Action"`
 
-  console.log("Executing cherry pick")
-
-//  await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`, (error, stdout, stderr) => {
-//  if (error) {
-//    if (error.message.includes("conflicts")) {
-//        console.log("conflict occured pushing conflict ")
-//        await commitConflict(addAll, commitAll, pushTargetBranch)
-//    }
-//    console.error(`exec error: ${error}`);
-//    return;
-//  }
-//  console.log(`stdout: ${stdout}`);
-//  console.error(`stderr: ${stderr}`);
-//  })
-
   try {
-    const { e, stdout, stderr } = await cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTargetBranch)
+    const { error, stdout, stderr } = await cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTargetBranch)
     console.log('stdout:', stdout);
     console.log('stderr:', stderr);
-  } catch (e) {
-    console.log("errike:", e)
-    if (e.message.includes("conflicts")) {
+  } catch (error) {
+    console.log("error:", error)
+    if (error.message.includes("conflicts")) {
       console.log("conflict occured pushing conflict ")
       await commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch)
     }
   }
 
-
- 
-  console.log("Cherry pick complete")
 }
 
-async function createNewBranch(sourceBranchSha, newBranchName) {
+async function createNewBranch(sourceBranchSha, newBranchFromReleaseBranch) {
 
   const requestBody = {
-    "ref": "refs/heads/" + newBranchName,
+    "ref": "refs/heads/" + newBranchFromReleaseBranch,
     "sha": sourceBranchSha
   }
-  console.log(requestBody)
 
   var headers = await headersWithAuthGithub({ "Accept": "application/vnd.github.v3+json" })
-
-  console.log(headers)
 
   const response = await fetch(newBranchUrl, {
     method: "post",
     body: JSON.stringify(requestBody),
     headers: headers,
   })
+
   return await response.json()
 
 }
 
 
-async function getBranchSha(sourceBranch) {
+async function getSourceBranchSha(sourceBranch) {
   branchHeadsUrlOfBranch=branchHeadsUrl + sourceBranch
   const response = await fetch(branchHeadsUrlOfBranch, {
     method: "get",
@@ -129,42 +102,17 @@ async function getBranchSha(sourceBranch) {
   })
  
   headsContent=await response.json()
-
-  var shaBranch=""
   
   shaBranch = headsContent.object.sha
 
   return shaBranch
 
-//  return await response.json()
-
 }
 
-async function getCommitsFromUrl(commitsUrl) {
-
-  const response = await fetch(commitsUrl, {
-    method: "get",
-    headers: { Authorization: githubAuth },
-  })
-
-  commitsContent=await response.json()
-
-  let commitShas = []
-
-  for ( key in commitsContent) {
-	commitShas.push(commitsContent[key].sha)
-  }
-  console.log("Printing commits shas")
-  console.log(commitShas)
-
-  return commitShas
-
-}
-
-async function createPullRequest() {
+async function createPullRequest(sourceBranchName, targetBranchName) {
   const requestBody = {
     title: `Pulling "${prTitle}" into ${targetBranchName}`,
-    head: conflictBranchName,
+    head: sourceBranchName,
     base: targetBranchName,
     body: `Automated PR to keep ${targetBranchName} up to date. Please resolve conflicts before merging!`,
   }
