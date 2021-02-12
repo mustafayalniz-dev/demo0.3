@@ -69,9 +69,11 @@ async function createBranchAndApplyCommits() {
     }
   }
 
+  console.log("Proceeding to PR")
   var originPRTitle=event.pull_request.title
   targetBranchName=newBranchFromReleaseBranch
-  await createPullRequest(sourceBranchName, targetBranchName, originPRTitle)
+  pr_result=await createPullRequest(sourceBranchName, targetBranchName, originPRTitle)
+  console.log(pr_result)
 
 }
 
