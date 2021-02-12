@@ -27,9 +27,9 @@ async function cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTarg
   await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
 }
 
-async function commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch, fetchTarget) {
+async function commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch) {
   try {
-      const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} &&  ${addAll} && ${commitAll} && ${pushTargetBranch} && ${fetchTarget}`)
+      const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} &&  ${addAll} && ${commitAll} && ${pushTargetBranch}`)
       console.log('stdout:', stdout);
       console.log('stderr:', stderr);
   } catch (error) {
@@ -71,7 +71,7 @@ async function createBranchAndApplyCommits() {
     console.log("error:", error)
     if (error.message.includes("conflicts")) {
       console.log("conflict occured pushing conflict ")
-      await commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch, fetchTarget)
+      await commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch)
     }
   }
 
@@ -118,13 +118,14 @@ async function getSourceBranchSha(sourceBranch) {
 
 }
 
-async function createPullRequest(sourceBranchName, targetBranchName, originPRTitle) {
-  console.log(sourceBranchName + " " + targetBranchName + " " + originPRTitle)
+async function createPullRequest(backBranchName, newSourceBranchName, originPRTitle) {
+  console.log("We PR from " + newSourceBranchName + " " + backBranchName + " " + originPRTitle)
+
   const requestBody = {
-    title: `Pulling "${originPRTitle}" from ${sourceBranchName} into ${targetBranchName}`,
-    head: sourceBranchName,
-    base: targetBranchName,
-    body: `Automated PR to keep ${targetBranchName} up to date. Please resolve conflicts before merging!`,
+    title: `Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName}`,
+    head: newSourceBranchName,
+    base: backBranchName,
+    body: `Automated PR to get changes over to ${backBranchName}. Please resolve conflicts before merging!`,
   }
   const response = await fetch(githubPullRequestUrl, {
     method: "post",
