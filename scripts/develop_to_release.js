@@ -28,7 +28,13 @@ async function cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTarg
 }
 
 async function commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch) {
-  await exec(`${setEmail} && ${setIdentity} &&  ${addAll} && ${commitAll} && ${pushTargetBranch}`)
+  try {
+      const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} &&  ${addAll} && ${commitAll} && ${pushTargetBranch}`)
+      console.log('stdout:', stdout);
+      console.log('stderr:', stderr);
+  } catch (error) {
+      console.log("error:", error)
+  }
 }
 
 async function headersWithAuthGithub(headers) {
