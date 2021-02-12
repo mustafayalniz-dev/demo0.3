@@ -49,7 +49,7 @@ async function createBranchAndApplyCommits() {
   sourceBranchSha=await getBranchSha("release_branch")
    
   console.log(sourceBranchSha)
-  newBranchResponse = await createNewBranch(sourceBranchSha, newBranchName)
+  newBranchResponse = await createNewBranch(sourceBranchSha, "release_branch" + newBranchName)
 
   console.log(newBranchName)
   console.log(newBranchResponse)
@@ -58,17 +58,30 @@ async function createBranchAndApplyCommits() {
   const checkoutTarget = `git checkout ${newBranchName}`
   const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}` // the `-m 1` part is because we're cherry-picking a merge commit and we have to specify if "1" or "2" is the base parent. i know, it's weird: https://git-scm.com/docs/git-cherry-pick#Documentation/git-cherry-pick.txt--mparent-number
   const pushTargetBranch = `git push origin ${newBranchName}`
+  const addAll = `git add *`
+  const commitAll = `git commit -m "committing conflicts"`
 
   console.log("Executing cherry pick")
 
-  await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`, (error, stdout, stderr) => {
-  if (error) {
-    console.error(`exec error: ${error}`);
-    return;
+//  await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`, (error, stdout, stderr) => {
+//  if (error) {
+//    console.error(`exec error: ${error}`);
+//    return;
+//  }
+//  console.log(`stdout: ${stdout}`);
+//  console.error(`stderr: ${stderr}`);
+//  })
+
+  try {
+    await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
+  } catch (e) {
+    console.log("e:", e)
+    if (e.message.includes("conflicts")) {
+      console.log("conflict occured pushing conflict ")
+      await exec(`${addAll} && ${commitAll} && ${pushTargetBranch}`)
+    }
   }
-  console.log(`stdout: ${stdout}`);
-  console.error(`stderr: ${stderr}`);
-  })
+
 
  
   console.log("Cherry pick complete")
