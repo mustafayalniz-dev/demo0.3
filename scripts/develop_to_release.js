@@ -29,8 +29,8 @@ async function cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTarg
   await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
 }
 
-async function commitConflict(addAll, commitAll, pushTargetBranch) {
-  await exec(`${addAll} && ${commitAll} && ${pushTargetBranch}`)
+async function commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch) {
+  await exec(`${setEmail} && ${setIdentity} &&  ${addAll} && ${commitAll} && ${pushTargetBranch}`)
 }
 
 async function headersWithAuthGithub(headers) {
@@ -64,6 +64,8 @@ async function createBranchAndApplyCommits() {
   const pushTargetBranch = `git push origin release_branch_${newBranchName}`
   const addAll = `git add -A`
   const commitAll = `git commit -m "committing conflicts"`
+  const setEmail = `git config --global user.email "githubaction@spin.pm"`
+  const setIdentity = `git config --global user.name "Spin Github Action"`
 
   console.log("Executing cherry pick")
 
@@ -88,7 +90,7 @@ async function createBranchAndApplyCommits() {
     console.log("errike:", e)
     if (e.message.includes("conflicts")) {
       console.log("conflict occured pushing conflict ")
-      await commitConflict(addAll, commitAll, pushTargetBranch)
+      await commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch)
     }
   }
 
