@@ -27,9 +27,9 @@ async function cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTarg
   await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
 }
 
-async function commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch) {
+async function commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch, fetchTarget) {
   try {
-      const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} &&  ${addAll} && ${commitAll} && ${pushTargetBranch}`)
+      const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} &&  ${addAll} && ${commitAll} && ${pushTargetBranch} && ${fetchTarget}`)
       console.log('stdout:', stdout);
       console.log('stderr:', stderr);
   } catch (error) {
@@ -71,7 +71,7 @@ async function createBranchAndApplyCommits() {
     console.log("error:", error)
     if (error.message.includes("conflicts")) {
       console.log("conflict occured pushing conflict ")
-      await commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch)
+      await commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch, fetchTarget)
     }
   }
 
