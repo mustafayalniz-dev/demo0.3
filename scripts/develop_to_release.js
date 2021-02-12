@@ -113,6 +113,7 @@ async function getSourceBranchSha(sourceBranch) {
 }
 
 async function createPullRequest(sourceBranchName, targetBranchName, originPRTitle) {
+  console.log(sourceBranchName + " " + targetBranchName + " " + originPRTitle)
   const requestBody = {
     title: `Pulling "${originPRTitle}" from ${sourceBranchName} into ${targetBranchName}`,
     head: sourceBranchName,
