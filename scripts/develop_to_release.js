@@ -1,4 +1,5 @@
 const fetch = require("node-fetch")
+const { promisify } = require("util")
 const fs = require("fs")
 const exec = promisify(require("child_process").exec)
 
