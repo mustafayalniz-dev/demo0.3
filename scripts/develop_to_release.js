@@ -41,11 +41,6 @@ async function createBranchAndApplyCommits() {
   let newBranchNameSuffix = Math.random().toString(36).substring(7);
  
   var merge_commit_sha=event.pull_request.merge_commit_sha
-  var origin_pr_title=event.pull_request.title
-  createPullRequest(sourceBranchName, targetBranchName, originPRTitle)
-
-  console.log("PR Title ")
-  console.log(origin_pr_title)
   
   sourceBranchName="release_branch"
   sourceBranchSha=await getSourceBranchSha(sourceBranchName)
