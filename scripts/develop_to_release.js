@@ -42,11 +42,13 @@ async function createBranchAndApplyCommits() {
  
   var merge_commit_sha=event.pull_request.merge_commit_sha
   var origin_pr_title=event.pull_request.title
+  createPullRequest(sourceBranchName, targetBranchName, originPRTitle)
 
   console.log("PR Title ")
   console.log(origin_pr_title)
   
-  sourceBranchSha=await getSourceBranchSha("release_branch")
+  sourceBranchName="release_branch"
+  sourceBranchSha=await getSourceBranchSha(sourceBranchName)
   
   newBranchFromReleaseBranch="release_branch_" + newBranchNameSuffix 
   newBranchResponse = await createNewBranch(sourceBranchSha, newBranchFromReleaseBranch)
@@ -71,6 +73,10 @@ async function createBranchAndApplyCommits() {
       await commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch)
     }
   }
+
+  var originPRTitle=event.pull_request.title
+  targetBranchName=newBranchFromReleaseBranch
+  await createPullRequest(sourceBranchName, targetBranchName, originPRTitle)
 
 }
 
@@ -109,9 +115,9 @@ async function getSourceBranchSha(sourceBranch) {
 
 }
 
-async function createPullRequest(sourceBranchName, targetBranchName) {
+async function createPullRequest(sourceBranchName, targetBranchName, originPRTitle) {
   const requestBody = {
-    title: `Pulling "${prTitle}" into ${targetBranchName}`,
+    title: `Pulling "${originPRTitle}" from ${sourceBranchName} into ${targetBranchName}`,
     head: sourceBranchName,
     base: targetBranchName,
     body: `Automated PR to keep ${targetBranchName} up to date. Please resolve conflicts before merging!`,
