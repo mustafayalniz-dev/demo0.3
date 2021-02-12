@@ -25,7 +25,7 @@ jobs:
           PUSH_GITHUB_USER: ${{ secrets.PUSH_GITHUB_USER }}
         run: |
           npm install compare-versions node-fetch fs
-          node scripts/develop_to_release.js
+          node --trace-warnings scripts/develop_to_release.js
 
 #scripts/develop_to_release.js
 
