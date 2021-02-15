@@ -63,7 +63,12 @@ async function createBranchAndApplyCommits() {
   newBranchResponse = await createNewBranch(sourceBranchSha, newBranchFromReleaseBranch)
 
   console.log("New branch response: ")
-  console.log(newBranchResponse)
+  if ( ref in newBranchResponse ) {
+     console.log(newBranchResponse)
+  } else {
+     console.log("New branch from " + trainBranchName + " failed. Exiting...")
+     return 
+  }
 
   const fetchTarget = `git fetch`
   const checkoutTarget = `git checkout ${newBranchFromReleaseBranch}`
