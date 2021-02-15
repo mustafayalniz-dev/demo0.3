@@ -63,7 +63,7 @@ async function createBranchAndApplyCommits() {
   newBranchResponse = await createNewBranch(sourceBranchSha, newBranchFromReleaseBranch)
 
   console.log("New branch response: ")
-  if ( ref in newBranchResponse ) {
+  if ( newBranchResponse["ref"] ) {
      console.log(newBranchResponse)
   } else {
      console.log("New branch from " + trainBranchName + " failed. Exiting...")
