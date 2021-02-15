@@ -15,6 +15,13 @@ const githubAuth =
   "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
 const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/demo0.3/pulls"
 
+var trainBranchName = process.argv.slice(2)[0]
+
+if (trainBranchName === "") {
+  console.log("You need to give train branch name as parameter...")
+  return 1
+}
+
 async function main() {
 
   await createBranchAndApplyCommits()
@@ -32,8 +39,10 @@ async function commitConflict(setEmail, setIdentity, addAll, commitAll, pushTarg
       const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} &&  ${addAll} && ${commitAll} && ${pushTargetBranch}`)
       console.log('stdout:', stdout);
       console.log('stderr:', stderr);
+      return true
   } catch (error) {
       console.log("error:", error)
+      return false
   }
 }
 
@@ -48,38 +57,48 @@ async function createBranchAndApplyCommits() {
  
   var merge_commit_sha=event.pull_request.merge_commit_sha
   
-  sourceBranchName="release_branch"
-  sourceBranchSha=await getSourceBranchSha(sourceBranchName)
+  sourceBranchSha=await getSourceBranchSha(trainBranchName)
   
-  newBranchFromReleaseBranch="release_branch_" + newBranchNameSuffix 
+  newBranchFromReleaseBranch=trainBranchName + "_" + newBranchNameSuffix 
   newBranchResponse = await createNewBranch(sourceBranchSha, newBranchFromReleaseBranch)
 
+  console.log("New branch response: ")
+  console.log(newBranchResponse)
+
   const fetchTarget = `git fetch`
-  const checkoutTarget = `git checkout release_branch_${newBranchNameSuffix}`
+  const checkoutTarget = `git checkout ${newBranchFromReleaseBranch}`
   const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
   const pushTargetBranch = `git push origin ${newBranchFromReleaseBranch}`
-  const addAll = `git add -A`
-  const commitAll = `git commit -m "Github Action commits conflict"`
+
   const setEmail = `git config --global user.email "githubaction@spin.pm"`
   const setIdentity = `git config --global user.name "Spin Github Action"`
+  const addAll = `git add -A`
+  const commitAll = `git commit -m "Github Action commits conflict"`
+
+  var cherryPickSuccess=false
 
   try {
     const { error, stdout, stderr } = await cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTargetBranch)
     console.log('stdout:', stdout);
     console.log('stderr:', stderr);
+    cherryPickSuccess=true
   } catch (error) {
     console.log("error:", error)
     if (error.message.includes("conflicts")) {
-      console.log("conflict occured pushing conflict ")
-      await commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch)
+      console.log("Conflict occured while cherry picking, now pushing conflict into new branch...")
+      cherryPickSuccess=await commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch)
     }
   }
 
-  console.log("Proceeding to PR")
-  var originPRTitle=event.pull_request.title
-  targetBranchName=newBranchFromReleaseBranch
-  pr_result=await createPullRequest(sourceBranchName, targetBranchName, originPRTitle)
-  console.log(pr_result)
+  if ( cherryPickSuccess ) {
+     console.log("Proceeding to PR")
+     var originPRTitle=event.pull_request.title
+     targetBranchName=newBranchFromReleaseBranch
+     pr_result=await createPullRequest(trainBranchName, targetBranchName, originPRTitle)
+     console.log(pr_result)
+  } else {
+     console.log("As cherry pick or conflict push not succeeded, PR creation cancelled...")
+  }
 
 }
 
@@ -101,7 +120,6 @@ async function createNewBranch(sourceBranchSha, newBranchFromReleaseBranch) {
   return await response.json()
 
 }
-
 
 async function getSourceBranchSha(sourceBranch) {
   branchHeadsUrlOfBranch=branchHeadsUrl + sourceBranch
@@ -134,5 +152,4 @@ async function createPullRequest(backBranchName, newSourceBranchName, originPRTi
   })
   return await response.json()
 }
-
 
