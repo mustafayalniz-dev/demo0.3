@@ -2,6 +2,8 @@
   "name": "SpinBikes",
   "version": "2.24.9",
   "dependencies": {
+    "compare-versions": "^3.6.0",
+    "fs": "0.0.1-security",
     "inquirer": "^7.3.3",
     "node-fetch": "^2.6.1"
   }
