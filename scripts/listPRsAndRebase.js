@@ -26,8 +26,6 @@ async function main() {
 
   var prList = await listPullRequest(trainBranchName)
   
-//  console.log(prList)
-
   for ( pr in prList ) {
   	console.log("PR Head : " + prList[pr].head.ref)
 	rebaseBranchToTrain( prList[pr].head.ref )
