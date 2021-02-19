@@ -34,7 +34,7 @@ main()
 async function listPullRequest(trainBranchName) {
 
   const requestBody = {
-    base: backBranchName,
+    base: trainBranchName,
   }
   const response = await fetch(githubPullRequestUrl, {
     method: "get",
