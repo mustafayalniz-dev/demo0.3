@@ -1,4 +1,4 @@
-name: Create cherry pick PR to release upon merged into develop
+name: List PRs to rebase upon new PR has been merged into train
 on:
   pull_request:
     branches:
