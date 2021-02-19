@@ -33,12 +33,12 @@ main()
 
 async function listPullRequest(trainBranchName) {
 
+  githubPullRequestUrlWithBase=githubPullRequestUrl + "?base=" + trainBranchName
   const requestBody = {
     base: trainBranchName,
   }
-  const response = await fetch(githubPullRequestUrl, {
+  const response = await fetch(githubPullRequestUrlWithBase, {
     method: "get",
-    body: JSON.stringify(requestBody),
     headers: { Authorization: githubAuth },
   })
   return await response.json()
