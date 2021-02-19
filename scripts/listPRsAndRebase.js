@@ -26,7 +26,10 @@ async function main() {
 
   var prList = await listPullRequest(trainBranchName)
 
-  console.log("PR List : " + prList)
+  for ( pr in prList ) {
+	console.log("PR List : " + pr)
+  } 
+
 }
 
 main()
