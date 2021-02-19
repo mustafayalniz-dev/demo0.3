@@ -7,7 +7,7 @@ const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
 const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
 
-const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
+//const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs/heads/"
 const newBranchUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
 
@@ -25,21 +25,29 @@ if (trainBranchName === "") {
 async function main() {
 
   var prList = await listPullRequest(trainBranchName)
-
+  
   for ( pr in prList ) {
-	console.log("PR List : " + pr)
-  } 
-
+  	console.log("PR Head : " + prList[pr].head.ref)
+	rebaseBranchToTrain( prList[pr].head.ref )
+  }
 }
 
 main()
 
+async function rebaseBranchToTrain( prHead ) {
+
+  const fetchTarget = `git fetch`
+  const checkoutTarget = `git checkout ${prHead}`
+  const rebase = `git rebase ${trainBranchName}`
+  const pushHeadBranch = `git push origin ${prHead}`
+
+  await exec(`${fetchTarget} && ${checkoutTarget} && ${rebase} && ${pushHeadBranch}`)
+}
+
 async function listPullRequest(trainBranchName) {
 
   githubPullRequestUrlWithBase=githubPullRequestUrl + "?base=" + trainBranchName
-  const requestBody = {
-    base: trainBranchName,
-  }
+
   const response = await fetch(githubPullRequestUrlWithBase, {
     method: "get",
     headers: { Authorization: githubAuth },
