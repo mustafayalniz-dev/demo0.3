@@ -28,7 +28,7 @@ async function main() {
   
   for ( pr in prList ) {
   	console.log("PR Head : " + prList[pr].head.ref)
-	rebaseBranchToTrain( prList[pr].head.ref )
+	await rebaseBranchToTrain( prList[pr].head.ref )
   }
 }
 
