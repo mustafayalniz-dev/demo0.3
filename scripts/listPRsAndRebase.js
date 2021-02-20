@@ -38,10 +38,11 @@ async function rebaseBranchToTrain( prHead ) {
 
   const fetchTarget = `git fetch`
   const checkoutTarget = `git checkout ${prHead}`
+  const pullTarget = `git pull origin ${prHead}`
   const rebase = `git rebase ${trainBranchName}`
   const pushHeadBranch = `git push origin ${prHead}`
 
-  await exec(`${fetchTarget} && ${checkoutTarget} && ${rebase} && ${pushHeadBranch}`)
+  await exec(`${fetchTarget} && ${checkoutTarget} && ${pullTarget} && ${rebase} && ${pushHeadBranch}`)
 }
 
 async function listPullRequest(trainBranchName) {
