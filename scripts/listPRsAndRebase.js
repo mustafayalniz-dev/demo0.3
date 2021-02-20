@@ -46,6 +46,7 @@ async function rebaseBranchToTrain( prHead ) {
   await exec(`${checkoutTarget}`)
   await exec(`${pullTarget}`)
   await exec(`${rebase}`)
+  await exec(`${pullTarget}`)
   await exec(`${pushHeadBranch}`)
 }
 
