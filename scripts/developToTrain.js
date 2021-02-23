@@ -56,15 +56,15 @@ async function createBranchAndApplyCommits() {
   sourceBranchSha=await getSourceBranchSha(trainBranchName)
   
   const fetchTarget = `git fetch`
-  const checkoutTarget = `git checkout ${trainBranchName}`
-  const pullTarget = `git pull origin ${trainBranchName}`
+  const checkoutTrainBranchTarget = `git checkout ${trainBranchName}`
+  const pullTrainBranchTarget = `git pull origin ${trainBranchName}`
   newBranchFromTrainBranch=trainBranchName + "_" + newBranchNameSuffix 
   const createBranchFromTrainBranch = `git checkout -b ${newBranchFromTrainBranch}`
   const pushNewBranchFromTrainBranch = `git push origin ${newBranchFromTrainBranch}`
 
-  const checkoutTarget = `git checkout ${newBranchFromTrainBranch}`
+  const checkoutNewTargetBranch = `git checkout ${newBranchFromTrainBranch}`
   const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
-  const pushTargetBranch = `git push origin ${newBranchFromTrainBranch}`
+  const pushNewTargetBranch = `git push origin ${newBranchFromTrainBranch}`
 
   const setEmail = `git config --global user.email "githubaction@spin.pm"`
   const setIdentity = `git config --global user.name "Spin Github Action"`
@@ -74,7 +74,7 @@ async function createBranchAndApplyCommits() {
   var branchCreateSuccess=false
 
   try {
-    const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutTarget} && ${pullTarget} && ${setEmail} && ${setIdentity} && ${createBranchFromTrainBranch} && ${pushNewBranchFromTrainBranch}`)
+    const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutTrainBranchTarget} && ${pullTrainBranchTarget} && ${setEmail} && ${setIdentity} && ${createBranchFromTrainBranch} && ${pushNewBranchFromTrainBranch}`)
     console.log('stdout:', stdout);
     console.log('stderr:', stderr);
     branchCreateSuccess=true
@@ -87,7 +87,7 @@ async function createBranchAndApplyCommits() {
   var conflictHappened = false
 
   try {
-    const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutTarget} && ${setEmail} && ${setIdentity} && ${cherryPick} && ${pushTargetBranch}`)
+    const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutNewTargetBranch} && ${setEmail} && ${setIdentity} && ${cherryPick} && ${pushNewTargetBranch}`)
     console.log('stdout:', stdout);
     console.log('stderr:', stderr);
     cherryPickSuccess=true
@@ -96,7 +96,7 @@ async function createBranchAndApplyCommits() {
     if (error.message.includes("conflicts")) {
       conflictHappened = true
       console.log("Conflict occured while cherry picking, now pushing conflict into new branch...")
-      cherryPickSuccess=await commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch)
+      cherryPickSuccess=await commitConflict(setEmail, setIdentity, addAll, commitAll, pushNewTargetBranch)
     }
   }
 
@@ -116,9 +116,9 @@ async function createPullRequest(backBranchName, newSourceBranchName, originPRTi
   console.log("We PR from " + newSourceBranchName + " " + backBranchName + " " + originPRTitle)
 
   if ( conflictHappened ) {
-     title = `Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} with conflict`,
+     title = `Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} with conflict`
   } else {
-     title = `Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} without conflict`,
+     title = `Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} without conflict`
   }
 
   const requestBody = {
