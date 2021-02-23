@@ -83,7 +83,8 @@ async function createBranchAndApplyCommits() {
   var cherryPickSuccess=false
 
   try {
-    const { error, stdout, stderr } = await cleanCherryPick(setEmail, setIdentity, fetchTarget, checkoutTarget, cherryPick, pushTargetBranch)
+ //   const { error, stdout, stderr } = await cleanCherryPick(setEmail, setIdentity, fetchTarget, checkoutTarget, cherryPick, pushTargetBranch)
+    const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutTarget} && ${setEmail} && ${setIdentity} && ${cherryPick} && ${pushTargetBranch}`)
     console.log('stdout:', stdout);
     console.log('stderr:', stderr);
     cherryPickSuccess=true
