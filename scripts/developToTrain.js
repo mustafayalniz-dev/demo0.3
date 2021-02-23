@@ -110,7 +110,7 @@ async function createBranchAndApplyCommits() {
 
 }
 
-async function createPullRequest(backBranchName, newSourceBranchName, originPRTitle) {
+async function createPullRequest(backBranchName, newSourceBranchName, originPRTitle, conflictHappened) {
   console.log("We PR from " + newSourceBranchName + " " + backBranchName + " " + originPRTitle)
 
   if ( conflictHappened ) {
