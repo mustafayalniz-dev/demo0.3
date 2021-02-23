@@ -7,7 +7,7 @@ const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
 const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
 
-//const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
+const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs/heads/"
 const newBranchUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
 
@@ -39,12 +39,16 @@ async function rebaseBranchToTrain( prHead ) {
   const fetchTarget = `git fetch`
   const checkoutTarget = `git checkout ${prHead}`
   const pullTarget = `git pull origin ${prHead}`
+  const setEmail = `git config --global user.email "githubaction@spin.pm"`
+  const setIdentity = `git config --global user.name "Spin Github Action"`
   const rebase = `git rebase ${trainBranchName}`
   const pushHeadBranch = `git push origin ${prHead}`
 
   await exec(`${fetchTarget}`)
   await exec(`${checkoutTarget}`)
   await exec(`${pullTarget}`)
+  await exec(`${setEmail}`)
+  await exec(`${setIdentity}`)
   await exec(`${rebase}`)
   await exec(`${pullTarget}`)
   await exec(`${pushHeadBranch}`)
