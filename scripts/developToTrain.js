@@ -30,8 +30,8 @@ async function main() {
 
 main()
 
-async function cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTargetBranch) {
-  await exec(`${fetchTarget} && ${checkoutTarget} && ${cherryPick} && ${pushTargetBranch}`)
+async function cleanCherryPick(setEmail, setIdentity, fetchTarget, checkoutTarget, cherryPick, pushTargetBranch) {
+  await exec(`${fetchTarget} && ${checkoutTarget} && ${setEmail} && ${setIdentity} && ${cherryPick} && ${pushTargetBranch}`)
 }
 
 async function commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch) {
@@ -83,7 +83,7 @@ async function createBranchAndApplyCommits() {
   var cherryPickSuccess=false
 
   try {
-    const { error, stdout, stderr } = await cleanCherryPick(fetchTarget, checkoutTarget, cherryPick, pushTargetBranch)
+    const { error, stdout, stderr } = await cleanCherryPick(setEmail, setIdentity, fetchTarget, checkoutTarget, cherryPick, pushTargetBranch)
     console.log('stdout:', stdout);
     console.log('stderr:', stderr);
     cherryPickSuccess=true
