@@ -101,8 +101,8 @@ async function createBranchAndApplyCommits() {
   if ( cherryPickSuccess ) {
      console.log("Proceeding to PR")
      var originPRTitle=event.pull_request.title
-     targetBranchName=newBranchFromReleaseBranch
-     pr_result=await createPullRequest(trainBranchName, targetBranchName, originPRTitle, conflictHappened)
+     sourceBranchName=newBranchFromTrainBranch
+     pr_result=await createPullRequest(trainBranchName, sourceBranchName, originPRTitle, conflictHappened)
      console.log(pr_result)
   } else {
      console.log("As cherry pick or conflict push not succeeded, PR creation cancelled...")
