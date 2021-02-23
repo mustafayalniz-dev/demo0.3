@@ -39,12 +39,16 @@ async function rebaseBranchToTrain( prHead ) {
   const fetchTarget = `git fetch`
   const checkoutTarget = `git checkout ${prHead}`
   const pullTarget = `git pull origin ${prHead}`
+  const setEmail = `git config --global user.email "githubaction@spin.pm"`
+  const setIdentity = `git config --global user.name "Spin Github Action"`
   const rebase = `git rebase ${trainBranchName}`
   const pushHeadBranch = `git push origin ${prHead}`
 
   await exec(`${fetchTarget}`)
   await exec(`${checkoutTarget}`)
   await exec(`${pullTarget}`)
+  await exec(`${setEmail}`)
+  await exec(`${setIdentity}`)
   await exec(`${rebase}`)
   await exec(`${pullTarget}`)
   await exec(`${pushHeadBranch}`)
