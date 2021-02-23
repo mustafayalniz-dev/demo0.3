@@ -53,8 +53,6 @@ async function createBranchAndApplyCommits() {
  
   var merge_commit_sha=event.pull_request.merge_commit_sha
   
-  sourceBranchSha=await getSourceBranchSha(trainBranchName)
-  
   const fetchTarget = `git fetch`
   const checkoutTrainBranchTarget = `git checkout ${trainBranchName}`
   const pullTrainBranchTarget = `git pull origin ${trainBranchName}`
