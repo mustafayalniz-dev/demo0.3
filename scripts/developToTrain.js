@@ -2,6 +2,10 @@ const fetch = require("node-fetch")
 const { promisify } = require("util")
 const fs = require("fs")
 const exec = promisify(require("child_process").exec)
+const { WebClient } = require('@slack/web-api');
+
+const slack_token = process.env.SLACK_TOKEN;
+const channel = "SLACK_CHANNEL"
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
@@ -98,12 +102,19 @@ async function createBranchAndApplyCommits() {
     }
   }
 
+  const web = new WebClient(token);
+
   if ( cherryPickSuccess ) {
      console.log("Proceeding to PR")
      var originPRTitle=event.pull_request.title
      sourceBranchName=newBranchFromTrainBranch
      pr_result=await createPullRequest(trainBranchName, sourceBranchName, originPRTitle, conflictHappened)
      console.log(pr_result)
+     if ( conflictHappened ) {
+          postSlackMessage(slack_token, channel, "PR " + originPRTitle + " posted with conflict. Need resolution")
+     } else {
+          postSlackMessage(slack_token, channel, "PR " + originPRTitle + " posted without conflict.")
+     }
   } else {
      console.log("As cherry pick or conflict push not succeeded, PR creation cancelled...")
   }
@@ -133,3 +144,14 @@ async function createPullRequest(backBranchName, newSourceBranchName, originPRTi
   return await response.json()
 }
 
+async function postSlackMessage(slack_token, channel, message) {
+   
+   return 
+   const web = new WebClient(slack_token);
+
+   const result = await web.chat.postMessage({
+       text: message,
+       channel: channel,
+   });
+
+}

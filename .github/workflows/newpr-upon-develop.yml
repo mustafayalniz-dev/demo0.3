@@ -23,5 +23,6 @@ jobs:
           PUSH_GITHUB_USER: ${{ secrets.PUSH_GITHUB_USER }}
         run: |
           npm install compare-versions node-fetch fs
+          npm install @slack/web-api
           node --trace-warnings scripts/developToTrain.js release_branch
 
