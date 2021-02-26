@@ -103,7 +103,7 @@ async function createBranchAndApplyCommits() {
     }
   }
 
-  const web = new WebClient(token);
+  const web = new WebClient(slack_token);
 
   if ( cherryPickSuccess ) {
      console.log("Proceeding to PR")
