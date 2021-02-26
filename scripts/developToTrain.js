@@ -115,9 +115,9 @@ async function createBranchAndApplyCommits() {
      sourceBranchName=newBranchFromTrainBranch
      pr_result=await createPullRequest(trainBranchName, sourceBranchName, originPRTitle, conflictHappened)
 
-     if ( pr_result.url ) { 
+     if ( pr_result.number ) { 
 	console.log("PR creation success... Url: " + pr_result.url)
-        add_reviewer_result = await addReviewerToPullRequest(pr_result.url)
+        add_reviewer_result = await addReviewerToPullRequest(pr_result.number)
         console.log(add_reviewer_result)
         if ( add_reviewer_result.url ) {
 		console.log("Reviewers added with success... Pr url " + add_reviewer_result.url)
@@ -163,12 +163,13 @@ async function createPullRequest(backBranchName, newSourceBranchName, originPRTi
   return await response.json()
 }
 
-async function addReviewerToPullRequest(pullRequestUrl) {
+async function addReviewerToPullRequest(pullRequestNumber) {
 
   reviewersJson = {"reviewers": [ prMeta.prReviewers ]}
 
-  console.log(githubPullRequestUrl + "/requested_reviewers")
-  const response = await fetch(githubPullRequestUrl + "/requested_reviewers", {
+  githubNewPullRequestUrl=githubPullRequestUrl + "/" + pullRequestNumber + "/requested_reviewers"
+  console.log(githubNewPullRequestUrl)
+  const response = await fetch(githubNewPullRequestUrl, {
     method: "post",
     reviewers: JSON.stringify(reviewersJson),
     headers: { Authorization: githubAuth },
