@@ -118,6 +118,7 @@ async function createBranchAndApplyCommits() {
      if ( pr_result.url ) { 
 	console.log("PR creation success... Url: " + pr_result.url)
         add_reviewer_result = await addReviewerToPullRequest(pr_result.url)
+        console.log(add_reviewer_result)
         if ( add_reviewer_result.url ) {
 		console.log("Reviewers added with success... Pr url " + add_reviewer_result.url)
 	} else {
