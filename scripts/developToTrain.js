@@ -81,6 +81,7 @@ async function createBranchAndApplyCommits() {
     console.log('stderr:', stderr);
     branchCreateSuccess=true
   } catch (error) {
+    console.log("error: " + error)
     console.log("New branch creation from " + trainBranchName + " failed. Exiting...")
     return
   }
