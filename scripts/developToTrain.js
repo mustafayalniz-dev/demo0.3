@@ -165,7 +165,7 @@ async function createPullRequest(backBranchName, newSourceBranchName, originPRTi
 
 async function addReviewerToPullRequest(pullRequestNumber) {
 
-  reviewersJson = {"reviewers": [ prMeta.prReviewers ]}
+  reviewersJson = { [ prMeta.prReviewers ] }
 
   githubNewPullRequestUrl=githubPullRequestUrl + "/" + pullRequestNumber + "/requested_reviewers"
   console.log(githubNewPullRequestUrl)
