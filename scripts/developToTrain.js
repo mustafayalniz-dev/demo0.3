@@ -110,7 +110,9 @@ async function createBranchAndApplyCommits() {
      var originPRTitle=event.pull_request.title
      sourceBranchName=newBranchFromTrainBranch
      pr_result=await createPullRequest(trainBranchName, sourceBranchName, originPRTitle, conflictHappened)
-     console.log(pr_result)
+     console.log("PR URL is : " + pr_result.url)
+ //    console.log(pr_result.url)
+
      if ( conflictHappened ) {
           postSlackMessage(slack_token, channel, "PR " + originPRTitle + " posted with conflict. Need resolution")
      } else {
