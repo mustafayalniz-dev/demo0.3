@@ -15,8 +15,12 @@ const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs/heads/"
 const newBranchUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
 
+const reviewers = "../prmeta.json"
+const prMeta = require(reviewers)
+
 const githubAuth =
   "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
+
 const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/demo0.3/pulls"
 
 var trainBranchName = process.argv.slice(2)[0]
@@ -110,9 +114,20 @@ async function createBranchAndApplyCommits() {
      var originPRTitle=event.pull_request.title
      sourceBranchName=newBranchFromTrainBranch
      pr_result=await createPullRequest(trainBranchName, sourceBranchName, originPRTitle, conflictHappened)
-     console.log("PR URL is : " + pr_result.url)
- //    console.log(pr_result.url)
 
+     if ( pr_result.url ) { 
+	console.log("PR creation success... Url: " + pr_result.url)
+        add_reviewer_result = await addReviewerToPullRequest(pr_result.url)
+        if ( add_reviewer_result.url ) {
+		console.log("Reviewers added with success... Pr url " + add_reviewer_result.url)
+	} else {
+		console.log("Reviewers could not be added. Failed...")
+		return 
+        }
+     } else {
+	console.log("PR creation failed")
+        return 
+     }
      if ( conflictHappened ) {
           postSlackMessage(slack_token, channel, "PR " + originPRTitle + " posted with conflict. Need resolution")
      } else {
@@ -142,6 +157,18 @@ async function createPullRequest(backBranchName, newSourceBranchName, originPRTi
   const response = await fetch(githubPullRequestUrl, {
     method: "post",
     body: JSON.stringify(requestBody),
+    headers: { Authorization: githubAuth },
+  })
+  return await response.json()
+}
+
+async function addReviewerToPullRequest(pullRequestUrl) {
+
+  reviewers= {"reviewers": [ prMeta.prReviewers ]}
+
+  const response = await fetch(githubPullRequestUrl + "/requested_reviewers", {
+    method: "post",
+    reviewers: JSON.stringify(reviewers),
     headers: { Authorization: githubAuth },
   })
   return await response.json()
