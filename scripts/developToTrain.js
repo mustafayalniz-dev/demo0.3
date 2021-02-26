@@ -164,11 +164,11 @@ async function createPullRequest(backBranchName, newSourceBranchName, originPRTi
 
 async function addReviewerToPullRequest(pullRequestUrl) {
 
-  reviewers= {"reviewers": [ prMeta.prReviewers ]}
+  reviewersJson = {"reviewers": [ prMeta.prReviewers ]}
 
   const response = await fetch(githubPullRequestUrl + "/requested_reviewers", {
     method: "post",
-    reviewers: JSON.stringify(reviewers),
+    reviewers: JSON.stringify(reviewersJson),
     headers: { Authorization: githubAuth },
   })
   return await response.json()
