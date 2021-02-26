@@ -167,6 +167,7 @@ async function addReviewerToPullRequest(pullRequestUrl) {
 
   reviewersJson = {"reviewers": [ prMeta.prReviewers ]}
 
+  console.log(githubPullRequestUrl + "/requested_reviewers")
   const response = await fetch(githubPullRequestUrl + "/requested_reviewers", {
     method: "post",
     reviewers: JSON.stringify(reviewersJson),
