@@ -14,12 +14,15 @@ const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
 const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs/heads/"
 const newBranchUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
+const slackUrl=https://slack.com/api/chat.postMessage
 
 const reviewers = "../prmeta.json"
 const prMeta = require(reviewers)
 
 const githubAuth =
   "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
+
+const getSlackAuth = "Bearer " + global.Buffer.from(SLACK_TOKEN)
 
 const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/demo0.3/pulls"
 
@@ -107,8 +110,6 @@ async function createBranchAndApplyCommits() {
     }
   }
 
-  const web = new WebClient(slack_token);
-
   if ( cherryPickSuccess ) {
      console.log("Proceeding to PR")
      var originPRTitle=event.pull_request.title
@@ -165,26 +166,33 @@ async function createPullRequest(backBranchName, newSourceBranchName, originPRTi
 
 async function addReviewerToPullRequest(pullRequestNumber) {
 
-  reviewersArray = prMeta.prReviewers.split(",")
+  reviewersArray = { "reviewers": prMeta.prReviewers.split(",") }
 
+  console.log(reviewersArray)
   githubNewPullRequestUrl=githubPullRequestUrl + "/" + pullRequestNumber + "/requested_reviewers"
   console.log(githubNewPullRequestUrl)
   const response = await fetch(githubNewPullRequestUrl, {
     method: "post",
-    reviewers: reviewersArray,
-    headers: { Authorization: githubAuth },
+    body: JSON.stringify(reviewersArray),
+    headers: { Authorization: githubAuth, Accept: "application/vnd.github.v3+json", "User-Agent": "RT-Project-Agent" },
   })
   return await response.json()
 }
 
+
 async function postSlackMessage(slack_token, channel, message) {
    
-   return 
-   const web = new WebClient(slack_token);
+  const requestBody = {
+	channel: channel,
+	text: message
+  }
 
-   const result = await web.chat.postMessage({
-       text: message,
-       channel: channel,
-   });
+  const response = await fetch(slackUrl, {
+       method: "post",
+       body: JSON.stringify(requestBody),
+       headers: { Authorization: getSlackAuth, Content-type: "application/json", "User-Agent": "RT-Project-Agent" },
+  })
+
+  return await response.json()
 
 }
