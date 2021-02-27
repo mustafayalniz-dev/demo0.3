@@ -107,10 +107,10 @@ async function createBranchAndApplyCommits() {
     if (error.message.includes("conflicts")) {
       conflictHappened = true
       console.log("Conflict occured while cherry picking, now pushing conflict into new branch...")
-      const { error, stdout, stderr } = await exec("git status && cat test12345.txt")
-      console.log('stdout:', stdout);
-      console.log('stderr:', stderr);
-      return
+//      const { error, stdout, stderr } = await exec("git status && cat test12345.txt")
+//      console.log('stdout:', stdout);
+//      console.log('stderr:', stderr);
+//      return
       cherryPickSuccess=await commitConflict(setEmail, setIdentity, addAll, commitAll, pushNewTargetBranch)
     }
   }
