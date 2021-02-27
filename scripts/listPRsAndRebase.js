@@ -28,7 +28,7 @@ async function main() {
   
   for ( pr in prList ) {
   	console.log("PR Head : " + prList[pr].head.ref)
-	var rebaseResult = rebaseBranchToTrain( prList[pr].head.ref )
+	var rebaseResult = await rebaseBranchToTrain( prList[pr].head.ref )
         if ( rebaseResult ) {
 		console.log("Rebase of " + prList[pr].head.ref + " ended with success")
 	} else {
