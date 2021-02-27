@@ -19,3 +19,8 @@ beep1
 jju
 hg
 haq
+<<<<<<< HEAD
+=======
+yuw
+jhsw
+>>>>>>> 8536fa7 (Merge pull request #209 from mustafayalniz-dev/jhsw)
