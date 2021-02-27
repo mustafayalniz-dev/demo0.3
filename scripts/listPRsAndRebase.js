@@ -28,7 +28,7 @@ async function main() {
   
   for ( pr in prList ) {
   	console.log("PR Head : " + prList[pr].head.ref)
-	var rebaseResult = rebaseBranchToTrain( prList[pr].head.ref )
+	var rebaseResult = await rebaseBranchToTrain( prList[pr].head.ref )
         if ( rebaseResult ) {
 		console.log("Rebase of " + prList[pr].head.ref + " ended with success")
 	} else {
@@ -50,7 +50,7 @@ async function rebaseBranchToTrain( prHead ) {
   const pushHeadBranch = `git push origin ${prHead}`
 
   try {
-      const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutTarget} && ${setEmail} && ${setIdentity} &&  ${rebase} && ${pullTarget} && ${pushHeadBranch}`)
+      const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutTarget} && ${setEmail} && ${setIdentity} &&  ${rebase} && ${pushHeadBranch}`)
       console.log('stderr:', stderr);
       return true
   } catch (error) {
