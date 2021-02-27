@@ -4,7 +4,7 @@ const fs = require("fs")
 const exec = promisify(require("child_process").exec)
 const { WebClient } = require('@slack/web-api');
 
-const slack_token = process.env.SLACK_TOKEN;
+const SLACK_TOKEN = process.env.SLACK_TOKEN;
 const channel = "SLACK_CHANNEL"
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
