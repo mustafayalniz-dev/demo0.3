@@ -28,7 +28,12 @@ async function main() {
   
   for ( pr in prList ) {
   	console.log("PR Head : " + prList[pr].head.ref)
-	rebaseBranchToTrain( prList[pr].head.ref )
+	var rebaseResult = rebaseBranchToTrain( prList[pr].head.ref )
+        if ( rebaseResult ) {
+		console.log("Rebase of " + prList[pr].head.ref + " ended with success")
+	} else {
+		console.log("Rebase of " + prList[pr].head.ref + " ended with failure")
+	}
   }
 }
 
@@ -41,7 +46,15 @@ async function rebaseBranchToTrain( prHead ) {
   const rebase = `git rebase ${trainBranchName}`
   const pushHeadBranch = `git push origin ${prHead}`
 
-  await exec(`${fetchTarget} && ${checkoutTarget} && ${rebase} && ${pushHeadBranch}`)
+  try {
+      const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutTarget} && ${rebase} && ${pushHeadBranch}`)
+      console.log('stderr:', stderr);
+      return true
+  } catch (error) {
+      console.log("error:", error)
+      return false
+  }
+
 }
 
 async function listPullRequest(trainBranchName) {
