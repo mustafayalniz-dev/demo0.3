@@ -14,7 +14,7 @@ const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
 const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs/heads/"
 const newBranchUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
-const slackUrl=https://slack.com/api/chat.postMessage
+const slackUrl="https://slack.com/api/chat.postMessage"
 
 const reviewers = "../prmeta.json"
 const prMeta = require(reviewers)
