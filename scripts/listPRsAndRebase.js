@@ -50,7 +50,7 @@ async function rebaseBranchToTrain( prHead ) {
   const pushHeadBranch = `git push origin ${prHead}`
 
   try {
-      const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutTarget} && ${setEmail} && ${setIdentity} &&  ${rebase} && ${pushHeadBranch}`)
+      const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutTarget} && ${setEmail} && ${setIdentity} && ${pullTarget}  && ${rebase} && ${pushHeadBranch}`)
       console.log('stderr:', stderr);
       return true
   } catch (error) {
