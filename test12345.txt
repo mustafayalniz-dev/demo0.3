@@ -18,3 +18,7 @@ hhs
 beep1
 jju
 hg
+<<<<<<< HEAD
+=======
+haq
+>>>>>>> 75152c9 (Merge pull request #205 from mustafayalniz-dev/haq)
