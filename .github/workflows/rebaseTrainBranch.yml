@@ -1,8 +1,8 @@
-name: Create cherry pick PR to release upon merged into develop
+name: List PRs to rebase upon new PR has been merged into train
 on:
   pull_request:
     branches:
-      - develop
+      - train
     types: [closed]
 
 jobs:
@@ -21,9 +21,6 @@ jobs:
           CREATE_BRANCH_TOKEN: ${{ secrets.CREATE_BRANCH_TOKEN }}
           PERSONAL_ACCESS_TOKEN: ${{ secrets.MY_PERSONAL_ACCESS_TOKEN }}
           PUSH_GITHUB_USER: ${{ secrets.PUSH_GITHUB_USER }}
-          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
         run: |
           npm install compare-versions node-fetch fs
-          npm install @slack/web-api
-          node --trace-warnings scripts/developToTrain.js release_branch
-
+          node --trace-warnings scripts/listPRsAndRebase.js train
