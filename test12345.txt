@@ -18,3 +18,8 @@ hhs
 beep1
 jju
 hg
+<<<<<<< HEAD
+=======
+haq
+yuw
+>>>>>>> 07fbb28 (Merge pull request #207 from mustafayalniz-dev/yuw)
