@@ -22,7 +22,7 @@ const prMeta = require(reviewers)
 const githubAuth =
   "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
 
-const getSlackAuth = "Bearer " + global.Buffer.from(SLACK_TOKEN)
+const getSlackAuth = "Bearer " + global.Buffer.from(SLACK_TOKEN).toString("base64")
 
 const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/demo0.3/pulls"
 
