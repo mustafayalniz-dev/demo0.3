@@ -43,6 +43,7 @@ main()
 
 async function commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch) {
   try {
+      console.log("${setEmail} && ${setIdentity} &&  ${addAll} && ${commitAll} && ${pushTargetBranch}")
       const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} &&  ${addAll} && ${commitAll} && ${pushTargetBranch}`)
       console.log('stdout:', stdout);
       console.log('stderr:', stderr);
