@@ -190,7 +190,7 @@ async function postSlackMessage(slack_token, channel, message) {
   const response = await fetch(slackUrl, {
        method: "post",
        body: JSON.stringify(requestBody),
-       headers: { Authorization: getSlackAuth, Content-type: "application/json", "User-Agent": "RT-Project-Agent" },
+       headers: { Authorization: getSlackAuth, "Content-type": "application/json", "User-Agent": "RT-Project-Agent" },
   })
 
   return await response.json()
