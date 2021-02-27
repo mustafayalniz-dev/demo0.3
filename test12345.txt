@@ -15,3 +15,9 @@ jjqw2
 qwe12
 yyq
 hhs
+<<<<<<< HEAD
+=======
+beep1
+jju
+hg
+>>>>>>> 40ee87e (Merge pull request #201 from mustafayalniz-dev/hg)
