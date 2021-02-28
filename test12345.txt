@@ -21,3 +21,8 @@ hg
 haq
 yuw
 jhsw
+<<<<<<< HEAD
+=======
+hhyyww223
+newline1
+>>>>>>> 9aed3ba (Merge pull request #222 from mustafayalniz-dev/kkl)
