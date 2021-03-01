@@ -24,7 +24,7 @@ if (trainBranchName === "") {
 
 async function main() {
 
-  var prList = await listPullRequest(trainBranchName)
+  var prList = await listPullRequests(trainBranchName)
   
   for ( pr in prList ) {
   	console.log("PR Head : " + prList[pr].head.ref)
@@ -60,7 +60,7 @@ async function rebaseBranchToTrain( prHead ) {
 
 }
 
-async function listPullRequest(trainBranchName) {
+async function listPullRequests(trainBranchName) {
 
   githubPullRequestUrlWithBase=githubPullRequestUrl + "?base=" + trainBranchName
 
