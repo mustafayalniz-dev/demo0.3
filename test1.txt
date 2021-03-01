@@ -1,3 +1,9 @@
 yyeyeyeyyeye
 
 llllllllll
+<<<<<<< HEAD
+=======
+lllkkkııı
+new line
+another line
+>>>>>>> 58bbc1c (Merge pull request #231 from mustafayalniz-dev/test4)
