@@ -2,7 +2,6 @@ const fetch = require("node-fetch")
 const { promisify } = require("util")
 const fs = require("fs")
 const exec = promisify(require("child_process").exec)
-const { WebClient } = require('@slack/web-api');
 
 const SLACK_TOKEN = process.env.SLACK_TOKEN
 const channel = "SLACK_CHANNEL"
@@ -43,7 +42,6 @@ main()
 
 async function commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch) {
   try {
-      console.log("git status && ${setEmail} && ${setIdentity} &&  ${addAll} && ${commitAll} && ${pushTargetBranch}")
       const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} &&  ${addAll} && ${commitAll} && ${pushTargetBranch}`)
       console.log('stdout:', stdout);
       console.log('stderr:', stderr);
@@ -107,10 +105,6 @@ async function createBranchAndApplyCommits() {
     if (error.message.includes("conflicts")) {
       conflictHappened = true
       console.log("Conflict occured while cherry picking, now pushing conflict into new branch...")
-//      const { error, stdout, stderr } = await exec("git status && cat test12345.txt")
-//      console.log('stdout:', stdout);
-//      console.log('stderr:', stderr);
-//      return
       cherryPickSuccess=await commitConflict(setEmail, setIdentity, addAll, commitAll, pushNewTargetBranch)
     }
   }
