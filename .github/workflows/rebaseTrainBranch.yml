@@ -6,8 +6,8 @@ on:
     types: [closed]
 
 jobs:
-  merged-to-develop:
-    name: Merge ${{  github.head_ref }} to develop"
+  list-and-rebase-to-train:
+    name: "Rebase all PRs to train"
     if: github.event.pull_request.merged == true && !contains(github.event.pull_request.labels.*.name, 'temporary')
     runs-on: ubuntu-latest
     steps:

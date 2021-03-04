@@ -7,7 +7,7 @@ const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
 const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
 
-//const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
+const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs/heads/"
 const newBranchUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
 
@@ -24,11 +24,16 @@ if (trainBranchName === "") {
 
 async function main() {
 
-  var prList = await listPullRequest(trainBranchName)
+  var prList = await listPullRequests(trainBranchName)
   
   for ( pr in prList ) {
   	console.log("PR Head : " + prList[pr].head.ref)
-	rebaseBranchToTrain( prList[pr].head.ref )
+	var rebaseResult = await rebaseBranchToTrain( prList[pr].head.ref )
+        if ( rebaseResult ) {
+		console.log("Rebase of " + prList[pr].head.ref + " ended with success")
+	} else {
+		console.log("Rebase of " + prList[pr].head.ref + " ended with failure")
+	}
   }
 }
 
@@ -38,13 +43,24 @@ async function rebaseBranchToTrain( prHead ) {
 
   const fetchTarget = `git fetch`
   const checkoutTarget = `git checkout ${prHead}`
+  const pullTarget = `git pull origin ${prHead}`
+  const setEmail = `git config --global user.email "githubaction@spin.pm"`
+  const setIdentity = `git config --global user.name "Spin Github Action"`
   const rebase = `git rebase ${trainBranchName}`
   const pushHeadBranch = `git push origin ${prHead}`
 
-  await exec(`${fetchTarget} && ${checkoutTarget} && ${rebase} && ${pushHeadBranch}`)
+  try {
+      const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutTarget} && ${setEmail} && ${setIdentity} && ${pullTarget}  && ${rebase} && ${pushHeadBranch}`)
+      console.log('stderr:', stderr);
+      return true
+  } catch (error) {
+      console.log("error:", error)
+      return false
+  }
+
 }
 
-async function listPullRequest(trainBranchName) {
+async function listPullRequests(trainBranchName) {
 
   githubPullRequestUrlWithBase=githubPullRequestUrl + "?base=" + trainBranchName
 
