@@ -13,3 +13,9 @@ hgys
 yhsw
 test1
 tr223
+<<<<<<< HEAD
+=======
+gbes
+hhychecktrainprs
+yyyeeye
+>>>>>>> e75a727 (Merge pull request #252 from mustafayalniz-dev/yyey)
