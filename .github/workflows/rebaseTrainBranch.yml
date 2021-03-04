@@ -23,4 +23,4 @@ jobs:
           PUSH_GITHUB_USER: ${{ secrets.PUSH_GITHUB_USER }}
         run: |
           npm install compare-versions node-fetch fs
-          node --trace-warnings scripts/listPRsAndRebase.js train
+          node --trace-warnings scripts/updateAllTrainPRs.js train
