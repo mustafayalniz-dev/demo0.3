@@ -123,7 +123,7 @@ async function createBranchAndApplyCommits() {
 		console.log("Reviewers added with success... Pr url " + add_reviewer_result.url)
 	} else {
 		console.log("Reviewers could not be added. Failed...")
-		return 
+//		return 
         }
      } else {
 	console.log("PR creation failed")
