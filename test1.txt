@@ -4,3 +4,12 @@ llllllllll
 lllkkkııı
 new line
 test5line
+<<<<<<< HEAD
+=======
+tye
+uuy
+hhgs
+jjhs
+jssw
+hgys
+>>>>>>> 7f563e6 (Merge pull request #244 from mustafayalniz-dev/hgys)
