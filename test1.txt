@@ -4,3 +4,8 @@ llllllllll
 lllkkkııı
 new line
 test5line
+<<<<<<< HEAD
+=======
+tye
+uuy
+>>>>>>> 43f0067 (Merge pull request #237 from mustafayalniz-dev/uuy)
