@@ -4,3 +4,11 @@ llllllllll
 lllkkkııı
 new line
 test5line
+<<<<<<< HEAD
+=======
+tye
+uuy
+hhgs
+jjhs
+jssw
+>>>>>>> a3b9b57 (Merge pull request #242 from mustafayalniz-dev/jssw)
