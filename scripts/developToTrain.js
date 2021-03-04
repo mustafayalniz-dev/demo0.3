@@ -131,10 +131,10 @@ async function createBranchAndApplyCommits() {
      }
 
      if ( conflictHappened ) {
-          slack_response=postSlackMessage(channel, "PR " + originPRTitle + " posted with conflict. Need resolution")
+          slack_response=await postSlackMessage(channel, "PR " + originPRTitle + " posted with conflict. Need resolution")
           console.log(slack_response)
      } else {
-          slack_response=postSlackMessage(channel, "PR " + originPRTitle + " posted without conflict.")
+          slack_response=await postSlackMessage(channel, "PR " + originPRTitle + " posted without conflict.")
           console.log(slack_response)
      }
   } else {
