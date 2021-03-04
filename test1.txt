@@ -4,3 +4,10 @@ llllllllll
 lllkkkııı
 new line
 test5line
+<<<<<<< HEAD
+=======
+tye
+uuy
+hhgs
+jjhs
+>>>>>>> c5b7be8 (Merge pull request #240 from mustafayalniz-dev/jjhs)
