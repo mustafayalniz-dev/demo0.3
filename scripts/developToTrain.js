@@ -3,7 +3,7 @@ const { promisify } = require("util")
 const fs = require("fs")
 const exec = promisify(require("child_process").exec)
 
-const slack_token = process.env.SLACK_TOKEN
+const SLACK_TOKEN = process.env.SLACK_TOKEN
 const channel = "ask-it-support"
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
@@ -130,9 +130,9 @@ async function createBranchAndApplyCommits() {
         return 
      }
      if ( conflictHappened ) {
-          postSlackMessage(slack_token, channel, "PR " + originPRTitle + " posted with conflict. Need resolution")
+          postSlackMessage(channel, "PR " + originPRTitle + " posted with conflict. Need resolution")
      } else {
-          postSlackMessage(slack_token, channel, "PR " + originPRTitle + " posted without conflict.")
+          postSlackMessage(channel, "PR " + originPRTitle + " posted without conflict.")
      }
   } else {
      console.log("As cherry pick or conflict push not succeeded, PR creation cancelled...")
@@ -179,7 +179,7 @@ async function addReviewerToPullRequest(pullRequestNumber) {
 }
 
 
-async function postSlackMessage(slack_token, channel, message) {
+async function postSlackMessage(channel, message) {
    
   const requestBody = {
 	channel: channel,
