@@ -4,3 +4,13 @@ llllllllll
 lllkkkııı
 new line
 test5line
+<<<<<<< HEAD
+=======
+tye
+uuy
+hhgs
+jjhs
+jssw
+hgys
+yhsw
+>>>>>>> 05595c0 (Merge pull request #246 from mustafayalniz-dev/yhsw)
