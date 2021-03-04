@@ -3,7 +3,7 @@ const { promisify } = require("util")
 const fs = require("fs")
 const exec = promisify(require("child_process").exec)
 
-const SLACK_TOKEN = process.env.SLACK_TOKEN
+const slack_token = process.env.SLACK_TOKEN
 const channel = "ask-it-support"
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
