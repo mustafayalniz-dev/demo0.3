@@ -129,10 +129,13 @@ async function createBranchAndApplyCommits() {
 	console.log("PR creation failed")
         return 
      }
+
      if ( conflictHappened ) {
-          postSlackMessage(channel, "PR " + originPRTitle + " posted with conflict. Need resolution")
+          slack_response=postSlackMessage(channel, "PR " + originPRTitle + " posted with conflict. Need resolution")
+          console.log(slack_response)
      } else {
-          postSlackMessage(channel, "PR " + originPRTitle + " posted without conflict.")
+          slack_response=postSlackMessage(channel, "PR " + originPRTitle + " posted without conflict.")
+          console.log(slack_response)
      }
   } else {
      console.log("As cherry pick or conflict push not succeeded, PR creation cancelled...")
