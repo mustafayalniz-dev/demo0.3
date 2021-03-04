@@ -4,7 +4,7 @@ const fs = require("fs")
 const exec = promisify(require("child_process").exec)
 
 const SLACK_TOKEN = process.env.SLACK_TOKEN
-const channel = "SLACK_CHANNEL"
+const channel = "ask-it-support"
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
@@ -21,7 +21,7 @@ const prMeta = require(reviewers)
 const githubAuth =
   "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
 
-const getSlackAuth = "Bearer " + global.Buffer.from(SLACK_TOKEN).toString("base64")
+const getSlackAuth = "Bearer " + global.Buffer.from(SLACK_TOKEN).toString()
 
 const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/demo0.3/pulls"
 
@@ -123,16 +123,19 @@ async function createBranchAndApplyCommits() {
 		console.log("Reviewers added with success... Pr url " + add_reviewer_result.url)
 	} else {
 		console.log("Reviewers could not be added. Failed...")
-		return 
+//		return 
         }
      } else {
 	console.log("PR creation failed")
         return 
      }
+
      if ( conflictHappened ) {
-          postSlackMessage(slack_token, channel, "PR " + originPRTitle + " posted with conflict. Need resolution")
+          slack_response=await postSlackMessage(channel, "PR " + originPRTitle + " posted with conflict. Need resolution")
+          console.log(slack_response)
      } else {
-          postSlackMessage(slack_token, channel, "PR " + originPRTitle + " posted without conflict.")
+          slack_response=await postSlackMessage(channel, "PR " + originPRTitle + " posted without conflict.")
+          console.log(slack_response)
      }
   } else {
      console.log("As cherry pick or conflict push not succeeded, PR creation cancelled...")
@@ -179,7 +182,7 @@ async function addReviewerToPullRequest(pullRequestNumber) {
 }
 
 
-async function postSlackMessage(slack_token, channel, message) {
+async function postSlackMessage(channel, message) {
    
   const requestBody = {
 	channel: channel,
