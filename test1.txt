@@ -34,4 +34,8 @@ beep2
 >>>>>>> a468c29 (Merge pull request #255 from mustafayalniz-dev/tr_01)
 =======
 beep3
+<<<<<<< HEAD
 >>>>>>> 8ee182c (Merge pull request #256 from mustafayalniz-dev/tr_02)
+=======
+tr_03
+>>>>>>> c16feb8 (Merge pull request #257 from mustafayalniz-dev/tr_03)
