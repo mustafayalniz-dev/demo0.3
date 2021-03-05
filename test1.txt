@@ -4,3 +4,14 @@ llllllllll
 lllkkkııı
 new line
 test5line
+<<<<<<< HEAD
+=======
+tye
+uuy
+hhgs
+jjhs
+jssw
+hgys
+yhsw
+something
+>>>>>>> ae9348b (Merge pull request #260 from mustafayalniz-dev/somebranchname)
