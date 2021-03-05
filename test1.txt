@@ -30,4 +30,8 @@ beep1
 >>>>>>> e42dd7d (Merge pull request #254 from mustafayalniz-dev/tr_00)
 =======
 beep2
+<<<<<<< HEAD
 >>>>>>> a468c29 (Merge pull request #255 from mustafayalniz-dev/tr_01)
+=======
+beep3
+>>>>>>> 8ee182c (Merge pull request #256 from mustafayalniz-dev/tr_02)
