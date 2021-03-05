@@ -14,6 +14,7 @@ const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs/heads/"
 const newBranchUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
 const slackUrl="https://slack.com/api/chat.postMessage"
+const slackWebHookUrl="https://hooks.slack.com/services/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"
 
 const githubAuth =
   "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
@@ -112,14 +113,13 @@ async function commitConflict(setEmail, setIdentity, addAll, commitAll, pushTarg
 async function postSlackMessage(channel, message) {
 
   const requestBody = {
-        channel: channel,
         text: message
   }
 
-  const response = await fetch(slackUrl, {
+  const response = await fetch(slackWebHookUrl, {
        method: "post",
        body: JSON.stringify(requestBody),
-       headers: { Authorization: getSlackAuth, "Content-type": "application/json", "User-Agent": "RT-Project-Agent" },
+       headers: { "Content-type": "application/json", "User-Agent": "RT-Project-Agent" },
   })
 
   return await response.json()
