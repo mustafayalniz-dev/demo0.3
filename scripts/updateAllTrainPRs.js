@@ -122,7 +122,7 @@ async function postSlackMessage(channel, message) {
        headers: { "Content-type": "application/json", "User-Agent": "RT-Project-Agent" },
   })
 
-  return await response.json()
+  return response
 
 }
 
