@@ -22,4 +22,8 @@ yyyeeye
 >>>>>>> e75a727 (Merge pull request #252 from mustafayalniz-dev/yyey)
 =======
 beep
+<<<<<<< HEAD
 >>>>>>> 1682243 (Merge pull request #253 from mustafayalniz-dev/tr_0)
+=======
+beep1
+>>>>>>> e42dd7d (Merge pull request #254 from mustafayalniz-dev/tr_00)
