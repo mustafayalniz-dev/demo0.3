@@ -18,4 +18,9 @@ tr223
 gbes
 hhychecktrainprs
 yyyeeye
+<<<<<<< HEAD
 >>>>>>> e75a727 (Merge pull request #252 from mustafayalniz-dev/yyey)
+=======
+beep
+beep1
+>>>>>>> e42dd7d (Merge pull request #254 from mustafayalniz-dev/tr_00)
