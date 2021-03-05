@@ -124,7 +124,7 @@ async function postSlackMessage(channel, message) {
        headers: { Authorization: getSlackAuth, "Content-type": "application/json", "User-Agent": "RT-Project-Agent" },
   })
 
-  return response
+  return await response.json()
 
 }
 
