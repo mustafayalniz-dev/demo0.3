@@ -42,4 +42,8 @@ tr_03
 >>>>>>> c16feb8 (Merge pull request #257 from mustafayalniz-dev/tr_03)
 =======
 tr_04
+<<<<<<< HEAD
 >>>>>>> d169df7 (Merge pull request #258 from mustafayalniz-dev/tr_04)
+=======
+tr_05
+>>>>>>> 23dc074 (Merge pull request #259 from mustafayalniz-dev/tr_05)
