@@ -4,3 +4,16 @@ llllllllll
 lllkkkııı
 new line
 test5line
+<<<<<<< HEAD
+=======
+tye
+uuy
+hhgs
+jjhs
+jssw
+hgys
+yhsw
+something
+newdev
+ujjj
+>>>>>>> 4811da1 (Merge pull request #266 from mustafayalniz-dev/hsyy1)
