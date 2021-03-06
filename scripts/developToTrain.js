@@ -165,6 +165,8 @@ async function createPullRequest(backBranchName, newSourceBranchName, originPRTi
     body: JSON.stringify(requestBody),
     headers: { Authorization: githubAuth },
   })
+  console.log("Printing PR creation response ...")
+  console.log(response)
   return await response.json()
 }
 
