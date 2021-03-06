@@ -4,7 +4,7 @@ const fs = require("fs")
 const exec = promisify(require("child_process").exec)
 
 const SLACK_TOKEN = process.env.SLACK_TOKEN
-const channel = "ask-it-support"
+const channel = "githucactiontest"
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
@@ -123,18 +123,20 @@ async function createBranchAndApplyCommits() {
 		console.log("Reviewers added with success... Pr url " + add_reviewer_result.url)
 	} else {
 		console.log("Reviewers could not be added. Failed...")
+                slack_response=await postSlackMessage(channel, "Reviewers could not be added to PR " + pr_result.url + " Please check...")
 //		return 
         }
      } else {
 	console.log("PR creation failed")
+        slack_response=await postSlackMessage(channel, "PR creation failed from " + newBranchFromTrainBranch + " to " + trainBranchName + "Please check...")
         return 
      }
 
      if ( conflictHappened ) {
-          slack_response=await postSlackMessage(channel, "PR " + originPRTitle + " posted with conflict. Need resolution")
+          slack_response=await postSlackMessage(channel, "PR " + pr_result.url + " :" + originPRTitle + " posted with conflict. Need resolution")
           console.log(slack_response)
      } else {
-          slack_response=await postSlackMessage(channel, "PR " + originPRTitle + " posted without conflict.")
+          slack_response=await postSlackMessage(channel, "PR " + pr_result.url + " :" + originPRTitle + " posted without conflict.")
           console.log(slack_response)
      }
   } else {
@@ -163,6 +165,8 @@ async function createPullRequest(backBranchName, newSourceBranchName, originPRTi
     body: JSON.stringify(requestBody),
     headers: { Authorization: githubAuth },
   })
+  console.log("Printing PR creation response ...")
+  console.log(response)
   return await response.json()
 }
 
