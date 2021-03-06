@@ -4,3 +4,15 @@ llllllllll
 lllkkkııı
 new line
 test5line
+<<<<<<< HEAD
+=======
+tye
+uuy
+hhgs
+jjhs
+jssw
+hgys
+yhsw
+something
+newdev
+>>>>>>> d1aa3c6 (Merge pull request #264 from mustafayalniz-dev/devnew1)
