@@ -71,13 +71,15 @@ async function main() {
 	  console.log("Merge commit successfully applied to branch : " + prList[pr].head.ref + " with success")
       } else {
 	  console.log("Merge commit cannot be applied to branch : " + prList[pr].head.ref )
+          slack_response=await postSlackMessage(channel, "Merge commit:" + merge_commit_sha + " cannot be applied to branch " + prList[pr].head.ref )
+          continue
       } 
 
      if ( conflictHappened ) {
-          slack_response=await postSlackMessage(channel, "Branch " + prList[pr].head.ref + " has been updated with latest commit on train branch. Conflict happened. Need resolution")
+          slack_response=await postSlackMessage(channel, "Branch " + prList[pr].head.ref + " has been updated with latest commit:" + merge_commit_sha + " on train branch. Conflict happened. Need resolution")
           console.log(slack_response)
      } else {
-          slack_response=await postSlackMessage(channel, "Branch " + prList[pr].head.ref + " has been updated with latest commit on train branch. Merge was clean. No conflict")
+          slack_response=await postSlackMessage(channel, "Branch " + prList[pr].head.ref + " has been updated with latest commit:" + merge_commit_sha + " on train branch. Merge was clean. No conflict")
           console.log(slack_response)
      }
 
