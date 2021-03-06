@@ -4,7 +4,7 @@ const fs = require("fs")
 const exec = promisify(require("child_process").exec)
 
 const SLACK_TOKEN = process.env.SLACK_TOKEN
-const channel = "mergestatus"
+const channel = "githucactiontest"
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
