@@ -30,3 +30,4 @@ newdev
 ujjj
 new line in develop to create conflict
 demotoapo
+clear now
