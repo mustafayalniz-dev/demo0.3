@@ -28,4 +28,9 @@ newtotr
 something
 newdev
 ujjj
+<<<<<<< HEAD
 new line 111inrelease_branch
+=======
+new line in develop to create conflict
+demotoapo
+>>>>>>> 01f8e48 (Merge pull request #272 from mustafayalniz-dev/testttt1)
