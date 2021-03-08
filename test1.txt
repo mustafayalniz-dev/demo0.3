@@ -54,4 +54,13 @@ tr_001
 >>>>>>> a810812 (Merge pull request #262 from mustafayalniz-dev/tr_001)
 =======
 newtotr
+<<<<<<< HEAD
 >>>>>>> a8cd27b (Merge pull request #263 from mustafayalniz-dev/newtotr)
+=======
+something
+newdev
+ujjj
+new line in develop to create conflict
+demotoapo
+linenew1
+>>>>>>> 56fb988 (Merge pull request #276 from mustafayalniz-dev/ntr_0)
