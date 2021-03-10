@@ -36,7 +36,7 @@ async function main() {
   
    var merge_commit_sha=event.pull_request.merge_commit_sha
 
-   var commits_url=event.commits_url
+   var commits_url=event.pull_request.commits_url
 
    console.log(commits_url)
    console.log(event)
