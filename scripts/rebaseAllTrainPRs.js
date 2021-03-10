@@ -34,11 +34,16 @@ async function main() {
 
    var prList = await listPullRequests(trainBranchName)
   
-   console.log(prList)
+//   console.log(prList)
 
-//   for ( pr in prList ) {
-       
-//   }
+   for ( pr in prList ) {
+        commitsUrl=prList[pr].commits_url
+        var commit_list = await getCommitListInPR(commitsUrl)
+   	console.log("Commit list in PR")
+        console.log(commitsUrl)
+        console.log(commit_list)
+	console.log("Next one")
+   }
 
    var merge_commit_sha=event.pull_request.merge_commit_sha
 
@@ -46,10 +51,10 @@ async function main() {
 
    var commit_list = await getCommitListInPR(commits_url)
 
-   console.log("Commit list in PR")
-   console.log(commit_list)
+//   console.log("Commit list in PR")
+//   console.log(commit_list)
 
-   console.log(prList)
+//   console.log(prList)
 
    return
 
