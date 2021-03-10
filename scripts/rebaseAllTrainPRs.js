@@ -41,7 +41,7 @@ async function main() {
    var commit_list = await getCommitListInPR(commits_url)
 
    console.log("Commit list in PR")
-   console.log(commits_list)
+   console.log(commit_list)
 
    return
 
