@@ -34,6 +34,12 @@ async function main() {
 
    var prList = await listPullRequests(trainBranchName)
   
+   console.log(prList)
+
+//   for ( pr in prList ) {
+       
+//   }
+
    var merge_commit_sha=event.pull_request.merge_commit_sha
 
    var commits_url=event.pull_request.commits_url
