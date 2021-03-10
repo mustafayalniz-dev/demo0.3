@@ -43,6 +43,8 @@ async function main() {
    console.log("Commit list in PR")
    console.log(commit_list)
 
+   console.log(prList)
+
    return
 
    for ( pr in prList ) {
