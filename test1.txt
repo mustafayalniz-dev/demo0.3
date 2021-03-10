@@ -27,17 +27,3 @@ tr_001
 newtotr
 something
 newdev
-ujjj
-new line in develop to create conflict
-demotoapo
-linenew1
-newline2
-newline3
-newline4
-hhy1
-yyt1
-jjs1
-jjow2
-uuew
-yyt2
-bhsjw
