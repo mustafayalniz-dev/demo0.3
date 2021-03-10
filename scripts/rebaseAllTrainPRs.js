@@ -38,8 +38,10 @@ async function main() {
 
    var commits_url=event.pull_request.commits_url
 
-   console.log(commits_url)
-   console.log(event)
+   var commit_list = async getCommitListInPR(commits_url)
+
+   console.log("Commit list in PR")
+   console.log(commits_list)
 
    return
 
@@ -107,6 +109,24 @@ async function listPullRequests(trainBranchName) {
   return await response.json()
 }
 
+async function getCommitListInPR(commits_url) {
+
+  const response = await fetch(commits_url, {
+    method: "get",
+    headers: { Authorization: githubAuth },
+  })
+
+  commits_list_response = await response.json()
+
+  sha_list = []
+
+  for (var commit in commits_list_response) {
+      sha_list.push(commits_list_response[commit])
+  }
+
+  return sha_list
+  
+}
 
 async function commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch) {
   try {
