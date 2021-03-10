@@ -121,7 +121,7 @@ async function getCommitListInPR(commits_url) {
   sha_list = []
 
   for (var commit in commits_list_response) {
-      sha_list.push(commits_list_response[commit])
+      sha_list.push(commits_list_response[commit].sha)
   }
 
   return sha_list
