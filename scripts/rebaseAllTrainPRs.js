@@ -38,7 +38,7 @@ async function main() {
 
    var commits_url=event.pull_request.commits_url
 
-   var commit_list = async getCommitListInPR(commits_url)
+   var commit_list = await getCommitListInPR(commits_url)
 
    console.log("Commit list in PR")
    console.log(commits_list)
