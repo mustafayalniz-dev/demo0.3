@@ -24,5 +24,4 @@ jobs:
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
         run: |
           npm install compare-versions node-fetch fs
-#          node --trace-warnings scripts/updateAllTrainPRs.js train
           node --trace-warnings scripts/rebaseAllTrainPRs.js train
