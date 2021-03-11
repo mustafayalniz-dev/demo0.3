@@ -99,12 +99,13 @@ async function mergeMasterIntoIntegration() {
       const setEmail = `git config --global user.email "githubaction@spin.pm"`
       const setIdentity = `git config --global user.name "Spin Github Action"`
       const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
+      const pullIntegrationBranch = `git pull origin ${integrationBranch}`
       const mergeMasterIntoIntegration = `git merge master -m "auto merge ${integrationBranch} upon commit into master"`
       const pushIntegrationBranch = `git push origin ${integrationBranch}`
 
       var success=false
       try {
-          const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutMaster} &&  ${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
+          const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutMaster} &&  ${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
           console.log('stdout:', stdout);
           console.log('stderr:', stderr);
           success=true
