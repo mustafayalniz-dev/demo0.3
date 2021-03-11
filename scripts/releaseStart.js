@@ -42,7 +42,7 @@ async function releaseStart() {
       const createNewIntegrationBranch = `git checkout -b ${newIntegrationBranch}`
       const pushNewIntegrationBranch = `git push origin ${newIntegrationBranch}`
 
-      newReleaseContent = { "version": "${newVersion}" }
+      newReleaseContent = { "version": newVersion }
 
       let newReleaseContentJson = JSON.stringify(newReleaseContent)
       fs.writeFileSync('.release-version.json', newReleaseContentJson)
