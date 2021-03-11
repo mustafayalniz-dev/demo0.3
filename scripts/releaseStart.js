@@ -7,7 +7,7 @@ const SLACK_TOKEN = process.env.SLACK_TOKEN
 const channel = "github-actiontest"
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
-const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
+const PERSONAL_ACCESS_TOKEN = process.env.MY_PERSONAL_ACCESS_TOKEN
 const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
 
 var selectedFunction = process.argv.slice(2)[0]
