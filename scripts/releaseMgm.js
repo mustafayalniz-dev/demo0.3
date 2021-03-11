@@ -34,8 +34,10 @@ async function main() {
 main()
 
 async function addReviewerToPullRequest(prUrl) {
+     const reviewers = "../prmeta.json"
+     const prMeta = require(reviewers)
 
-     reviewersArray = { "reviewers": prMeta.prReviewers.split(",") }
+     reviewersArray = { "reviewers": prMeta.qaReviewers.split(",") }
 
      console.log(reviewersArray)
      githubNewPullRequestUrl=prUrl + "/requested_reviewers"
