@@ -25,17 +25,20 @@ async function main() {
 	await mergeMasterIntoIntegration()
     } else if (selectedFunction == "code-complete") {
 	response=await codeComplete()
-        console.log(response)
+        console.log(response.url)
+        reviewer_response=await addReviewerToPullRequest(response.url)
+        console.log(reviewer_response)
     }
 }
+
 main()
 
-async function addReviewerToPullRequest(pullRequestNumber) {
+async function addReviewerToPullRequest(prUrl) {
 
      reviewersArray = { "reviewers": prMeta.prReviewers.split(",") }
 
      console.log(reviewersArray)
-     githubNewPullRequestUrl=githubPullRequestUrl + "/" + pullRequestNumber + "/requested_reviewers"
+     githubNewPullRequestUrl=prUrl + "/requested_reviewers"
      console.log(githubNewPullRequestUrl)
      const response = await fetch(githubNewPullRequestUrl, {
         method: "post",
