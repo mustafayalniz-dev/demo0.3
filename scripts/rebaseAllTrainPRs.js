@@ -41,11 +41,14 @@ async function main() {
         var commit_list = await getCommitListInPR(commitsUrl)
        
         const fetchTarget = `git fetch`
-        checkoutPrSourceBranch = `git checkout ${prList[pr].head.ref}`
-        console.log("Branch Name" + prList[pr].head.ref)
-        const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
-        const pushPrSourceBranch = `git push origin ${prList[pr].head.ref}`
-
+	const newBranchName=prList[pr].head.ref + "_" + "rb"
+        for (index = 0; index < commit_list.length; index++) { 
+           checkoutPrSourceBranch = `git checkout ${prList[pr].head.ref}`
+           console.log("Branch Name" + prList[pr].head.ref)
+           const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
+           const pushPrSourceBranch = `git push origin ${prList[pr].head.ref}`
+           
+        }
    	console.log("Commit list in PR")
         console.log(commitsUrl)
         console.log(commit_list)
