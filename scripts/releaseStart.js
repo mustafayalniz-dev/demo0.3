@@ -66,6 +66,9 @@ async function codeComplete() {
          base: "master",
          body: `Automated PR created at code complete date from ${integrationBranch} to master.!`,
       }
+      console.log(requestBody)
+      console.log(githubPullRequestUrl)
+
       const response = await fetch(githubPullRequestUrl, {
          method: "post",
          body: JSON.stringify(requestBody),
