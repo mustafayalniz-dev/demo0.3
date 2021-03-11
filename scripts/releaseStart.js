@@ -10,11 +10,108 @@ const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
 const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
 
+var selectedFunction = process.argv.slice(2)[0]
+
+const githubAuth =
+  "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
+
+const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/demo0.3/pulls"
+
 
 async function main() {
+    if ( selectedFunction == "release-start") {
 	await releaseStart()
+    } else if (selectedFunction == "auto-merge") {
+	await mergeMasterIntoIntegration()
+    } else if (selectedFunction == "code-complete") {
+	response=await codeComplete()
+        console.log(response)
+    }
 }
 main()
+
+async function addReviewerToPullRequest(pullRequestNumber) {
+
+     reviewersArray = { "reviewers": prMeta.prReviewers.split(",") }
+
+     console.log(reviewersArray)
+     githubNewPullRequestUrl=githubPullRequestUrl + "/" + pullRequestNumber + "/requested_reviewers"
+     console.log(githubNewPullRequestUrl)
+     const response = await fetch(githubNewPullRequestUrl, {
+        method: "post",
+        body: JSON.stringify(reviewersArray),
+        headers: { Authorization: githubAuth, Accept: "application/vnd.github.v3+json", "User-Agent": "RT-Project-Agent" },
+     })
+     return await response.json()
+}
+
+
+async function codeComplete() {
+
+      const fetchTarget = `git fetch`
+      const checkoutMaster = `git checkout master`
+      await exec(`${fetchTarget} && ${checkoutMaster}`)
+
+      const release = "../.release-version.json"
+      const releaseVersion = require(release)
+
+      console.log(releaseVersion.version)
+
+      const integrationBranch = "integration_" + releaseVersion.version
+      
+      const title="PR from " + integrationBranch + " to master at code complete date."
+      const requestBody = {
+         title: `${title}`,
+         head: integrationBranch,
+         base: "master",
+         body: `Automated PR created at code complete date from ${integrationBranch} to master.!`,
+      }
+      const response = await fetch(githubPullRequestUrl, {
+         method: "post",
+         body: JSON.stringify(requestBody),
+         headers: { Authorization: githubAuth },
+      })
+  
+      return await response.json()
+
+}
+
+
+async function mergeMasterIntoIntegration() {
+
+      const fetchTarget = `git fetch`
+      const checkoutMaster = `git checkout master`
+      await exec(`${fetchTarget} && ${checkoutMaster}`)
+
+      const release = "../.release-version.json"
+      const releaseVersion = require(release)
+      const integrationBranch = "integration_" + releaseVersion.version
+
+      console.log(releaseVersion.version)
+
+      const setEmail = `git config --global user.email "githubaction@spin.pm"`
+      const setIdentity = `git config --global user.name "Spin Github Action"`
+      const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
+      const mergeMasterIntoIntegration = `git merge master -m "auto merge ${integrationBranch} upon commit into master"`
+      const pushIntegrationBranch = `git push origin ${integrationBranch}`
+
+      var success=false
+      try {
+          const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutMaster} &&  ${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
+          console.log('stdout:', stdout);
+          console.log('stderr:', stderr);
+          success=true
+      } catch (error) {
+          console.log("error:", error)
+          success=false
+      }
+
+      if ( success ) {
+	  console.log("Master merged into " + integrationBranch + " with success")
+      }
+      return success
+
+}
 
 async function releaseStart() {
       
