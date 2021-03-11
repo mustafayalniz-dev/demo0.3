@@ -3,7 +3,7 @@ name: "Master-Commit-Triggers-Integration-Merge"
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   releaser:
