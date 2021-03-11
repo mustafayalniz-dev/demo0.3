@@ -25,6 +25,7 @@ async function main() {
 	await mergeMasterIntoIntegration()
     } else if (selectedFunction == "code-complete") {
 	response=await codeComplete()
+        console.log("PR creation response below...")
         console.log(response)
         reviewer_response=await addReviewerToPullRequest(response.url)
         console.log(reviewer_response)
