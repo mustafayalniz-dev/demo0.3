@@ -1,0 +1,22 @@
+name: "Master-Commit-Triggers-Integration-Merge"
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  releaser:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+    - run: git config user.name github-actions
+    - run: git config user.email github-actions@github.com
+    - name: Commit on master triggers merge onto integration branch
+      env:
+        PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        PUSH_GITHUB_USER: ${{ secrets.PUSH_GITHUB_USER }}
+      run: |
+        npm install compare-versions node-fetch fs
+        node scripts/releaseStart.js auto-merge
