@@ -16,4 +16,4 @@ jobs:
         PUSH_GITHUB_USER: ${{ secrets.PUSH_GITHUB_USER }}
       run: |
         npm install compare-versions node-fetch fs
-        node scripts/releaseStart.js code-complete
+        node scripts/releaseMgm.js code-complete

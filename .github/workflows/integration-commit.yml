@@ -1,4 +1,4 @@
-name: "Master-Commit-Triggers-Integration-Merge"
+name: "Master-Commit-Triggers-Merge-Master-To-Integration"
 
 on:
   push:
@@ -19,4 +19,4 @@ jobs:
         PUSH_GITHUB_USER: ${{ secrets.PUSH_GITHUB_USER }}
       run: |
         npm install compare-versions node-fetch fs
-        node scripts/releaseStart.js auto-merge
+        node scripts/releaseMgm.js auto-merge
