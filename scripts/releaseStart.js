@@ -18,6 +18,8 @@ main()
 
 async function releaseStart() {
       
+      const fetchTarget = `git fetch`
+      const checkoutMaster = `git checkout master`
       await exec(`${fetchTarget} && ${checkoutMaster}`)
 
       const release = "../.release-version.json"
@@ -36,8 +38,6 @@ async function releaseStart() {
 
       console.log(newIntegrationBranch)
 
-      const fetchTarget = `git fetch`
-      const checkoutMaster = `git checkout master`
       const addVersionFile = `git add .release-version.json`
       const commitVersionFile = `git commit -m "bumped application version to ${newVersion}"`
       const pushVersionFile = `git push origin master`
