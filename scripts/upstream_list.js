@@ -29,7 +29,7 @@ async function getBranchArray() {
 }
 
 async function getMinorVersionArray(array) {
-  var matrixJson = ""
+  var matrixJson = '{ "upstream_release": "", "reviewers": "", "assignees": "" }'
 
   var releaseBranchRegex = new RegExp("^release_[0-9]+.[0-9]+.[0-9]+$")
 
