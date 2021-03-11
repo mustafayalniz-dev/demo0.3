@@ -17,6 +17,9 @@ async function main() {
 main()
 
 async function releaseStart() {
+      
+      await exec(`${fetchTarget} && ${checkoutMaster})
+
       const release = "../.release-version.json"
       const releaseVersion = require(release)
 
