@@ -71,7 +71,7 @@ async function main() {
    for ( pr in prList ) {
    
        const fetchTarget = `git fetch`
-       checkoutPrSourceBranch = `git checkout ${prList[pr].head.ref}`
+       const checkoutPrSourceBranch = `git checkout ${prList[pr].head.ref}`
        const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
        const pushPrSourceBranch = `git push origin ${prList[pr].head.ref}`
 
