@@ -25,9 +25,10 @@ async function main() {
 	await mergeMasterIntoIntegration()
     } else if (selectedFunction == "code-complete") {
 	response=await codeComplete()
-        console.log(response.url)
-        reviewer_response=await addReviewerToPullRequest(response.url)
-        console.log(reviewer_response)
+        console.log("PR creation response below...")
+        if ( response.url ) {
+        	reviewer_response=await addReviewerToPullRequest(response.url)
+        }
     }
 }
 
@@ -90,6 +91,7 @@ async function mergeMasterIntoIntegration() {
 
       const fetchTarget = `git fetch`
       const checkoutMaster = `git checkout master`
+      const pullMaster = `git pull origin master --allow-unrelated-histories`
       await exec(`${fetchTarget} && ${checkoutMaster}`)
 
       const release = "../.release-version.json"
@@ -101,7 +103,7 @@ async function mergeMasterIntoIntegration() {
       const setEmail = `git config --global user.email "githubaction@spin.pm"`
       const setIdentity = `git config --global user.name "Spin Github Action"`
       const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
-      const pullIntegrationBranch = `git pull origin ${integrationBranch}`
+      const pullIntegrationBranch = `git pull origin ${integrationBranch} --allow-unrelated-histories`
       const mergeMasterIntoIntegration = `git merge master -m "auto merge ${integrationBranch} upon commit into master"`
       const pushIntegrationBranch = `git push origin ${integrationBranch}`
 
