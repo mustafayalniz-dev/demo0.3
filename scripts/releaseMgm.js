@@ -102,7 +102,7 @@ async function mergeMasterIntoIntegration() {
       const setEmail = `git config --global user.email "githubaction@spin.pm"`
       const setIdentity = `git config --global user.name "Spin Github Action"`
       const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
-      const pullIntegrationBranch = `git pull origin ${integrationBranch}`
+      const pullIntegrationBranch = `git pull origin ${integrationBranch} --allow-unrelated-histories`
       const mergeMasterIntoIntegration = `git merge master -m "auto merge ${integrationBranch} upon commit into master"`
       const pushIntegrationBranch = `git push origin ${integrationBranch}`
 
