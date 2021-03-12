@@ -171,9 +171,6 @@ async function releaseStart() {
           success=false
       }
 
-      if ( success ) {
-          
-      }
       return success
 }
 
