@@ -91,6 +91,7 @@ async function mergeMasterIntoIntegration() {
 
       const fetchTarget = `git fetch`
       const checkoutMaster = `git checkout master`
+      const pullMaster = `git pull origin master --allow-unrelated-histories`
       await exec(`${fetchTarget} && ${checkoutMaster}`)
 
       const release = "../.release-version.json"
