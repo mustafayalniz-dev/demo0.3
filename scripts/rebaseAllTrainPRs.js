@@ -14,8 +14,6 @@ const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 const branchHeadsUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs/heads/"
 const newBranchUrl="https://api.github.com/repos/mustafayalniz-dev/demo0.3/git/refs"
 const slackUrl="https://slack.com/api/chat.postMessage"
-//const slackWebHookUrl="https://hooks.slack.com/services/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"
-const slackWebHookUrl="https://hooks.slack.com/services/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"
 
 const githubAuth =
   "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
@@ -34,21 +32,45 @@ async function main() {
 
    var prList = await listPullRequests(trainBranchName)
   
-//   console.log(prList)
+   const setEmail = `git config --global user.email "githubaction@spin.pm"`
+   const setIdentity = `git config --global user.name "Spin Github Action"`
+   const addAll = `git add -A`
+   const commitAll = `git commit -m "Github Action commits conflict"`
 
    for ( pr in prList ) {
         commitsUrl=prList[pr].commits_url
         var commit_list = await getCommitListInPR(commitsUrl)
        
+        console.log("Check here PR Content... ")
+        console.log(prList[pr])
+        return
         const fetchTarget = `git fetch`
-	const newBranchName=prList[pr].head.ref + "_" + "rb"
+        const originalBranchName=prList[pr].head.ref
+        const newBranchName=getNewbranchName(originalBranchName)
+        checkoutPrSourceBranch = `git checkout -b ${newBranchName}`
+        await exec(`${fetchTarget} && ${checkoutPrSourceBranch} && ${setEmail} && ${setIdentity}`)
+
+        var conflictHappened = false
+
         for (index = 0; index < commit_list.length; index++) { 
-           checkoutPrSourceBranch = `git checkout ${prList[pr].head.ref}`
-           console.log("Branch Name" + prList[pr].head.ref)
-           const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
-           const pushPrSourceBranch = `git push origin ${prList[pr].head.ref}`
-           
+           console.log("Applying commit " + commit_list[index] + " to branch " + newBranchName)
+           const cherryPick = `git cherry-pick -m 1 ${commit_list[index]}`
+           try {
+               const { error, stdout, stderr } = await exec(`${cherryPick}`)
+               console.log('stdout:', stdout);
+               console.log('stderr:', stderr);
+               cherryPickSuccess=true
+           } catch (error) {
+               console.log("error:", error)
+               if (error.message.includes("conflicts")) {
+                   conflictHappened = true
+                   console.log("Conflict occured while cherry picking, now pushing conflict " + commit_list[index] + " into new branch...")
+                   cherryPickSuccess=await commitConflict(addAll, commitAll)
+               }
+           }
         }
+        const pushPrSourceBranch = `git push origin ${newBranchName}`
+        createPullRequest(trainBranchName, newBranchName, originPRTitle, conflictHappened)
    	console.log("Commit list in PR")
         console.log(commitsUrl)
         console.log(commit_list)
@@ -120,6 +142,18 @@ async function main() {
 
 main()
 
+async function commitConflict(addAll, commitAll) {
+  try {
+      const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll}`)
+      console.log('stdout:', stdout);
+      console.log('stderr:', stderr);
+      return true
+  } catch (error) {
+      console.log("error:", error)
+      return false
+  }
+}
+
 
 async function listPullRequests(trainBranchName) {
 
@@ -151,9 +185,9 @@ async function getCommitListInPR(commits_url) {
   
 }
 
-async function commitConflict(setEmail, setIdentity, addAll, commitAll, pushTargetBranch) {
+async function commitConflict(addAll, commitAll) {
   try {
-      const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} &&  ${addAll} && ${commitAll} && ${pushTargetBranch}`)
+      const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll}`)
       console.log('stdout:', stdout);
       console.log('stderr:', stderr);
       return true
@@ -179,4 +213,52 @@ async function postSlackMessage(channel, message) {
   return await response.json()
 
 }
+
+async function createPullRequest(backBranchName, newSourceBranchName, originPRTitle, conflictHappened) {
+  console.log("We PR from " + newSourceBranchName + " " + backBranchName + " " + originPRTitle)
+
+  if ( conflictHappened ) {
+     title = `Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} with conflict`
+  } else {
+     title = `Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} without conflict`
+  }
+
+  const requestBody = {
+    title: `${title}`,
+    head: newSourceBranchName,
+    base: backBranchName,
+    body: `Automated PR to get changes over to ${backBranchName}. Please resolve conflicts before merging!`,
+  }
+  const response = await fetch(githubPullRequestUrl, {
+    method: "post",
+    body: JSON.stringify(requestBody),
+    headers: { Authorization: githubAuth },
+  })
+  console.log("Printing PR creation response ...")
+  console.log(response)
+  return await response.json()
+}
+
+
+def getNewbranchName(branchName) {
+    var baseName=""
+    var count=0
+
+    if ( /^.+__(\d+)__$/.test(branchName) ) {
+        console.log("match")
+        var baseName = branchName.replace(/(.+)__\d+__/g, "$1");
+        var count = branchName.replace(/.+__(\d+)__/g, "$1");
+    } else {
+        var baseName = branchName
+        count = 0
+    }
+
+    newCount=parseInt(count)+1
+    newBranchName=baseName + "__" + newCount + "__"
+
+    return newBranchName
+
+}
+
+
 
