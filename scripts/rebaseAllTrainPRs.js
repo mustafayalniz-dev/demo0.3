@@ -40,13 +40,14 @@ async function main() {
    for ( pr in prList ) {
 
         commitsUrl=prList[pr].commits_url
-	console.log("Next PR " + commitsUrl )
-        var commit_list = await getCommitListInPR(commitsUrl)
+	console.log("Next PR commits URL " + commitsUrl )
+        
+	var commit_list = await getCommitListInPR(commitsUrl)
         var originalPRUrl = prList[pr].url
         var originalPRTitle = prList[pr].title
         var originalPRBody = prList[pr].body
  
-        console.log("Check here PR Content... title:" + originalPRTitle + " body: " + originalPRBody )
+        console.log("Check here Original PR Content... title:" + originalPRTitle + " body: " + originalPRBody )
 //        console.log(prList[pr])
         const fetchTarget = `git fetch`
         const originalBranchName=prList[pr].head.ref
@@ -55,7 +56,16 @@ async function main() {
         pullTrainBranch=`git pull origin ${trainBranchName}`
         checkoutCreatePrSourceBranch = `git checkout -b ${newBranchName}`
         checkoutPushPrSourceBranch = `git push origin ${newBranchName}`
-        await exec(`${fetchTarget} && ${checkoutTrainBranch} && ${pullTrainBranch} && ${checkoutCreatePrSourceBranch} && ${checkoutPushPrSourceBranch} && ${setEmail} && ${setIdentity}`)
+ 
+        var newBranchSuccess = false
+        try {
+            const { error, stdout, stderr } =await exec(`${fetchTarget} && ${checkoutTrainBranch} && ${pullTrainBranch} && ${checkoutCreatePrSourceBranch} && ${checkoutPushPrSourceBranch} && ${setEmail} && ${setIdentity}`)
+	    newBranchSuccess = true
+	} catch ( error ) {
+	    newBranchSuccess = false
+	    console.log("error:", error)
+	    continue
+	}
 
         var conflictHappened = false
 
@@ -76,18 +86,43 @@ async function main() {
                }
            }
         }
-        const pushPrSourceBranch = `git push origin ${newBranchName}`
+
+        if ( ! cherryPickSuccess ) {
+		continue
+	}
+        // CLOSING ORIGINAL PULL REQUEST
         closePRResult=await closePullRequest(originalPRUrl)
+
+	console.log("CLOSE PULL REQUEST RESULT")
+	console.log(closePRResult)
+
+        const pushPrSourceBranch = `git push origin ${newBranchName}`
         deleteLocalBranch=`git branch -d ${originalBranchName}`
         deleteRemoteBranch=`git push origin --delete ${originalBranchName}`
+
+        var pushSourceBranchSuccess=false
         try {
-            const { error, stdout, stderr } = await exec(`${pushPrSourceBranch} && ${deleteLocalBranch} && ${deleteRemoteBranch}`)
+            const { error, stdout, stderr } = await exec(`${fetchTarget} && ${pushPrSourceBranch}`)
 //            console.log('stdout:', stdout);
 //            console.log('stderr:', stderr);
+            pushSourceBranchSuccess=true
         } catch (error) {
+            pushSourceBranchSuccess=false
             console.log("error:", error)
         }
-        createPRResult=await createPullRequest(trainBranchName, newBranchName, originalPRTitle, originalPRBody, conflictHappened)
+	if ( pushSourceBranchSuccess ) {
+            try {
+                const { error, stdout, stderr } = await exec(`${deleteLocalBranch} && ${deleteRemoteBranch}`)
+//               console.log('stdout:', stdout);
+//               console.log('stderr:', stderr);
+            } catch (error) {
+                console.log("error:", error)
+            }
+	    createPRResult=await createPullRequest(trainBranchName, newBranchName, originalPRTitle, originalPRBody, conflictHappened)
+	    console.log("CREATE PR RESULT")
+	    console.log(createPRResult)
+        }
+
    }
 
 
@@ -95,6 +130,9 @@ async function main() {
 
 main()
 
+//
+// This method adds files with conflict and commits them all
+//
 async function commitConflict(addAll, commitAll) {
   try {
       const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll}`)
@@ -108,6 +146,9 @@ async function commitConflict(addAll, commitAll) {
 }
 
 
+//
+// This method list all pull requests whose target is train branch given as parameter to this js file
+//
 async function listPullRequests(trainBranchName) {
 
   githubPullRequestUrlWithBase=githubPullRequestUrl + "?base=" + trainBranchName
@@ -119,6 +160,9 @@ async function listPullRequests(trainBranchName) {
   return await response.json()
 }
 
+//
+// List all Commit SHA's in this PR. Input as commits url
+//
 async function getCommitListInPR(commits_url) {
 
   const response = await fetch(commits_url, {
@@ -136,18 +180,6 @@ async function getCommitListInPR(commits_url) {
 
   return sha_list
   
-}
-
-async function commitConflict(addAll, commitAll) {
-  try {
-      const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll}`)
-//      console.log('stdout:', stdout);
-//      console.log('stderr:', stderr);
-      return true
-  } catch (error) {
-      console.log("error:", error)
-      return false
-  }
 }
 
 async function postSlackMessage(channel, message) {
@@ -171,11 +203,13 @@ async function createPullRequest(backBranchName, newSourceBranchName, originalPR
   console.log("We PR from " + newSourceBranchName + " " + backBranchName + " " + originalPRTitle)
 
   if ( conflictHappened ) {
-     title = `${originalPRTitle} - Pulling "${originalPRTitle}" from ${newSourceBranchName} into ${backBranchName} with conflict`
-     body = `Automated PR to rebase new ${backBranchName} branch changes over to ${backBranchName}. Please resolve conflicts before merging! - ${originalPRBody}`
+     title = `${originalPRTitle}.`
+     body = `${originalPRBody}`
+     postSlackMessage(channel, originalPRTitle + " rebased with conflict....")
   } else {
-     title = `${originalPRTitle} - Pulling "${originalPRTitle}" from ${newSourceBranchName} into ${backBranchName} without conflict`
-     body = `Automated PR to rebase new ${backBranchName} branch changes over to ${backBranchName}. Please resolve conflicts before merging! - ${originalPRBody}`
+     title = `${originalPRTitle}`
+     body = `${originalPRBody}`
+     postSlackMessage(channel, originalPRTitle + " rebased without conflict...")
   }
 
   const requestBody = {
