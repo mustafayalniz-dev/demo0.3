@@ -93,9 +93,6 @@ async function main() {
         // CLOSING ORIGINAL PULL REQUEST
         closePRResult=await closePullRequest(originalPRUrl)
 
-	console.log("CLOSE PULL REQUEST RESULT")
-	console.log(closePRResult)
-
         const pushPrSourceBranch = `git push origin ${newBranchName}`
         deleteLocalBranch=`git branch -d ${originalBranchName}`
         deleteRemoteBranch=`git push origin --delete ${originalBranchName}`
@@ -119,10 +116,12 @@ async function main() {
                 console.log("error:", error)
             }
 	    createPRResult=await createPullRequest(trainBranchName, newBranchName, originalPRTitle, originalPRBody, conflictHappened)
-	    console.log("CREATE PR RESULT")
-	    console.log(createPRResult)
         }
-
+        if ( conflictHappened ) {
+        	await postSlackMessage(channel, "PR " + closePRResult.url + " replaced with " + createPRResult.url + " Please resolve conflicts of rebasing...")
+	} else {
+        	await postSlackMessage(channel, "PR " + closePRResult.url + " replaced with " + createPRResult.url + " Rebase was clean...")
+	}
    }
 
 
@@ -205,11 +204,9 @@ async function createPullRequest(backBranchName, newSourceBranchName, originalPR
   if ( conflictHappened ) {
      title = `${originalPRTitle}.`
      body = `${originalPRBody}`
-     postSlackMessage(channel, originalPRTitle + " rebased with conflict....")
   } else {
      title = `${originalPRTitle}`
      body = `${originalPRBody}`
-     postSlackMessage(channel, originalPRTitle + " rebased without conflict...")
   }
 
   const requestBody = {
