@@ -2,8 +2,17 @@ yyeyeyeyyeye
 
 llllllllll
 lllkkkııı
+<<<<<<< HEAD
 new linetr4
+=======
+<<<<<<< HEAD
+new line
+>>>>>>> e0a7107 (Github Action commits conflict)
 test5line33
+=======
+new line22
+test5line
+>>>>>>> 3766301 (22)
 tye
 uuy
 hhgs
