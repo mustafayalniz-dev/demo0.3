@@ -38,17 +38,23 @@ async function main() {
    const commitAll = `git commit -m "Github Action commits conflict"`
 
    for ( pr in prList ) {
+
         commitsUrl=prList[pr].commits_url
+	console.log("Next PR " + commitsUrl )
         var commit_list = await getCommitListInPR(commitsUrl)
-       
-        console.log("Check here PR Content... ")
-        console.log(prList[pr])
-        return
+        var originalPRUrl = prList[pr].url
+        var originPRTitle = prList[pr].title
+        var originPRBody = prList[pr].body
+ 
+        console.log("Check here PR Content... title:" + originPRTitle + " body: " + originPRBody )
+//        console.log(prList[pr])
         const fetchTarget = `git fetch`
         const originalBranchName=prList[pr].head.ref
         const newBranchName=getNewbranchName(originalBranchName)
-        checkoutPrSourceBranch = `git checkout -b ${newBranchName}`
-        await exec(`${fetchTarget} && ${checkoutPrSourceBranch} && ${setEmail} && ${setIdentity}`)
+        checkoutTrainBranch = `git checkout ${trainBranchName}`
+        pullTrainBranch=`git pull origin ${trainBranchName}`
+        checkoutCreatePrSourceBranch = `git checkout -b ${newBranchName}`
+        await exec(`${fetchTarget} && ${checkoutTrainBranch} && ${pullTrainBranch} && ${checkoutCreatePrSourceBranch} && ${setEmail} && ${setIdentity}`)
 
         var conflictHappened = false
 
@@ -70,74 +76,21 @@ async function main() {
            }
         }
         const pushPrSourceBranch = `git push origin ${newBranchName}`
-        createPullRequest(trainBranchName, newBranchName, originPRTitle, conflictHappened)
-   	console.log("Commit list in PR")
-        console.log(commitsUrl)
-        console.log(commit_list)
-	console.log("Next one")
+        closePullRequest(originalPRUrl)
+        deleteLocalBranch=`git branch -d ${originalBranchName}`
+        deleteRemoteBranch=`git push origin --delete ${originalBranchName}`
+        try {
+            const { error, stdout, stderr } = await exec(`${deleteLocalBranch} && ${deleteRemoteBranch}`)
+            console.log('stdout:', stdout);
+            console.log('stderr:', stderr);
+        } catch (error) {
+            console.log("error:", error)
+        }
+        createPullRequest(trainBranchName, newBranchName, originPRTitle, originPRBody, conflictHappened)
    }
 
-   var merge_commit_sha=event.pull_request.merge_commit_sha
 
-   var commits_url=event.pull_request.commits_url
 
-   var commit_list = await getCommitListInPR(commits_url)
-
-//   console.log("Commit list in PR")
-//   console.log(commit_list)
-
-//   console.log(prList)
-
-   return
-
-   for ( pr in prList ) {
-   
-       const fetchTarget = `git fetch`
-       checkoutPrSourceBranch = `git checkout ${prList[pr].head.ref}`
-       const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
-       const pushPrSourceBranch = `git push origin ${prList[pr].head.ref}`
-
-       const setEmail = `git config --global user.email "githubaction@spin.pm"`
-       const setIdentity = `git config --global user.name "Spin Github Action"`
-       const addAll = `git add -A`
-       const commitAll = `git commit -m "Github Action commits conflict"`
-
-       console.log("PR Head : " + prList[pr].head.ref)
-
-       var cherryPickSuccess=false
-       var conflictHappened = false
-
-      try {
-          const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutPrSourceBranch} && ${setEmail} && ${setIdentity} && ${cherryPick} && ${pushPrSourceBranch}`)
-          console.log('stdout:', stdout);
-          console.log('stderr:', stderr);
-          cherryPickSuccess=true
-      } catch (error) {
-          console.log("error:", error)
-          if (error.message.includes("conflicts")) {
-              conflictHappened = true
-              console.log("Conflict occured while cherry picking, now pushing conflict into new branch...")
-              cherryPickSuccess=await commitConflict(setEmail, setIdentity, addAll, commitAll, pushPrSourceBranch)
-          }
-      }
-
-      if ( cherryPickSuccess ) {
-	  console.log("Merge commit successfully applied to branch : " + prList[pr].head.ref + " with success")
-      } else {
-	  console.log("Merge commit cannot be applied to branch : " + prList[pr].head.ref )
-          slack_response=await postSlackMessage(channel, "Merge commit:" + merge_commit_sha + " cannot be applied to branch " + prList[pr].head.ref )
-          continue
-      } 
-
-     if ( conflictHappened ) {
-          slack_response=await postSlackMessage(channel, "Branch " + prList[pr].head.ref + " has been updated with latest commit:" + merge_commit_sha + " on train branch. Conflict happened. Need resolution")
-          console.log(slack_response)
-     } else {
-          slack_response=await postSlackMessage(channel, "Branch " + prList[pr].head.ref + " has been updated with latest commit:" + merge_commit_sha + " on train branch. Merge was clean. No conflict")
-          console.log(slack_response)
-     }
-
-   }
 }
 
 main()
@@ -214,20 +167,22 @@ async function postSlackMessage(channel, message) {
 
 }
 
-async function createPullRequest(backBranchName, newSourceBranchName, originPRTitle, conflictHappened) {
+async function createPullRequest(backBranchName, newSourceBranchName, originPRTitle, originPRBody, conflictHappened) {
   console.log("We PR from " + newSourceBranchName + " " + backBranchName + " " + originPRTitle)
 
   if ( conflictHappened ) {
-     title = `Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} with conflict`
+     title = `${originPRTitle} - Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} with conflict`
+     body = `Automated PR to rebase new ${backBranchName} branch changes over to ${backBranchName}. Please resolve conflicts before merging! - ${originPRBody}`
   } else {
-     title = `Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} without conflict`
+     title = `${originPRTitle} - Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} without conflict`
+     body = `Automated PR to rebase new ${backBranchName} branch changes over to ${backBranchName}. Please resolve conflicts before merging! - ${originPRBody}`
   }
 
   const requestBody = {
     title: `${title}`,
     head: newSourceBranchName,
     base: backBranchName,
-    body: `Automated PR to get changes over to ${backBranchName}. Please resolve conflicts before merging!`,
+    body: `${body}`,
   }
   const response = await fetch(githubPullRequestUrl, {
     method: "post",
@@ -237,6 +192,23 @@ async function createPullRequest(backBranchName, newSourceBranchName, originPRTi
   console.log("Printing PR creation response ...")
   console.log(response)
   return await response.json()
+}
+
+async function closePullRequest(pr_url) {
+
+  const requestBody = {
+    state: `closed`,
+  }
+
+  const response = await fetch(pr_url, {
+    method: "post",
+    body: JSON.stringify(requestBody),
+    headers: { Authorization: githubAuth },
+  })
+  console.log("Printing PR closure response ..." + pr_url)
+  console.log(response)
+  return await response.json()
+
 }
 
 
