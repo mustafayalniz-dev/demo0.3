@@ -43,10 +43,10 @@ async function main() {
 	console.log("Next PR " + commitsUrl )
         var commit_list = await getCommitListInPR(commitsUrl)
         var originalPRUrl = prList[pr].url
-        var originPRTitle = prList[pr].title
-        var originPRBody = prList[pr].body
+        var originalPRTitle = prList[pr].title
+        var originalPRBody = prList[pr].body
  
-        console.log("Check here PR Content... title:" + originPRTitle + " body: " + originPRBody )
+        console.log("Check here PR Content... title:" + originalPRTitle + " body: " + originalPRBody )
 //        console.log(prList[pr])
         const fetchTarget = `git fetch`
         const originalBranchName=prList[pr].head.ref
@@ -54,7 +54,8 @@ async function main() {
         checkoutTrainBranch = `git checkout ${trainBranchName}`
         pullTrainBranch=`git pull origin ${trainBranchName}`
         checkoutCreatePrSourceBranch = `git checkout -b ${newBranchName}`
-        await exec(`${fetchTarget} && ${checkoutTrainBranch} && ${pullTrainBranch} && ${checkoutCreatePrSourceBranch} && ${setEmail} && ${setIdentity}`)
+        checkoutPushPrSourceBranch = `git push origin ${newBranchName}`
+        await exec(`${fetchTarget} && ${checkoutTrainBranch} && ${pullTrainBranch} && ${checkoutCreatePrSourceBranch} && ${checkoutPushPrSourceBranch} && ${setEmail} && ${setIdentity}`)
 
         var conflictHappened = false
 
@@ -80,13 +81,13 @@ async function main() {
         deleteLocalBranch=`git branch -d ${originalBranchName}`
         deleteRemoteBranch=`git push origin --delete ${originalBranchName}`
         try {
-            const { error, stdout, stderr } = await exec(`${deleteLocalBranch} && ${deleteRemoteBranch}`)
+            const { error, stdout, stderr } = await exec(`${pushPrSourceBranch} && ${deleteLocalBranch} && ${deleteRemoteBranch}`)
 //            console.log('stdout:', stdout);
 //            console.log('stderr:', stderr);
         } catch (error) {
             console.log("error:", error)
         }
-        createPRResult=await createPullRequest(trainBranchName, newBranchName, originPRTitle, originPRBody, conflictHappened)
+        createPRResult=await createPullRequest(trainBranchName, newBranchName, originalPRTitle, originalPRBody, conflictHappened)
    }
 
 
@@ -166,15 +167,15 @@ async function postSlackMessage(channel, message) {
 
 }
 
-async function createPullRequest(backBranchName, newSourceBranchName, originPRTitle, originPRBody, conflictHappened) {
-  console.log("We PR from " + newSourceBranchName + " " + backBranchName + " " + originPRTitle)
+async function createPullRequest(backBranchName, newSourceBranchName, originalPRTitle, originalPRBody, conflictHappened) {
+  console.log("We PR from " + newSourceBranchName + " " + backBranchName + " " + originalPRTitle)
 
   if ( conflictHappened ) {
-     title = `${originPRTitle} - Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} with conflict`
-     body = `Automated PR to rebase new ${backBranchName} branch changes over to ${backBranchName}. Please resolve conflicts before merging! - ${originPRBody}`
+     title = `${originalPRTitle} - Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} with conflict`
+     body = `Automated PR to rebase new ${backBranchName} branch changes over to ${backBranchName}. Please resolve conflicts before merging! - ${originalPRBody}`
   } else {
-     title = `${originPRTitle} - Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} without conflict`
-     body = `Automated PR to rebase new ${backBranchName} branch changes over to ${backBranchName}. Please resolve conflicts before merging! - ${originPRBody}`
+     title = `${originalPRTitle} - Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} without conflict`
+     body = `Automated PR to rebase new ${backBranchName} branch changes over to ${backBranchName}. Please resolve conflicts before merging! - ${originalPRBody}`
   }
 
   const requestBody = {
