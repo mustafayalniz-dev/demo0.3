@@ -63,11 +63,11 @@ async function main() {
            const cherryPick = `git cherry-pick -m 1 ${commit_list[index]}`
            try {
                const { error, stdout, stderr } = await exec(`${cherryPick}`)
-               console.log('stdout:', stdout);
-               console.log('stderr:', stderr);
+//               console.log('stdout:', stdout);
+//               console.log('stderr:', stderr);
                cherryPickSuccess=true
            } catch (error) {
-               console.log("error:", error)
+//               console.log("error:", error)
                if (error.message.includes("conflicts")) {
                    conflictHappened = true
                    console.log("Conflict occured while cherry picking, now pushing conflict " + commit_list[index] + " into new branch...")
@@ -81,8 +81,8 @@ async function main() {
         deleteRemoteBranch=`git push origin --delete ${originalBranchName}`
         try {
             const { error, stdout, stderr } = await exec(`${deleteLocalBranch} && ${deleteRemoteBranch}`)
-            console.log('stdout:', stdout);
-            console.log('stderr:', stderr);
+//            console.log('stdout:', stdout);
+//            console.log('stderr:', stderr);
         } catch (error) {
             console.log("error:", error)
         }
@@ -97,8 +97,8 @@ main()
 async function commitConflict(addAll, commitAll) {
   try {
       const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll}`)
-      console.log('stdout:', stdout);
-      console.log('stderr:', stderr);
+//      console.log('stdout:', stdout);
+//      console.log('stderr:', stderr);
       return true
   } catch (error) {
       console.log("error:", error)
@@ -140,8 +140,8 @@ async function getCommitListInPR(commits_url) {
 async function commitConflict(addAll, commitAll) {
   try {
       const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll}`)
-      console.log('stdout:', stdout);
-      console.log('stderr:', stderr);
+//      console.log('stdout:', stdout);
+//      console.log('stderr:', stderr);
       return true
   } catch (error) {
       console.log("error:", error)
