@@ -2,8 +2,13 @@ yyeyeyeyyeye
 
 llllllllll
 lllkkkııı
+<<<<<<< HEAD
 new line
 test5line33
+=======
+new line22
+test5line
+>>>>>>> 3766301 (22)
 tye
 uuy
 hhgs
