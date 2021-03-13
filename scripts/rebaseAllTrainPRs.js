@@ -240,7 +240,7 @@ async function createPullRequest(backBranchName, newSourceBranchName, originPRTi
 }
 
 
-def getNewbranchName(branchName) {
+async function getNewbranchName(branchName) {
     var baseName=""
     var count=0
 
