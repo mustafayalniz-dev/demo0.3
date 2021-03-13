@@ -171,10 +171,10 @@ async function createPullRequest(backBranchName, newSourceBranchName, originalPR
   console.log("We PR from " + newSourceBranchName + " " + backBranchName + " " + originalPRTitle)
 
   if ( conflictHappened ) {
-     title = `${originalPRTitle} - Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} with conflict`
+     title = `${originalPRTitle} - Pulling "${originalPRTitle}" from ${newSourceBranchName} into ${backBranchName} with conflict`
      body = `Automated PR to rebase new ${backBranchName} branch changes over to ${backBranchName}. Please resolve conflicts before merging! - ${originalPRBody}`
   } else {
-     title = `${originalPRTitle} - Pulling "${originPRTitle}" from ${newSourceBranchName} into ${backBranchName} without conflict`
+     title = `${originalPRTitle} - Pulling "${originalPRTitle}" from ${newSourceBranchName} into ${backBranchName} without conflict`
      body = `Automated PR to rebase new ${backBranchName} branch changes over to ${backBranchName}. Please resolve conflicts before merging! - ${originalPRBody}`
   }
 
