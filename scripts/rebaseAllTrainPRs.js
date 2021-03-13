@@ -50,7 +50,7 @@ async function main() {
 //        console.log(prList[pr])
         const fetchTarget = `git fetch`
         const originalBranchName=prList[pr].head.ref
-        const newBranchName=getNewbranchName(originalBranchName)
+        const newBranchName=await getNewbranchName(originalBranchName)
         checkoutTrainBranch = `git checkout ${trainBranchName}`
         pullTrainBranch=`git pull origin ${trainBranchName}`
         checkoutCreatePrSourceBranch = `git checkout -b ${newBranchName}`
@@ -76,7 +76,7 @@ async function main() {
            }
         }
         const pushPrSourceBranch = `git push origin ${newBranchName}`
-        closePullRequest(originalPRUrl)
+        closePRResult=await closePullRequest(originalPRUrl)
         deleteLocalBranch=`git branch -d ${originalBranchName}`
         deleteRemoteBranch=`git push origin --delete ${originalBranchName}`
         try {
@@ -86,9 +86,8 @@ async function main() {
         } catch (error) {
             console.log("error:", error)
         }
-        createPullRequest(trainBranchName, newBranchName, originPRTitle, originPRBody, conflictHappened)
+        createPRResult=await createPullRequest(trainBranchName, newBranchName, originPRTitle, originPRBody, conflictHappened)
    }
-
 
 
 }
