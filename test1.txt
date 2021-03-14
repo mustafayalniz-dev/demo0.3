@@ -1,5 +1,7 @@
+<<<<<<< HEAD
 line1
 line2tr_03
+<<<<<<< HEAD
 line2
 tr_01
 new line to int
@@ -13,9 +15,39 @@ jira stuff 2
 jira stuff 3
 jira stuff 4
 jira stuff 5
+<<<<<<< HEAD
 jira stuff 6
+<<<<<<< HEAD
 jira stuff 7
+<<<<<<< HEAD
 jira stuff 8
+<<<<<<< HEAD
 jira stuff 9
+<<<<<<< HEAD
 jira stuff 10
+<<<<<<< HEAD
 jira stuff 11
+=======
+=======
+=======
+=======
+=======
+=======
+=======
+=======
+<<<<<<< HEAD
+line2
+tr_01
+>>>>>>> 0a2aae7 (tr01)
+=======
+line1tr_02
+line2
+>>>>>>> bf22506 (tr02)
+>>>>>>> 7709631 (Github Action commits conflict)
+>>>>>>> 5e9532f (Github Action commits conflict)
+>>>>>>> 7962e6a (Github Action commits conflict)
+>>>>>>> 3e2ed01 (Github Action commits conflict)
+>>>>>>> 762b67b (Github Action commits conflict)
+>>>>>>> 2c54207 (Github Action commits conflict)
+>>>>>>> efba0e0 (Github Action commits conflict)
+>>>>>>> 78c5917 (Github Action commits conflict)
