@@ -115,8 +115,8 @@ async function mergeMasterIntoIntegration() {
       var conflictHappened = false
       try {
           const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${setPolicy} && ${pullIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
-//          console.log('stdout:', stdout);
-//          console.log('stderr:', stderr);
+          console.log('stdout111:', stdout);
+          console.log('stderr111:', stderr);
           if (stdout.message.includes("conflicts")) {
               conflictHappened = true
               console.log("Conflict occured while merging master into ${integrationBranch}, now pushing conflict content into new branch...")
@@ -125,7 +125,7 @@ async function mergeMasterIntoIntegration() {
           conflictHappened = false
           mergeSuccess=true
       } catch (error) {
-          console.log("error:", error)
+          console.log("error111:", error)
           mergeSuccess=false
       }
 
