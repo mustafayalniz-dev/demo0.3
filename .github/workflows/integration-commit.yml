@@ -8,7 +8,7 @@ on:
 jobs:
   releaser:
     name: "Merge master to integration"
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'rt-2.0')
+    if: github.event.pull_request.merged == true && !contains(github.event.pull_request.labels.*.name, 'rt-2.0')
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
