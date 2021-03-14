@@ -120,7 +120,7 @@ async function mergeMasterIntoIntegration() {
           mergeSuccess=true
       } catch (error) {
           console.log("error:", error)
-          if (error.message.includes("conflicts")) {
+          if (error.message.includes("conflicts") || stdout.message.includes("conflicts")) {
               conflictHappened = true
               console.log("Conflict occured while merging master into ${integrationBranch}, now pushing conflict content into new branch...")
               mergeSuccess=await commitConflict(addAll, commitAll)
