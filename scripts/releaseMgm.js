@@ -92,7 +92,7 @@ async function mergeMasterIntoIntegration() {
       const fetchTarget = `git fetch`
       const checkoutMaster = `git checkout master`
       const pullMaster = `git pull origin master --allow-unrelated-histories`
-      await exec(`${fetchTarget} && ${checkoutMaster}`)
+      await exec(`${fetchTarget} && ${checkoutMaster} && ${pullMaster}`)
 
       const release = "../.release-version.json"
       const releaseVersion = require(release)
@@ -104,22 +104,37 @@ async function mergeMasterIntoIntegration() {
       const setIdentity = `git config --global user.name "Spin Github Action"`
       const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
       const pullIntegrationBranch = `git pull origin ${integrationBranch} --allow-unrelated-histories`
-      const mergeMasterIntoIntegration = `git merge master -m "auto merge ${integrationBranch} upon commit into master" --allow-unrelated-histories`
+      const mergeMasterIntoIntegration = `git merge master -m "auto merge master into ${integrationBranch} upon new commit into master" --allow-unrelated-histories`
       const pushIntegrationBranch = `git push origin ${integrationBranch}`
 
+      const addAll = `git add -A`
+      const commitAll = `git commit -m "Github Action commits conflict"`
+
       var success=false
+      var conflictHappened = false
       try {
-          const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutMaster} &&  ${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
+          const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
           console.log('stdout:', stdout);
           console.log('stderr:', stderr);
+          conflictHappened = false
           success=true
       } catch (error) {
           console.log("error:", error)
+          if (error.message.includes("conflicts")) {
+              conflictHappened = true
+              console.log("Conflict occured while merging master into ${integrationBranch}, now pushing conflict content into new branch...")
+              cherryPickSuccess=await commitConflict(addAll, commitAll)
+          }
+
           success=false
       }
 
       if ( success ) {
-	  console.log("Master merged into " + integrationBranch + " with success")
+          if ( conflictHappened ) {
+	  	console.log("Master merged into " + integrationBranch + " with conflict")
+	  } else {
+	  	console.log("Master merged into " + integrationBranch + " without conflict")
+	  }
       }
       return success
 
@@ -175,7 +190,15 @@ async function releaseStart() {
 }
 
 
-
-
-
+async function commitConflict(addAll, commitAll) {
+  try {
+      const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll}`)
+//      console.log('stdout:', stdout);
+//      console.log('stderr:', stderr);
+      return true
+  } catch (error) {
+      console.log("error:", error)
+      return false
+  }
+}
 
