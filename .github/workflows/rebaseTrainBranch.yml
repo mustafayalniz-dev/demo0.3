@@ -8,7 +8,7 @@ on:
 jobs:
   list-and-rebase-to-train:
     name: "Rebase all PRs to train"
-    if: github.event.pull_request.merged == true && !contains(github.event.pull_request.labels.*.name, 'temporary')
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'rt-2.0')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
