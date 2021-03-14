@@ -106,7 +106,11 @@ async function mergeMasterIntoIntegration() {
       const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
       const pullIntegrationBranch = `git pull origin ${integrationBranch} --allow-unrelated-histories`
       const mergeMasterIntoIntegration = `git merge master -m "auto merge master into ${integrationBranch} upon new commit into master" --allow-unrelated-histories`
+<<<<<<< HEAD
       const pushIntegrationBranch = `git push origin ${integrationBranch} --allow-unrelated-histories`
+=======
+      const pushIntegrationBranch = `git push origin ${integrationBranch}`
+>>>>>>> master
 
       const addAll = `git add -A`
       const commitAll = `git commit -m "Github Action commits conflict"`
@@ -115,6 +119,7 @@ async function mergeMasterIntoIntegration() {
       var conflictHappened = false
       try {
           const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${setPolicy} && ${pullIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
+<<<<<<< HEAD
           console.log('stdout111:', stdout);
           console.log('stderr111:', stderr);
           if (stdout.message.includes("conflicts")) {
@@ -127,6 +132,19 @@ async function mergeMasterIntoIntegration() {
       } catch (error) {
           console.log("error111:", error)
           mergeSuccess=false
+=======
+//          console.log('stdout:', stdout);
+//          console.log('stderr:', stderr);
+          conflictHappened = false
+          mergeSuccess=true
+      } catch (error) {
+//          console.log("error:", error)
+          if (error.stdout.includes("conflicts")) {
+              conflictHappened = true
+              console.log("Conflict occured while merging master into " + integrationBranch + ", now pushing conflict content into new branch...")
+              mergeSuccess=await commitConflict(addAll, commitAll, pushIntegrationBranch)
+          }
+>>>>>>> master
       }
 
       if ( mergeSuccess ) {
@@ -190,9 +208,15 @@ async function releaseStart() {
 }
 
 
+<<<<<<< HEAD
 async function commitConflict(addAll, commitAll) {
   try {
       const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll}`)
+=======
+async function commitConflict(addAll, commitAll, pushIntegrationBranch) {
+  try {
+      const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll} && ${pushIntegrationBranch}`)
+>>>>>>> master
 //      console.log('stdout:', stdout);
 //      console.log('stderr:', stderr);
       return true

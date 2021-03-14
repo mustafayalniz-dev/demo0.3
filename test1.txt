@@ -4,3 +4,7 @@ new line to int
 new line in master
 another line in master
 another line in master1
+<<<<<<< HEAD
+=======
+anotehr line in master2
+>>>>>>> master
