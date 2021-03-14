@@ -1,2 +1,7 @@
 line1
+<<<<<<< HEAD
 line2tr_03
+=======
+line2
+tr_01
+>>>>>>> 0a2aae7 (tr01)
