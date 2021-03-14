@@ -115,6 +115,7 @@ async function main() {
             } catch (error) {
                 console.log("error:", error)
             }
+	    //  CREATING NEW PULL REQUEST
 	    createPRResult=await createPullRequest(trainBranchName, newBranchName, originalPRTitle, originalPRBody, conflictHappened)
         }
         if ( conflictHappened ) {
