@@ -106,7 +106,7 @@ async function mergeMasterIntoIntegration() {
       const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
       const pullIntegrationBranch = `git pull origin ${integrationBranch} --allow-unrelated-histories`
       const mergeMasterIntoIntegration = `git merge master -m "auto merge master into ${integrationBranch} upon new commit into master" --allow-unrelated-histories`
-      const pushIntegrationBranch = `git push origin ${integrationBranch} --allow-unrelated-histories`
+      const pushIntegrationBranch = `git push origin ${integrationBranch}`
 
       const addAll = `git add -A`
       const commitAll = `git commit -m "Github Action commits conflict"`
