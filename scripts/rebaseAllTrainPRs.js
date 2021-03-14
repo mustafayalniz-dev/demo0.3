@@ -181,6 +181,9 @@ async function getCommitListInPR(commits_url) {
   
 }
 
+//
+// Post slack message into specified channel 
+//
 async function postSlackMessage(channel, message) {
 
   const requestBody = {
@@ -198,6 +201,9 @@ async function postSlackMessage(channel, message) {
 
 }
 
+//
+// Create Github Pull Request
+//
 async function createPullRequest(backBranchName, newSourceBranchName, originalPRTitle, originalPRBody, conflictHappened) {
   console.log("We PR from " + newSourceBranchName + " " + backBranchName + " " + originalPRTitle)
 
@@ -225,6 +231,9 @@ async function createPullRequest(backBranchName, newSourceBranchName, originalPR
   return await response.json()
 }
 
+// 
+// Close existing pulll request that is expired.
+// 
 async function closePullRequest(pr_url) {
 
   const requestBody = {
@@ -242,7 +251,9 @@ async function closePullRequest(pr_url) {
 
 }
 
-
+//
+// Generate new name for branch
+//
 async function getNewbranchName(branchName) {
     var baseName=""
     var count=0
