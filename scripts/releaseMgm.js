@@ -102,6 +102,7 @@ async function mergeMasterIntoIntegration() {
 
       const setEmail = `git config --global user.email "githubaction@spin.pm"`
       const setIdentity = `git config --global user.name "Spin Github Action"`
+      const setPolicy = `git config pull.rebase false`
       const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
       const pullIntegrationBranch = `git pull origin ${integrationBranch} --allow-unrelated-histories`
       const mergeMasterIntoIntegration = `git merge master -m "auto merge master into ${integrationBranch} upon new commit into master" --allow-unrelated-histories`
@@ -113,7 +114,7 @@ async function mergeMasterIntoIntegration() {
       var mergeSuccess=false
       var conflictHappened = false
       try {
-          const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
+          const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${setPolicy} && ${pullIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
 //          console.log('stdout:', stdout);
 //          console.log('stderr:', stderr);
           conflictHappened = false
