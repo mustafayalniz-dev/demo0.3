@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 line1
 line2tr_03
+=======
+line1tr_02
+line2
+>>>>>>> bf22506 (tr02)
