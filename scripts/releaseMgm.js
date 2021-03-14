@@ -136,7 +136,7 @@ async function mergeMasterIntoIntegration() {
 	  	console.log("Master merged into " + integrationBranch + " without conflict")
 	  }
       }
-      return success
+      return mergeSuccess
 
 }
 
