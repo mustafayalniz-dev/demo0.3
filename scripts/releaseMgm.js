@@ -110,26 +110,26 @@ async function mergeMasterIntoIntegration() {
       const addAll = `git add -A`
       const commitAll = `git commit -m "Github Action commits conflict"`
 
-      var success=false
+      var mergeSuccess=false
       var conflictHappened = false
       try {
           const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
           console.log('stdout:', stdout);
           console.log('stderr:', stderr);
           conflictHappened = false
-          success=true
+          mergeSuccess=true
       } catch (error) {
           console.log("error:", error)
           if (error.message.includes("conflicts")) {
               conflictHappened = true
               console.log("Conflict occured while merging master into ${integrationBranch}, now pushing conflict content into new branch...")
-              cherryPickSuccess=await commitConflict(addAll, commitAll)
-          }
-
-          success=false
+              mergeSuccess=await commitConflict(addAll, commitAll)
+          } else {
+              mergeSuccess=false
+	  }
       }
 
-      if ( success ) {
+      if ( mergeSuccess ) {
           if ( conflictHappened ) {
 	  	console.log("Master merged into " + integrationBranch + " with conflict")
 	  } else {
