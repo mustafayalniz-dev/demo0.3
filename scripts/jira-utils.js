@@ -56,11 +56,14 @@ module.exports = {
 
   transitionRequest: async function (ticket, transitionId) {
     const requestBody = { transition: { id: transitionId } }
-    const transitionStatus =  await fetch(`${this.baseUrl}${this.issueBaseUrl}${ticket}${this.transitionUrl}`, {
-      method: "post",
-      body: JSON.stringify(requestBody),
-      headers: this.headersWithAuth({ "Content-Type": "application/json" }),
-    })
+    const transitionStatus = await fetch(
+      `${this.baseUrl}${this.issueBaseUrl}${ticket}${this.transitionUrl}`,
+      {
+        method: "post",
+        body: JSON.stringify(requestBody),
+        headers: this.headersWithAuth({ "Content-Type": "application/json" }),
+      }
+    )
 
     return transitionStatus
   },
@@ -116,16 +119,13 @@ module.exports = {
 
   isEngineeringNoQA: async function (issue_id) {
     const jqlSearch = encodeURIComponent(
-      `issueKey="${issue_id}" AND labels in ( "${
-        this.engineeringNoQALabel
-      }" )`
+      `issueKey="${issue_id}" AND labels in ( "${this.engineeringNoQALabel}" )`
     )
 
     const jqlSearchUrl = this.jqlSearchBaseUrl + jqlSearch
     const searchResponse = await fetch(`${this.baseUrl}${jqlSearchUrl}`, {
       headers: this.headersWithAuth({}),
     })
-
     const searchResponseJson = await searchResponse.json()
 
     if (Object.keys(searchResponseJson.issues).length > 0) {
@@ -136,15 +136,12 @@ module.exports = {
   },
 
   isInStatuses: async function (issue_id, statuses) {
-
-    const statusesQuoted = statuses.map(status => "\"" + status + "\"");
+    const statusesQuoted = statuses.map((status) => '"' + status + '"')
 
     var stringStatuses = statusesQuoted.join(",")
 
     const jqlSearch = encodeURIComponent(
-      `issueKey="${issue_id}" AND status in ( ${
-        stringStatuses
-      } )`
+      `issueKey="${issue_id}" AND status in ( ${stringStatuses} )`
     )
 
     const jqlSearchUrl = this.jqlSearchBaseUrl + jqlSearch
@@ -161,15 +158,12 @@ module.exports = {
   },
 
   isInReview: async function (issue_id) {
-    const jqlSearch = encodeURIComponent(
-      `issueKey="${issue_id}" AND status="In Review"`
-    )
+    const jqlSearch = encodeURIComponent(`issueKey="${issue_id}" AND status="In Review"`)
 
     const jqlSearchUrl = this.jqlSearchBaseUrl + jqlSearch
     const searchResponse = await fetch(`${this.baseUrl}${jqlSearchUrl}`, {
       headers: this.headersWithAuth({}),
     })
-
     const searchResponseJson = await searchResponse.json()
 
     if (Object.keys(searchResponseJson.issues).length > 0) {
@@ -215,26 +209,26 @@ module.exports = {
     let linkedIssues = []
 
     for (var issue in searchResponseJson.issues) {
-//      if (!statuses.includes(searchResponseJson.issues[issue].fields.status.name)) {
-//        continue
-//      }
+      //      if (!statuses.includes(searchResponseJson.issues[issue].fields.status.name)) {
+      //        continue
+      //      }
 
       if ("issuelinks" in searchResponseJson.issues[issue].fields) {
         // if tickets aren't linked as blockers to the wrapper, this won't touch them
         const linksToTicketsThatBlockWrapper = searchResponseJson.issues[
           issue
         ].fields.issuelinks.filter((link) => link.type.inward === "is blocked by")
-        for(var link in linksToTicketsThatBlockWrapper){
-		if ( linksToTicketsThatBlockWrapper[link].inwardIssue !== undefined ) {
-			lissue = linksToTicketsThatBlockWrapper[link].inwardIssue.key
-   			lissue_id = lissue.replace(/https:\/\/spinbikes.atlassian.net\/browse\//, "")
-			lissueStatusOk = await this.isInStatuses(lissue_id, statuses)
-			console.log(lissue_id + ": " + lissueStatusOk)
-			if ( lissue  !== 'undefined' ) {
-				linkedIssues.push( lissue )
-			}
-		}
-	}
+        for (var link in linksToTicketsThatBlockWrapper) {
+          if (linksToTicketsThatBlockWrapper[link].inwardIssue !== undefined) {
+            const lissue = linksToTicketsThatBlockWrapper[link].inwardIssue.key
+            const lissue_id = lissue.replace(/https:\/\/spinbikes.atlassian.net\/browse\//, "")
+            const lissueStatusOk = await this.isInStatuses(lissue_id, statuses)
+            console.log(lissue_id + ": " + lissueStatusOk)
+            if (lissue !== "undefined") {
+              linkedIssues.push(lissue)
+            }
+          }
+        }
       }
     }
     return linkedIssues
