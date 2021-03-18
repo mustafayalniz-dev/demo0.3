@@ -2,6 +2,7 @@ const fetch = require("node-fetch")
 const { promisify } = require("util")
 const fs = require("fs")
 const exec = promisify(require("child_process").exec)
+var jiraUtils = require("./jira-utils")
 
 const SLACK_TOKEN = process.env.SLACK_TOKEN
 const channel = "github-actiontest"
@@ -124,7 +125,11 @@ async function mergeMasterIntoIntegration() {
           if (error.stdout.includes("conflicts")) {
               conflictHappened = true
               console.log("Conflict occured while merging master into " + integrationBranch + ", now pushing conflict content into new branch...")
-              mergeSuccess=await commitConflict(addAll, commitAll, pushIntegrationBranch)
+              cherryPickSuccess=await commitConflict(addAll, commitAll, pushIntegrationBranch)
+              if ( cherryPickSuccess ) {
+                  var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", reporter, "10004", "conflict location")
+                  console.log(createJiraResponse)
+              }
           }
       }
 
