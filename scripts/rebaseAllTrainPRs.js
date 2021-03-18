@@ -6,7 +6,7 @@ var jiraUtils = require("./jira-utils")
 
 const SLACK_TOKEN = process.env.SLACK_TOKEN
 const channel = "github-actiontest"
-const jiraCreate = false
+const jiraCreate = true
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
@@ -49,15 +49,12 @@ async function main() {
         var originalPRTitle = prList[pr].title
         var originalPRBody = prList[pr].body
  
-//        console.log("Check here Original PR Content... title:" + originalPRTitle + " body: " + originalPRBody )
-//        console.log(prList[pr])
         const fetchTarget = `git fetch`
         const originalBranchName=prList[pr].head.ref
         const newBranchName=await getNewbranchName(originalBranchName)
         checkoutTrainBranch = `git checkout ${trainBranchName}`
         pullTrainBranch=`git pull origin ${trainBranchName}`
         checkoutCreatePrSourceBranch = `git checkout -b ${newBranchName}`
-//        checkoutPushPrSourceBranch = `git push origin ${newBranchName}`
  
         var newBranchSuccess = false
         try {
@@ -76,11 +73,8 @@ async function main() {
            const cherryPick = `git cherry-pick -m 1 ${commit_list[index]}`
            try {
                const { error, stdout, stderr } = await exec(`${cherryPick}`)
-//               console.log('stdout:', stdout);
-//               console.log('stderr:', stderr);
                cherryPickSuccess=true
            } catch (error) {
-//               console.log("error:", error)
                if (error.message.includes("conflicts")) {
                    conflictHappened = true
                    console.log("Conflict occured while cherry picking, now pushing conflict " + commit_list[index] + " into new branch...")
@@ -98,8 +92,6 @@ async function main() {
         var forcePushSourceBranchSuccess=false
         try {
             const { error, stdout, stderr } = await exec(`${fetchTarget} && ${forcePushToRemoteBranch}`)
-//            console.log('stdout:', stdout);
-//            console.log('stderr:', stderr);
             forcePushSourceBranchSuccess=true
         } catch (error) {
             forcePushSourceBranchSuccess=false
@@ -110,11 +102,9 @@ async function main() {
 	        if ( jiraCreate ) {
                    var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "Conflict occured while updating PR: " + prUrlToUpdate)
                    createJiraResponseJson = await createJiraResponse.json()
-                   console.log(createJiraResponseJson)
+		   var jiraIssueUrl="https://spinbikes.atlassian.net/browse/" + createJiraResponseJson.key
+		   var patchPRResponse = await patchPullRequest(prUrlToUpdate, originalPRTitle, originalPRBody, jiraIssueUrl)
 		}
-		var jiraIssueUrl="https://spinbikes.atlassian.net/browse/RDE-2944"
-		var patchPRResponse = await patchPullRequest(prUrlToUpdate, originalPRTitle, originalPRBody, jiraIssueUrl)
-		console.log(patchPRResponse)
 	} else if ( forcePushSourceBranchSuccess ) {
         	await postSlackMessage(channel, "PR " + prUrlToUpdate + " has been updated clean. Rebase was clean...")
 	} else {
@@ -132,8 +122,6 @@ main()
 async function commitConflict(addAll, commitAll) {
   try {
       const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll}`)
-//      console.log('stdout:', stdout);
-//      console.log('stderr:', stderr);
       return true
   } catch (error) {
       console.log("error:", error)
@@ -238,7 +226,7 @@ async function patchPullRequest(prUrlToUpdate, originalPRTitle, originalPRBody, 
   body = `${originalPRBody}`
 
   const requestBody = {
-    body: `${body} + "\nCritical: Please check issue ${jiraIssueUrl} before merging"`,
+    body: `${body}\nCritical: Please check issue ${jiraIssueUrl} before merging"`,
   }
   const response = await fetch(prUrlToUpdate, {
     method: "patch",
