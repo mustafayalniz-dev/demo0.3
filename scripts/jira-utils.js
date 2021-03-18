@@ -68,25 +68,23 @@ module.exports = {
     return transitionStatus
   },
 
-  createJiraIssueForConflict: async function (projectId, reporter, issueType, conflictLocation) {
+  createJiraIssueForConflict: async function (projectKey, reporter, issueType, conflictMessage) {
 
     reporter="5f7784e5e31b69006fa1159d"
     const requestBody = {
-       "fields": {
-          "summary": "There is a conflict in : " + conflictLocation,
-          "description": "Urgent Action is required to fix conflict in " + conflictLocation,
-          "project": {
-            "id": projectId
-          },
-          "reporter": {
-            "id": reporter
-          },
-          "issuetype": {
-            "id": issueType
-          }
+       'fields': {
+            'project': {
+              'key': 'RDE'
+            },
+            'summary': 'There is a conflict : ' + conflictMessage,
+            'description': 'Urgent Action is required to fix conflict' + conflictMessage,
+            'issuetype': {
+              'name': "Bug"
+            }
        }
     } 
 
+    console.log(JSON.stringify(requestBody))
     const issueCreateStatus = await fetch(
       `${this.baseUrl}${this.issueBaseUrl}`,
       {

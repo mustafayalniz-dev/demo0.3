@@ -7,9 +7,12 @@ var jiraUtils = require("./jira-utils")
 const SLACK_TOKEN = process.env.SLACK_TOKEN
 const channel = "github-actiontest"
 
+const jiraCreate=false
+
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
 const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
+const slackUrl="https://slack.com/api/chat.postMessage"
 
 var selectedFunction = process.argv.slice(2)[0]
 
@@ -18,6 +21,7 @@ const githubAuth =
 
 const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/demo0.3/pulls"
 
+const getSlackAuth = "Bearer " + global.Buffer.from(SLACK_TOKEN).toString()
 
 async function main() {
     if ( selectedFunction == "release-start") {
@@ -103,6 +107,7 @@ async function mergeMasterIntoIntegration() {
 
       const setEmail = `git config --global user.email "githubaction@spin.pm"`
       const setIdentity = `git config --global user.name "Spin Github Action"`
+      const setPolicy = `git config pull.rebase false`
       const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
       const pullIntegrationBranch = `git pull origin ${integrationBranch} --allow-unrelated-histories`
       const mergeMasterIntoIntegration = `git merge master -m "auto merge master into ${integrationBranch} upon new commit into master" --allow-unrelated-histories`
@@ -111,37 +116,43 @@ async function mergeMasterIntoIntegration() {
       const addAll = `git add -A`
       const commitAll = `git commit -m "Github Action commits conflict"`
 
-      var success=false
+      var mergeSuccess=false
       var conflictHappened = false
       try {
-          const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
-          console.log('stdout:', stdout);
-          console.log('stderr:', stderr);
+          const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${setPolicy} && ${pullIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
+//          console.log('stdout:', stdout);
+//          console.log('stderr:', stderr);
           conflictHappened = false
-          success=true
+          mergeSuccess=true
       } catch (error) {
-          console.log("error:", error)
-          if (error.message.includes("conflicts")) {
+//          console.log("error:", error)
+          if (error.stdout.includes("conflicts")) {
               conflictHappened = true
-              console.log("Conflict occured while merging master into ${integrationBranch}, now pushing conflict content into new branch...")
-              cherryPickSuccess=await commitConflict(addAll, commitAll)
-              if ( cherryPickSuccess ) {
-                  var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", reporter, "10004", "conflict location")
-                  console.log(createJiraResponse)
+              console.log("Conflict occured while merging master into " + integrationBranch + ", now pushing conflict content into new branch...")
+              mergeSuccess=await commitConflict(addAll, commitAll, pushIntegrationBranch)
+              if ( mergeSuccess && jiraCreate ) {
+                  var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "Conflict occured while merging master into " + integrationBranch)
+                  createJiraResponseJson = await createJiraResponse.json()
+                  console.log(createJiraResponseJson.key)
+                  if ( createJiraResponseJson.key )  {
+			console.log("Jira issue created: " + createJiraResponseJson.key )
+		  }
               }
-          }
-
-          success=false
-      }
-
-      if ( success ) {
-          if ( conflictHappened ) {
-	  	console.log("Master merged into " + integrationBranch + " with conflict")
-	  } else {
-	  	console.log("Master merged into " + integrationBranch + " without conflict")
+          } else {
+	      mergeSuccess=false
 	  }
       }
-      return success
+
+      if ( mergeSuccess ) {
+          if ( conflictHappened ) {
+	  	console.log("Master merged into " + integrationBranch + " with conflict")
+                slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch )
+	  } else {
+	  	console.log("Master merged into " + integrationBranch + " without conflict")
+                slack_response=await postSlackMessage(channel, "Merged master into " + integrationBranchy + " without conflict")
+	  }
+      }
+      return mergeSuccess
 
 }
 
@@ -191,16 +202,13 @@ async function releaseStart() {
           success=false
       }
 
-      if ( success ) {
-          
-      }
       return success
 }
 
 
-async function commitConflict(addAll, commitAll) {
+async function commitConflict(addAll, commitAll, pushIntegrationBranch) {
   try {
-      const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll}`)
+      const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll} && ${pushIntegrationBranch}`)
 //      console.log('stdout:', stdout);
 //      console.log('stderr:', stderr);
       return true
@@ -208,5 +216,26 @@ async function commitConflict(addAll, commitAll) {
       console.log("error:", error)
       return false
   }
+}
+
+
+//
+// Post slack message into specified channel
+//
+async function postSlackMessage(channel, message) {
+
+  const requestBody = {
+        channel: channel,
+        text: message
+  }
+
+  const response = await fetch(slackUrl, {
+       method: "post",
+       body: JSON.stringify(requestBody),
+       headers: { Authorization: getSlackAuth, "Content-type": "application/json", "User-Agent": "RT-Project-Agent" },
+  })
+
+  return await response.json()
+
 }
 
