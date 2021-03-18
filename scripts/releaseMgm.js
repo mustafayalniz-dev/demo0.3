@@ -128,7 +128,8 @@ async function mergeMasterIntoIntegration() {
               cherryPickSuccess=await commitConflict(addAll, commitAll, pushIntegrationBranch)
               if ( cherryPickSuccess ) {
                   var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "conflict location")
-                  console.log(createJiraResponse)
+                  createJiraResponseJson = await createJiraResponse.json()
+                  console.log(createJiraResponseJson)
               }
           }
       }
