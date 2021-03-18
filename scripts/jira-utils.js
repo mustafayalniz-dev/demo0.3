@@ -87,6 +87,7 @@ module.exports = {
        }
     } 
 
+    console.log(requestBody)
     const issueCreateStatus = await fetch(
       `${this.baseUrl}${this.issueBaseUrl}`,
       {
