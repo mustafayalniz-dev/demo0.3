@@ -101,6 +101,7 @@ async function main() {
         	await postSlackMessage(channel, "PR " + prUrlToUpdate + " has been updated but has conflicts. Please resolve conflicts of rebasing...")
 	        if ( jiraCreate ) {
                    var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "Conflict occured while updating PR: " + prUrlToUpdate)
+                   console.log(createJiraResponse)
                    createJiraResponseJson = await createJiraResponse.json()
 		   var jiraIssueUrl="https://spinbikes.atlassian.net/browse/" + createJiraResponseJson.key
 		   var patchPRResponse = await patchPullRequest(prUrlToUpdate, originalPRTitle, originalPRBody, jiraIssueUrl)
