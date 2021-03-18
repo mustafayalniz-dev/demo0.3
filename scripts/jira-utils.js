@@ -68,7 +68,7 @@ module.exports = {
     return transitionStatus
   },
 
-  createJiraIssueForConflict: async function (projectId, reporter, issueType, conflictLocation) {
+  createJiraIssueForConflict: async function (projectKey, reporter, issueType, conflictLocation) {
 
     reporter="5f7784e5e31b69006fa1159d"
     const requestBody = {
@@ -76,7 +76,7 @@ module.exports = {
           'summary': 'There is a conflict in : ' + conflictLocation,
           'description': 'Urgent Action is required to fix conflict in ' + conflictLocation,
           'project': {
-            'id': projectId
+            'key': projectKey
           },
           'reporter': {
             'id': reporter
