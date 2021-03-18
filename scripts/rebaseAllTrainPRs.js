@@ -114,8 +114,7 @@ async function main() {
 		}
 		var jiraIssueUrl="https://spinbikes.atlassian.net/browse/RDE-2944"
 		var patchPRResponse = await patchPullRequest(prUrlToUpdate, originalPRTitle, originalPRBody, jiraIssueUrl)
-   		patchPRResponseJson = await patchPRResponse.json()
-		console.log(patchPRResponseJson)
+		console.log(patchPRResponse)
 	} else if ( forcePushSourceBranchSuccess ) {
         	await postSlackMessage(channel, "PR " + prUrlToUpdate + " has been updated clean. Rebase was clean...")
 	} else {
