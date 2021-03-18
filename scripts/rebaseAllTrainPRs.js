@@ -46,8 +46,8 @@ async function main() {
         
 	var commit_list = await getCommitListInPR(commitsUrl)
         var prUrlToUpdate = prList[pr].url
-//        var originalPRTitle = prList[pr].title
-//        var originalPRBody = prList[pr].body
+        var originalPRTitle = prList[pr].title
+        var originalPRBody = prList[pr].body
  
 //        console.log("Check here Original PR Content... title:" + originalPRTitle + " body: " + originalPRBody )
 //        console.log(prList[pr])
@@ -112,6 +112,10 @@ async function main() {
                    createJiraResponseJson = await createJiraResponse.json()
                    console.log(createJiraResponseJson)
 		}
+		var jiraIssueUrl="https://spinbikes.atlassian.net/browse/RDE-2944"
+		var patchPRResponse = await patchPullRequest(prUrlToUpdate, originalPRTitle, originalPRBody, jiraIssueUrl)
+   		patchPRResponseJson = await patchPRResponse.json()
+		console.log(patchPRResponseJson)
 	} else if ( forcePushSourceBranchSuccess ) {
         	await postSlackMessage(channel, "PR " + prUrlToUpdate + " has been updated clean. Rebase was clean...")
 	} else {
@@ -224,6 +228,29 @@ async function createPullRequest(backBranchName, newSourceBranchName, originalPR
   console.log(response)
   return await response.json()
 }
+
+//
+// Patch Github Pull Request
+//
+async function patchPullRequest(prUrlToUpdate, originalPRTitle, originalPRBody, jiraIssueUrl) {
+  console.log("We are patching PR " + prUrlToUpdate + " with jira issue url : " + jiraIssueUrl )
+
+  title = `${originalPRTitle}.`
+  body = `${originalPRBody}`
+
+  const requestBody = {
+    body: `${body} + "\nCritical: Please check issue ${jiraIssueUrl} before merging"`,
+  }
+  const response = await fetch(prUrlToUpdate, {
+    method: "patch",
+    body: JSON.stringify(requestBody),
+    headers: { Authorization: githubAuth },
+  })
+  console.log("Printing PR patching response ...")
+  console.log(response)
+  return await response.json()
+}
+
 
 // 
 // Close existing pulll request that is expired.

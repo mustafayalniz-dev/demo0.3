@@ -133,7 +133,10 @@ async function mergeMasterIntoIntegration() {
               if ( mergeSuccess && jiraCreate ) {
                   var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "Conflict occured while merging master into " + integrationBranch)
                   createJiraResponseJson = await createJiraResponse.json()
-                  console.log(createJiraResponseJson)
+                  console.log(createJiraResponseJson.key)
+                  if ( createJiraResponseJson.key )  {
+			console.log("Jira issue created: " + createJiraResponseJson.key )
+		  }
               }
           } else {
 	      mergeSuccess=false
