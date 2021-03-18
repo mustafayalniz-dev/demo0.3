@@ -78,9 +78,6 @@ module.exports = {
             },
             'summary': 'There is a conflict in : ' + conflictLocation,
             'description': 'Urgent Action is required to fix conflict in ' + conflictLocation,
-            'reporter': {
-              'id': reporter
-            },
             'issuetype': {
               'name': "Bug"
             }
