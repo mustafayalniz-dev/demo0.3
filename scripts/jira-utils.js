@@ -73,16 +73,16 @@ module.exports = {
     reporter="5f7784e5e31b69006fa1159d"
     const requestBody = {
        'fields': {
+          'project': {
+            'key': 'Rider Experience'
+          },
           'summary': 'There is a conflict in : ' + conflictLocation,
           'description': 'Urgent Action is required to fix conflict in ' + conflictLocation,
-          'project': {
-            'key': projectKey
-          },
           'reporter': {
             'id': reporter
           },
           'issuetype': {
-            'id': issueType
+            'name': "Bug"
           }
        }
     } 
