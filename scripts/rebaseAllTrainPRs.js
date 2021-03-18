@@ -105,7 +105,7 @@ async function main() {
             forcePushSourceBranchSuccess=false
             console.log("error:", error)
         }
-        if ( conflictHappened and forcePushSourceBranchSuccess) {
+        if ( conflictHappened && forcePushSourceBranchSuccess) {
         	await postSlackMessage(channel, "PR " + prUrlToUpdate + " has been updated but has conflicts. Please resolve conflicts of rebasing...")
 	        if ( jiraCreate ) {
                    var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "Conflict occured while updating PR: " + prUrlToUpdate)
