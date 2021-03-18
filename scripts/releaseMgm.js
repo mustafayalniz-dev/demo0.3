@@ -12,6 +12,7 @@ const jiraCreate=false
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
 const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
+const slackUrl="https://slack.com/api/chat.postMessage"
 
 var selectedFunction = process.argv.slice(2)[0]
 
@@ -20,6 +21,7 @@ const githubAuth =
 
 const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/demo0.3/pulls"
 
+const getSlackAuth = "Bearer " + global.Buffer.from(SLACK_TOKEN).toString()
 
 async function main() {
     if ( selectedFunction == "release-start") {
@@ -141,8 +143,10 @@ async function mergeMasterIntoIntegration() {
       if ( mergeSuccess ) {
           if ( conflictHappened ) {
 	  	console.log("Master merged into " + integrationBranch + " with conflict")
+                slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch )
 	  } else {
 	  	console.log("Master merged into " + integrationBranch + " without conflict")
+                slack_response=await postSlackMessage(channel, "Merged master into " + integrationBranchy + " without conflict")
 	  }
       }
       return mergeSuccess
@@ -209,5 +213,26 @@ async function commitConflict(addAll, commitAll, pushIntegrationBranch) {
       console.log("error:", error)
       return false
   }
+}
+
+
+//
+// Post slack message into specified channel
+//
+async function postSlackMessage(channel, message) {
+
+  const requestBody = {
+        channel: channel,
+        text: message
+  }
+
+  const response = await fetch(slackUrl, {
+       method: "post",
+       body: JSON.stringify(requestBody),
+       headers: { Authorization: getSlackAuth, "Content-type": "application/json", "User-Agent": "RT-Project-Agent" },
+  })
+
+  return await response.json()
+
 }
 
