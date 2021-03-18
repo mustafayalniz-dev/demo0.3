@@ -23,5 +23,5 @@ jobs:
           PUSH_GITHUB_USER: ${{ secrets.PUSH_GITHUB_USER }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
         run: |
-          npm install compare-versions node-fetch fs
+          npm install compare-versions node-fetch fs inquirer
           node --trace-warnings scripts/rebaseAllTrainPRs.js train
