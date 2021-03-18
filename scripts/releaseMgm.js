@@ -127,13 +127,15 @@ async function mergeMasterIntoIntegration() {
           if (error.stdout.includes("conflicts")) {
               conflictHappened = true
               console.log("Conflict occured while merging master into " + integrationBranch + ", now pushing conflict content into new branch...")
-              cherryPickSuccess=await commitConflict(addAll, commitAll, pushIntegrationBranch)
-              if ( cherryPickSuccess && jiraCreate ) {
+              mergeSuccess=await commitConflict(addAll, commitAll, pushIntegrationBranch)
+              if ( mergeSuccess && jiraCreate ) {
                   var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "Conflict occured while merging master into " + integrationBranch)
                   createJiraResponseJson = await createJiraResponse.json()
                   console.log(createJiraResponseJson)
               }
-          }
+          } else {
+	      mergeSuccess=false
+	  }
       }
 
       if ( mergeSuccess ) {
