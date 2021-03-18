@@ -73,18 +73,17 @@ module.exports = {
     reporter="5f7784e5e31b69006fa1159d"
     const requestBody = {
        'fields': {
-          'project': {
-            'key': 'Rider Experience',
-            'id': '107'
-          },
-          'summary': 'There is a conflict in : ' + conflictLocation,
-          'description': 'Urgent Action is required to fix conflict in ' + conflictLocation,
-          'reporter': {
-            'id': reporter
-          },
-          'issuetype': {
-            'name': "Bug"
-          }
+            'project': {
+              'key': 'RDE'
+            },
+            'summary': 'There is a conflict in : ' + conflictLocation,
+            'description': 'Urgent Action is required to fix conflict in ' + conflictLocation,
+            'reporter': {
+              'id': reporter
+            },
+            'issuetype': {
+              'name': "Bug"
+            }
        }
     } 
 
