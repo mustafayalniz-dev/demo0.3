@@ -2,9 +2,11 @@ const fetch = require("node-fetch")
 const { promisify } = require("util")
 const fs = require("fs")
 const exec = promisify(require("child_process").exec)
+var jiraUtils = require("./jira-utils")
 
 const SLACK_TOKEN = process.env.SLACK_TOKEN
 const channel = "github-actiontest"
+const jiraCreate = false
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
@@ -43,11 +45,11 @@ async function main() {
 	console.log("Next PR commits URL " + commitsUrl )
         
 	var commit_list = await getCommitListInPR(commitsUrl)
-        var originalPRUrl = prList[pr].url
-        var originalPRTitle = prList[pr].title
-        var originalPRBody = prList[pr].body
+        var prUrlToUpdate = prList[pr].url
+//        var originalPRTitle = prList[pr].title
+//        var originalPRBody = prList[pr].body
  
-        console.log("Check here Original PR Content... title:" + originalPRTitle + " body: " + originalPRBody )
+//        console.log("Check here Original PR Content... title:" + originalPRTitle + " body: " + originalPRBody )
 //        console.log(prList[pr])
         const fetchTarget = `git fetch`
         const originalBranchName=prList[pr].head.ref
@@ -55,11 +57,11 @@ async function main() {
         checkoutTrainBranch = `git checkout ${trainBranchName}`
         pullTrainBranch=`git pull origin ${trainBranchName}`
         checkoutCreatePrSourceBranch = `git checkout -b ${newBranchName}`
-        checkoutPushPrSourceBranch = `git push origin ${newBranchName}`
+//        checkoutPushPrSourceBranch = `git push origin ${newBranchName}`
  
         var newBranchSuccess = false
         try {
-            const { error, stdout, stderr } =await exec(`${fetchTarget} && ${checkoutTrainBranch} && ${pullTrainBranch} && ${checkoutCreatePrSourceBranch} && ${checkoutPushPrSourceBranch} && ${setEmail} && ${setIdentity}`)
+            const { error, stdout, stderr } =await exec(`${fetchTarget} && ${checkoutTrainBranch} && ${pullTrainBranch} && ${checkoutCreatePrSourceBranch} && ${setEmail} && ${setIdentity}`)
 	    newBranchSuccess = true
 	} catch ( error ) {
 	    newBranchSuccess = false
@@ -90,41 +92,32 @@ async function main() {
         if ( ! cherryPickSuccess ) {
 		continue
 	}
-        // CLOSING ORIGINAL PULL REQUEST
-        closePRResult=await closePullRequest(originalPRUrl)
 
-        const pushPrSourceBranch = `git push origin ${newBranchName}`
-        deleteLocalBranch=`git branch -d ${originalBranchName}`
-        deleteRemoteBranch=`git push origin --delete ${originalBranchName}`
+	const forcePushToRemoteBranch = `git push origin --force ${newBranchName}:${originalBranchName}`
 
-        var pushSourceBranchSuccess=false
+        var forcePushSourceBranchSuccess=false
         try {
-            const { error, stdout, stderr } = await exec(`${fetchTarget} && ${pushPrSourceBranch}`)
+            const { error, stdout, stderr } = await exec(`${fetchTarget} && ${forcePushToRemoteBranch}`)
 //            console.log('stdout:', stdout);
 //            console.log('stderr:', stderr);
-            pushSourceBranchSuccess=true
+            forcePushSourceBranchSuccess=true
         } catch (error) {
-            pushSourceBranchSuccess=false
+            forcePushSourceBranchSuccess=false
             console.log("error:", error)
         }
-	if ( pushSourceBranchSuccess ) {
-            try {
-                const { error, stdout, stderr } = await exec(`${deleteLocalBranch} && ${deleteRemoteBranch}`)
-//               console.log('stdout:', stdout);
-//               console.log('stderr:', stderr);
-            } catch (error) {
-                console.log("error:", error)
-            }
-	    //  CREATING NEW PULL REQUEST
-	    createPRResult=await createPullRequest(trainBranchName, newBranchName, originalPRTitle, originalPRBody, conflictHappened)
-        }
-        if ( conflictHappened ) {
-        	await postSlackMessage(channel, "PR " + closePRResult.url + " replaced with " + createPRResult.url + " Please resolve conflicts of rebasing...")
+        if ( conflictHappened and forcePushSourceBranchSuccess) {
+        	await postSlackMessage(channel, "PR " + prUrlToUpdate + " has been updated but has conflicts. Please resolve conflicts of rebasing...")
+	        if ( jiraCreate ) {
+                   var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "Conflict occured while updating PR: " + prUrlToUpdate)
+                   createJiraResponseJson = await createJiraResponse.json()
+                   console.log(createJiraResponseJson)
+		}
+	} else if ( forcePushSourceBranchSuccess ) {
+        	await postSlackMessage(channel, "PR " + prUrlToUpdate + " has been updated clean. Rebase was clean...")
 	} else {
-        	await postSlackMessage(channel, "PR " + closePRResult.url + " replaced with " + createPRResult.url + " Rebase was clean...")
+        	await postSlackMessage(channel, "PR " + prUrlToUpdate + " could not be updated...")
 	}
    }
-
 
 }
 

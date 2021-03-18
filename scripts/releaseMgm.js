@@ -7,6 +7,8 @@ var jiraUtils = require("./jira-utils")
 const SLACK_TOKEN = process.env.SLACK_TOKEN
 const channel = "github-actiontest"
 
+const jiraCreate=false
+
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
 const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
@@ -126,8 +128,8 @@ async function mergeMasterIntoIntegration() {
               conflictHappened = true
               console.log("Conflict occured while merging master into " + integrationBranch + ", now pushing conflict content into new branch...")
               cherryPickSuccess=await commitConflict(addAll, commitAll, pushIntegrationBranch)
-              if ( cherryPickSuccess ) {
-                  var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "conflict location")
+              if ( cherryPickSuccess and jiraCreate ) {
+                  var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "Conflict occured while merging master into " + integrationBranch)
                   createJiraResponseJson = await createJiraResponse.json()
                   console.log(createJiraResponseJson)
               }
