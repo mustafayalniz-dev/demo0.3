@@ -21,6 +21,7 @@ jobs:
         PUSH_GITHUB_USER: ${{ secrets.PUSH_GITHUB_USER }}
         JIRA_USERNAME: ${{ secrets.JIRA_USERNAME }}
         JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+        SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
       run: |
         npm install compare-versions node-fetch fs inquirer
         node scripts/releaseMgm.js auto-merge
