@@ -74,7 +74,8 @@ module.exports = {
     const requestBody = {
        'fields': {
           'project': {
-            'key': 'Rider Experience'
+            'key': 'Rider Experience',
+            'id': '107'
           },
           'summary': 'There is a conflict in : ' + conflictLocation,
           'description': 'Urgent Action is required to fix conflict in ' + conflictLocation,
