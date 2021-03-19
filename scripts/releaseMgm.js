@@ -7,7 +7,7 @@ var jiraUtils = require("./jira-utils")
 const SLACK_TOKEN = process.env.SLACK_TOKEN
 const channel = "github-actiontest"
 
-const jiraCreate=true
+const jiraCreate=false
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
