@@ -148,7 +148,7 @@ async function mergeMasterIntoIntegration() {
       if ( mergeSuccess ) {
           if ( conflictHappened ) {
 	  	console.log("Master merged into " + integrationBranch + " with conflict")
-//                slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch )
+                slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch )
 	  } else {
 	  	console.log("Master merged into " + integrationBranch + " without conflict")
                 slack_response=await postSlackMessage(channel, "Merged master into " + integrationBranchy + " without conflict")
