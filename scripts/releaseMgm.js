@@ -136,6 +136,8 @@ async function mergeMasterIntoIntegration() {
                   console.log(createJiraResponseJson.key)
                   if ( createJiraResponseJson.key )  {
 			console.log("Jira issue created: " + createJiraResponseJson.key )
+                        var issueUrl=jiraUtils.baseUrl + jiraUtils.issueBaseUrl + createJiraResponseJson.key
+ 			slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch + " Jira issue created. Check here: " + issueUrl)
 		  }
               }
           } else {
