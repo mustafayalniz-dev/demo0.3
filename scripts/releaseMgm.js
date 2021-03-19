@@ -7,7 +7,7 @@ var jiraUtils = require("./jira-utils")
 const SLACK_TOKEN = process.env.SLACK_TOKEN
 const channel = "github-actiontest"
 
-const jiraCreate=false
+const jiraCreate=true
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
@@ -136,6 +136,8 @@ async function mergeMasterIntoIntegration() {
                   console.log(createJiraResponseJson.key)
                   if ( createJiraResponseJson.key )  {
 			console.log("Jira issue created: " + createJiraResponseJson.key )
+                        var issueUrl=jiraUtils.baseUrl + jiraUtils.issueBaseUrl + createJiraResponseJson.key
+ 			slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch + " Jira issue created. Check here: " + issueUrl)
 		  }
               }
           } else {
@@ -146,7 +148,7 @@ async function mergeMasterIntoIntegration() {
       if ( mergeSuccess ) {
           if ( conflictHappened ) {
 	  	console.log("Master merged into " + integrationBranch + " with conflict")
-                slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch )
+//                slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch )
 	  } else {
 	  	console.log("Master merged into " + integrationBranch + " without conflict")
                 slack_response=await postSlackMessage(channel, "Merged master into " + integrationBranchy + " without conflict")
