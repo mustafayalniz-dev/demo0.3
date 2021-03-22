@@ -2,7 +2,7 @@ const fetch = require("node-fetch")
 const { promisify } = require("util")
 const fs = require("fs")
 const exec = promisify(require("child_process").exec)
-var jiraUtils = require("./jira-utils")
+var jiraUtils = require("./jira-short")
 
 const SLACK_TOKEN = process.env.SLACK_TOKEN
 const channel = "github-actiontest"
