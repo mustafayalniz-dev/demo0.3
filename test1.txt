@@ -8,8 +8,13 @@ another line in master
 another line in master1
 anotehr line in master2
 jira stuff
+<<<<<<< HEAD
 jira stuff 1
 jira stuff 2 no conflict 2
+=======
+jira stuff 1 no conflict1
+jira stuff 2
+>>>>>>> 4e757fa (no test1)
 jira stuff 3
 jira stuff 4
 jira stuff 5
