@@ -11,7 +11,7 @@ jira stuff
 jira stuff 1
 jira stuff 2 no conflict 2
 jira stuff 3
-jira stuff 4
+jira stuff 4 no conflict 4
 jira stuff 5
 jira stuff 6
 jira stuff 7
