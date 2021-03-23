@@ -10,8 +10,13 @@ anotehr line in master2
 jira stuff
 jira stuff 1
 jira stuff 2 no conflict 2
+<<<<<<< HEAD
 jira stuff 3
 jira stuff 4 no conflict 4
+=======
+jira stuff 3 no conflict 3
+jira stuff 4
+>>>>>>> d9c244f (no conflict 3)
 jira stuff 5
 jira stuff 6
 jira stuff 7
