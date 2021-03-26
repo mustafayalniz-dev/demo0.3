@@ -207,9 +207,9 @@ async function releaseStart(versions) {
 	  var prResponse = createNewPR(newPullRequestBranch)
           if ( prResponse.url ) {
                 reviewer_response=await addReviewerToPullRequest(response.url)
+          	console.log("Reviewer Response : " + reviewer_response)
           }
           console.log("PR Creation Response : " + prResponse)
-          console.log("Reviewer Response : " + reviewer_response)
       } 
       return success
 }
