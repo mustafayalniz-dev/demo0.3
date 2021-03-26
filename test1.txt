@@ -25,3 +25,4 @@ integration 3
 integration 4
 int 5
 int 6
+int 7
