@@ -204,7 +204,7 @@ async function releaseStart(versions) {
       const newPullRequestBranch = "integration_" + qaVersion
 
       if ( success ) {
-	  var prResponse = createNewPR(newPullRequestBranch)
+	  var prResponse = await createNewPR(newPullRequestBranch)
           if ( prResponse.url ) {
                 reviewer_response=await addReviewerToPullRequest(response.url)
           	console.log("Reviewer Response : " + reviewer_response)
