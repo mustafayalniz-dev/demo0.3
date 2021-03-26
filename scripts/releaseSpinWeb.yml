@@ -164,7 +164,7 @@ async function releaseStart(versions) {
       let minor = parseInt(qaSoftVersion.replace(/(\d+)\.(\d+)\.(\d+)/, "$2"))
       let patch = parseInt(qaSoftVersion.replace(/(\d+)\.(\d+)\.(\d+)/, "$3"))
 
-      minor=minor+1
+      minor=minor
       newMasterVersion = major + "." + minor + "." + patch
       
       minor=minor+1
@@ -173,7 +173,7 @@ async function releaseStart(versions) {
       minor=minor+1
       newQASoftVersion = major + "." + minor + "." + patch
 
-      newIntegrationBranch="integration_" + newMasterVersion
+      newIntegrationBranch="integration_" + qaSoftVersion
 
       console.log(newIntegrationBranch)
 
