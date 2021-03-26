@@ -23,6 +23,18 @@ const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/dem
 
 const getSlackAuth = "Bearer " + global.Buffer.from(SLACK_TOKEN).toString()
 
+const versionsJson = "../.release-version.json"
+const versions = require(versionsJson)
+
+const masterVersion = versions.master
+const qaVersion = versions.qa
+const qaSoftVersion = versions.soft_qa
+
+
+console.log("Master Version : " + masterVersion)
+console.log("QA Version : " + qaVersion)
+console.log("Soft QA Version : " + qaSoftVersion)
+
 async function main() {
     if ( selectedFunction == "release-start") {
 	await releaseStart()
