@@ -178,8 +178,7 @@ async function releaseStart(versions) {
       console.log(newIntegrationBranch)
 
       const addVersionFile = `git add .release-version.json`
-      const commitVersionFile = `git commit -m "bumped application version to ${newMasterVersion}"`
-      const pushVersionFile = `git push origin master`
+      const commitVersionFile = `git commit -m "bumped application version in ${newIntegrationBranch} to ${newMasterVersion}"`
       const setEmail = `git config --global user.email "githubaction@spin.pm"`
       const setIdentity = `git config --global user.name "Spin Github Action"`
       const createNewIntegrationBranch = `git checkout -b ${newIntegrationBranch}`
@@ -192,7 +191,7 @@ async function releaseStart(versions) {
 
       var success=false
       try {
-          const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutMaster} &&  ${addVersionFile} &&${setEmail} && ${setIdentity} && ${commitVersionFile} &&  ${pushVersionFile} && ${createNewIntegrationBranch} && ${pushNewIntegrationBranch}`)
+          const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutMaster} && ${setEmail} && ${setIdentity} && ${createNewIntegrationBranch} &&  ${addVersionFile} && ${commitVersionFile} && ${pushNewIntegrationBranch}`)
           console.log('stdout:', stdout);
           console.log('stderr:', stderr);
           success=true
