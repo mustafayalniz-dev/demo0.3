@@ -164,7 +164,7 @@ async function releaseStart(versions) {
       let minor = parseInt(qaSoftVersion.replace(/(\d+)\.(\d+)\.(\d+)/, "$2"))
       let patch = parseInt(qaSoftVersion.replace(/(\d+)\.(\d+)\.(\d+)/, "$3"))
 
-      minor=minor+1
+      minor=minor
       newMasterVersion = major + "." + minor + "." + patch
       
       minor=minor+1
@@ -173,7 +173,7 @@ async function releaseStart(versions) {
       minor=minor+1
       newQASoftVersion = major + "." + minor + "." + patch
 
-      newIntegrationBranch="integration_" + newMasterVersion
+      newIntegrationBranch="integration_" + qaSoftVersion
 
       console.log(newIntegrationBranch)
 
@@ -204,12 +204,12 @@ async function releaseStart(versions) {
       const newPullRequestBranch = "integration_" + qaVersion
 
       if ( success ) {
-	  var prResponse = createNewPR(newPullRequestBranch)
+	  var prResponse = await createNewPR(newPullRequestBranch)
           if ( prResponse.url ) {
                 reviewer_response=await addReviewerToPullRequest(response.url)
+          	console.log("Reviewer Response : " + reviewer_response)
           }
           console.log("PR Creation Response : " + prResponse)
-          console.log("Reviewer Response : " + reviewer_response)
       } 
       return success
 }
