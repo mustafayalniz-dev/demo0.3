@@ -23,29 +23,20 @@ const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/dem
 
 const getSlackAuth = "Bearer " + global.Buffer.from(SLACK_TOKEN).toString()
 
-const versionsJson = "../.release-version.json"
-const versions = require(versionsJson)
-
-const masterVersion = versions.master
-const qaVersion = versions.qa
-const qaSoftVersion = versions.soft_qa
-
-
-console.log("Master Version : " + masterVersion)
-console.log("QA Version : " + qaVersion)
-console.log("Soft QA Version : " + qaSoftVersion)
-
 async function main() {
+     
+    const versionsJson = "../.release-version.json"
+    const versions = require(versionsJson)
+
+    const masterVersion = versions.master
+    const qaVersion = versions.qa
+    const qaSoftVersion = versions.soft_qa
+
     if ( selectedFunction == "release-start") {
-	await releaseStart()
+	await releaseStart(versions)
     } else if (selectedFunction == "auto-merge") {
-	await mergeMasterIntoIntegration()
-    } else if (selectedFunction == "code-complete") {
-	response=await codeComplete()
-        console.log("PR creation response below...")
-        if ( response.url ) {
-        	reviewer_response=await addReviewerToPullRequest(response.url)
-        }
+	await mergeMasterIntoIntegration(qaVersion)
+	await mergeMasterIntoIntegration(qaSoftVersion)
     }
 }
 
@@ -69,18 +60,7 @@ async function addReviewerToPullRequest(prUrl) {
 }
 
 
-async function codeComplete() {
-
-      const fetchTarget = `git fetch`
-      const checkoutMaster = `git checkout master`
-      await exec(`${fetchTarget} && ${checkoutMaster}`)
-
-      const release = "../.release-version.json"
-      const releaseVersion = require(release)
-
-      console.log(releaseVersion.version)
-
-      const integrationBranch = "integration_" + releaseVersion.version
+async function createNewPR(integrationBranch) {
       
       const title="PR from " + integrationBranch + " to master at code complete date."
 
@@ -104,18 +84,17 @@ async function codeComplete() {
 }
 
 
-async function mergeMasterIntoIntegration() {
+async function mergeMasterIntoIntegration(integrationVersion) {
+
 
       const fetchTarget = `git fetch`
       const checkoutMaster = `git checkout master`
       const pullMaster = `git pull origin master --allow-unrelated-histories`
       await exec(`${fetchTarget} && ${checkoutMaster} && ${pullMaster}`)
 
-      const release = "../.release-version.json"
-      const releaseVersion = require(release)
-      const integrationBranch = "integration_" + releaseVersion.version
+      const integrationBranch = "integration_" + integrationVersion
 
-      console.log(releaseVersion.version)
+      console.log("Merging commit to  " + integrationBranch )
 
       const setEmail = `git config --global user.email "githubaction@spin.pm"`
       const setIdentity = `git config --global user.name "Spin Github Action"`
@@ -132,12 +111,9 @@ async function mergeMasterIntoIntegration() {
       var conflictHappened = false
       try {
           const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${setPolicy} && ${pullIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
-//          console.log('stdout:', stdout);
-//          console.log('stderr:', stderr);
           conflictHappened = false
           mergeSuccess=true
       } catch (error) {
-//          console.log("error:", error)
           if (error.stdout.includes("conflicts")) {
               conflictHappened = true
               console.log("Conflict occured while merging master into " + integrationBranch + ", now pushing conflict content into new branch...")
@@ -170,25 +146,34 @@ async function mergeMasterIntoIntegration() {
 
 }
 
-async function releaseStart() {
+async function releaseStart(versions) {
       
       const fetchTarget = `git fetch`
       const checkoutMaster = `git checkout master`
       await exec(`${fetchTarget} && ${checkoutMaster}`)
 
-      const release = "../.release-version.json"
-      const releaseVersion = require(release)
+      const masterVersion = versions.master
+      const qaVersion = versions.qa
+      const qaSoftVersion = versions.soft_qa
 
-      console.log(releaseVersion.version)
+      console.log("Master Version : " + masterVersion)
+      console.log("QA Version : " + qaVersion)
+      console.log("Soft QA Version : " + qaSoftVersion)
 
-      let major = parseInt(releaseVersion.version.replace(/(\d+)\.(\d+)\.(\d+)/, "$1"))
-      let minor = parseInt(releaseVersion.version.replace(/(\d+)\.(\d+)\.(\d+)/, "$2"))
-      let patch = parseInt(releaseVersion.version.replace(/(\d+)\.(\d+)\.(\d+)/, "$3"))
+      let major = parseInt(qaSoftVersion.replace(/(\d+)\.(\d+)\.(\d+)/, "$1"))
+      let minor = parseInt(qaSoftVersion.replace(/(\d+)\.(\d+)\.(\d+)/, "$2"))
+      let patch = parseInt(qaSoftVersion.replace(/(\d+)\.(\d+)\.(\d+)/, "$3"))
 
       minor=minor+1
+      newMasterVersion = major + "." + minor + "." + patch
+      
+      minor=minor+1
+      newQAVersion = major + "." + minor + "." + patch
+     
+      minor=minor+1
+      newQASoftVersion = major + "." + minor + "." + patch
 
-      newVersion=major + "." + minor + "." + patch
-      newIntegrationBranch="integration_" + newVersion
+      newIntegrationBranch="integration_" + newMasterVersion
 
       console.log(newIntegrationBranch)
 
@@ -200,7 +185,7 @@ async function releaseStart() {
       const createNewIntegrationBranch = `git checkout -b ${newIntegrationBranch}`
       const pushNewIntegrationBranch = `git push origin ${newIntegrationBranch}`
 
-      newReleaseContent = { "version": newVersion }
+      newReleaseContent = { "master": newMasterVersion, "qa": newQAVersion, "soft_qa": newQASoftVersion }
 
       let newReleaseContentJson = JSON.stringify(newReleaseContent)
       fs.writeFileSync('.release-version.json', newReleaseContentJson)
@@ -216,6 +201,16 @@ async function releaseStart() {
           success=false
       }
 
+      const newPullRequestBranch = "integration_" + qaVersion
+
+      if ( success ) {
+	  var prResponse = createNewPR(newPullRequestBranch)
+          if ( prResponse.url ) {
+                reviewer_response=await addReviewerToPullRequest(response.url)
+          }
+          console.log("PR Creation Response : " + prResponse)
+          console.log("Reviewer Response : " + reviewer_response)
+      } 
       return success
 }
 
