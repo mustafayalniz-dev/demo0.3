@@ -7,7 +7,7 @@ new line in master
 another line in master
 another line in master1
 anotehr line in master2
-jira stuff
+jira stuff add 1
 jira stuff 1
 jira stuff 2 no conflict 2
 jira stuff 3
