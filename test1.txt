@@ -22,7 +22,7 @@ jira stuff 11 add 11
 integration 1 add int1
 integration 2 add int2
 integration 3 add int3
-integration 4
+integration 4 add int4
 int 5
 int 6
 int 7
