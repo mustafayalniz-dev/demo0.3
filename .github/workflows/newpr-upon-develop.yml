@@ -25,5 +25,5 @@ jobs:
         run: |
           npm install compare-versions node-fetch fs
           npm install @slack/web-api
-          node --trace-warnings scripts/developToTrain.js release_branch
+          node --trace-warnings scripts/developToTrain.js train
 
