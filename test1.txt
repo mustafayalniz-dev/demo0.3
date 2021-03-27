@@ -1,1 +1,6 @@
 line1
+<<<<<<< HEAD
+=======
+dev to train
+dev789
+>>>>>>> 9c9f620 (Merge pull request #379 from mustafayalniz-dev/dev789)
