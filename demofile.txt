@@ -1,3 +1,7 @@
 master line
+<<<<<<< HEAD
 train line
 tr_123
+=======
+train line 1
+>>>>>>> 0f68f6b (456)
