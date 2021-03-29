@@ -1,5 +1,9 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 train1234
 =======
 train123
 >>>>>>> 9f8f560 (Merge branch 'train_456' of github.com:mustafayalniz-dev/demo0.3 into train_456)
+=======
+train123conflict
+>>>>>>> 1aa9976 (conflict)
