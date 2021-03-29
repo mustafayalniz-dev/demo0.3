@@ -1,3 +1,10 @@
+<<<<<<< HEAD
 conflict
 conflict
 conflict
+=======
+conflict 1
+conflict 2
+conflict 3
+conflict 4
+>>>>>>> c6888b4 (train456)
