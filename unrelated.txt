@@ -1,2 +1,6 @@
 unreletate
 unrelated 2
+<<<<<<< HEAD
+=======
+unrelated 3
+>>>>>>> master

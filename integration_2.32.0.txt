@@ -1,2 +1,6 @@
 integration_2.32.0
 line 2
+<<<<<<< HEAD
+=======
+line 3
+>>>>>>> master
