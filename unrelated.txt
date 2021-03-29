@@ -1,1 +1,5 @@
 unrelated
+<<<<<<< HEAD
+=======
+unrelated2
+>>>>>>> master
