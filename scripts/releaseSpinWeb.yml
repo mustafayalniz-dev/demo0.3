@@ -101,6 +101,7 @@ async function mergeMasterIntoIntegration(integrationVersion) {
       const setPolicy = `git config pull.rebase false`
       const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
       const pullIntegrationBranch = `git pull origin ${integrationBranch} --allow-unrelated-histories`
+      const setStrategy = `git config --global merge.ours.driver true`
       const mergeMasterIntoIntegration = `git merge master -m "auto merge master into ${integrationBranch} upon new commit into master" --allow-unrelated-histories`
       const pushIntegrationBranch = `git push origin ${integrationBranch}`
 
@@ -110,10 +111,14 @@ async function mergeMasterIntoIntegration(integrationVersion) {
       var mergeSuccess=false
       var conflictHappened = false
       try {
-          const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${setPolicy} && ${pullIntegrationBranch} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
+          const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${setPolicy} && ${pullIntegrationBranch} && ${setStrategy} && ${mergeMasterIntoIntegration} && ${pushIntegrationBranch}`)
+          console.log("stdout: here: " + stdout )
+          console.log("stderr: here: " + stderr )
           conflictHappened = false
           mergeSuccess=true
       } catch (error) {
+          console.log("error:here : " + error )
+          console.log("error.stdout:here : " + error.stdout )
           if (error.stdout.includes("conflicts")) {
               conflictHappened = true
               console.log("Conflict occured while merging master into " + integrationBranch + ", now pushing conflict content into new branch...")
@@ -139,7 +144,7 @@ async function mergeMasterIntoIntegration(integrationVersion) {
                 slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch )
 	  } else {
 	  	console.log("Master merged into " + integrationBranch + " without conflict")
-                slack_response=await postSlackMessage(channel, "Merged master into " + integrationBranchy + " without conflict")
+                slack_response=await postSlackMessage(channel, "Merged master into " + integrationBranch + " without conflict")
 	  }
       }
       return mergeSuccess
