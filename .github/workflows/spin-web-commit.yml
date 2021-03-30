@@ -27,4 +27,4 @@ jobs:
         SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
       run: |
         npm install compare-versions node-fetch fs inquirer
-        node scripts/releaseSpinWeb.yml auto-merge
+        node scripts/releaseSpinWeb.yml auto-merge '${{  github.sha }}'

@@ -16,6 +16,7 @@ const slackUrl="https://slack.com/api/chat.postMessage"
 const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 
 var selectedFunction = process.argv.slice(2)[0]
+var commit = process.argv.slice(2)[1]
 
 const githubAuth =
   "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
@@ -36,6 +37,7 @@ async function main() {
     const merge_commit_sha = event.pull_request.merge_commit_sha
 
     console.log("merge_commit_sha: " + merge_commit_sha)
+    console.log("github.sha: " + commit )
 
     if ( selectedFunction == "release-start") {
 	await releaseStart(versions)
@@ -94,12 +96,13 @@ async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) 
 
       const fetchTarget = `git fetch`
       const checkoutMaster = `git checkout master`
-      const pullMaster = `git pull origin master --allow-unrelated-histories`
+//      const pullMaster = `git pull origin master --allow-unrelated-histories`
+      const pullMaster = `git pull origin master`
       await exec(`${fetchTarget} && ${checkoutMaster} && ${pullMaster}`)
 
       const integrationBranch = "integration_" + integrationVersion
 
-      console.log("Merging commit to  " + integrationBranch )
+      console.log("Merging commit to " + integrationBranch )
 
       const setEmail = `git config --global user.email "githubaction@spin.pm"`
       const setIdentity = `git config --global user.name "Spin Github Action"`
