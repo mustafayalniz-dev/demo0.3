@@ -106,7 +106,7 @@ async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) 
       const setPolicy = `git config pull.rebase false`
       const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
       const pullIntegrationBranch = `git pull origin ${integrationBranch} --allow-unrelated-histories`
-      const setStrategy = `git config --global merge.ours.driver true`
+//      const setStrategy = `git config --global merge.ours.driver true`
       const mergeMasterIntoIntegration = `git merge master -m "auto merge master into ${integrationBranch} upon new commit into master" --allow-unrelated-histories`
       const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
       const pushIntegrationBranch = `git push origin ${integrationBranch}`
@@ -117,7 +117,7 @@ async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) 
       var mergeSuccess=false
       var conflictHappened = false
       try {
-          const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${setPolicy} && ${pullIntegrationBranch} && ${setStrategy} && ${cherryPick} && ${pushIntegrationBranch}`)
+          const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${setPolicy} && ${pullIntegrationBranch} && ${cherryPick} && ${pushIntegrationBranch}`)
           console.log("stdout: here: " + stdout )
           console.log("stderr: here: " + stderr )
           conflictHappened = false
