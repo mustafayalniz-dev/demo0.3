@@ -105,9 +105,11 @@ async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) 
       const setIdentity = `git config --global user.name "Spin Github Action"`
       const setPolicy = `git config pull.rebase false`
       const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
-      const pullIntegrationBranch = `git pull origin ${integrationBranch} --allow-unrelated-histories`
+//      const pullIntegrationBranch = `git pull origin ${integrationBranch} --allow-unrelated-histories`
+      const pullIntegrationBranch = `git pull origin ${integrationBranch}`
       const setStrategy = `git config --global merge.ours.driver true`
-      const mergeMasterIntoIntegration = `git merge master -m "auto merge master into ${integrationBranch} upon new commit into master" --allow-unrelated-histories`
+//      const mergeMasterIntoIntegration = `git merge master -m "auto merge master into ${integrationBranch} upon new commit into master" --allow-unrelated-histories`
+      const mergeMasterIntoIntegration = `git merge master -m "auto cherry-pick PR merge commit into ${integrationBranch} upon new commit into master"`
       const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
       const pushIntegrationBranch = `git push origin ${integrationBranch}`
 
