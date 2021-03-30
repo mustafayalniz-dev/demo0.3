@@ -116,7 +116,7 @@ async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) 
       const addAll = `git add -A`
       const commitAll = `git commit -m "Github Action commits conflict"`
 
-      await exec(`${setStrategy}`)
+//      await exec(`${setStrategy}`)
 
       var mergeSuccess=false
       var conflictHappened = false
