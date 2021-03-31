@@ -98,7 +98,7 @@ async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) 
       const checkoutMaster = `git checkout master`
 //      const pullMaster = `git pull origin master --allow-unrelated-histories`
       const pullMaster = `git pull origin master`
-      await exec(`${fetchTarget} && ${checkoutMaster} && ${pullMaster}`)
+//      await exec(`${fetchTarget} && ${checkoutMaster} && ${pullMaster}`)
 
       const integrationBranch = "integration_" + integrationVersion
 
@@ -125,7 +125,7 @@ async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) 
       var conflictHappened = false
       try {
 //          const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${setPolicy} && ${pullIntegrationBranch} && ${cherryPick} && ${pushIntegrationBranch}`)
-          const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${cherryPick} && ${pushIntegrationBranch}`)
+          const { error, stdout, stderr } = await exec(`${fetchTarget} && ${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${cherryPick} && ${pushIntegrationBranch}`)
           console.log("stdout: here: " + stdout )
           console.log("stderr: here: " + stderr )
           conflictHappened = false
