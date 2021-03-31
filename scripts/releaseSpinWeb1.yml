@@ -174,7 +174,7 @@ async function mergeMasterIntoIntegration(integrationVersion, commit_list) {
                 }
       } else if ( pushIntegrationBranchSuccess ) {
 	  	console.log("Applied PR " + prUrl + " to master changes into " + integrationBranch + " without conflict")
-                slack_response=await postSlackMessage(channel, "Merged latest master changes from PR " + prurl + " into " + integrationBranch + " without conflict")
+                slack_response=await postSlackMessage(channel, "Merged latest master changes from PR " + prUrl + " into " + integrationBranch + " without conflict")
       } else {
                 slack_response=await postSlackMessage(channel, "Merging master changes from PR " + prUrl + " into " + integrationBranch + " failed...")
       }
