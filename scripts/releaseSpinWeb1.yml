@@ -34,11 +34,7 @@ async function main() {
     const qaVersion = versions.qa
     const qaSoftVersion = versions.soft_qa
 
-    const merge_commit_sha = event.pull_request.merge_commit_sha
     const commitsUrl = event.pull_request.commits_url
-
-    console.log("merge_commit_sha: " + merge_commit_sha)
-    console.log("github.sha: " + commit )
 
     if ( selectedFunction == "release-start") {
 	await releaseStart(versions)
@@ -110,16 +106,14 @@ async function mergeMasterIntoIntegration(integrationVersion, commit_list) {
       const setPolicy = `git config pull.rebase false`
       const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
       const pullIntegrationBranch = `git pull origin ${integrationBranch}`
-      const setStrategy = `git config --global merge.ours.driver true`
-      const mergeMasterIntoIntegration = `git merge master -m "auto cherry-pick PR merge commit into ${integrationBranch} upon new commit into master"`
+//      const setStrategy = `git config --global merge.ours.driver true`
+//      const mergeMasterIntoIntegration = `git merge master -m "auto cherry-pick PR merge commit into ${integrationBranch} upon new commit into master"`
       const pushIntegrationBranch = `git push origin ${integrationBranch}`
 
       const addAll = `git add -A`
       const commitAll = `git commit -m "Github Action commits conflict"`
 
-      await exec(`${setStrategy}`)
-
-// Start
+//      await exec(`${setStrategy}`)
 
       const prUrl = event.pull_request._links.self.href
 
@@ -178,8 +172,6 @@ async function mergeMasterIntoIntegration(integrationVersion, commit_list) {
       } else {
                 slack_response=await postSlackMessage(channel, "Updating " + integrationBranch + " with the latest master changes from PR " + prUrl + " failed...")
       }
-
-// End
 
       return pushIntegrationBranchSuccess
 
