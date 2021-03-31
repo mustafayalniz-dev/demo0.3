@@ -119,8 +119,6 @@ async function mergeMasterIntoIntegration(integrationVersion, commit_list) {
 
       await exec(`${setStrategy}`)
 
-      var mergeSuccess=false
-
 // Start
 
       const prUrl = event.pull_request._links.self.href
@@ -133,9 +131,10 @@ async function mergeMasterIntoIntegration(integrationVersion, commit_list) {
       }
 
       var conflictHappened = false
+      var cherryPickSuccess = false
 
       for (index = 0; index < commit_list.length; index++) {
-           console.log("Applying commit " + commit_list[index] + " to branch " + newBranchName)
+           console.log("Applying commit " + commit_list[index] + " to branch " + integrationBranch)
            const cherryPick = `git cherry-pick -m 1 ${commit_list[index]}`
            try {
                const { error, stdout, stderr } = await exec(`${cherryPick}`)
