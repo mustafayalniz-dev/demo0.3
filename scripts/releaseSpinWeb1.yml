@@ -1,0 +1,310 @@
+const fetch = require("node-fetch")
+const { promisify } = require("util")
+const fs = require("fs")
+const exec = promisify(require("child_process").exec)
+var jiraUtils = require("./jira-short")
+
+const SLACK_TOKEN = process.env.SLACK_TOKEN
+const channel = "github-actiontest"
+
+const jiraCreate=false
+
+const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
+const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
+const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
+const slackUrl="https://slack.com/api/chat.postMessage"
+const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
+
+var selectedFunction = process.argv.slice(2)[0]
+var commit = process.argv.slice(2)[1]
+
+const githubAuth =
+  "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
+
+const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/demo0.3/pulls"
+
+const getSlackAuth = "Bearer " + global.Buffer.from(SLACK_TOKEN).toString()
+
+async function main() {
+     
+    const versionsJson = "../.release-version.json"
+    const versions = require(versionsJson)
+
+    const masterVersion = versions.master
+    const qaVersion = versions.qa
+    const qaSoftVersion = versions.soft_qa
+
+    const merge_commit_sha = event.pull_request.merge_commit_sha
+    const commitsUrl = event.pull_request.commits_url
+
+    console.log("merge_commit_sha: " + merge_commit_sha)
+    console.log("github.sha: " + commit )
+
+    if ( selectedFunction == "release-start") {
+	await releaseStart(versions)
+    } else if (selectedFunction == "auto-merge") {
+        var commit_list = await getCommitListInPR(commitsUrl)
+	await mergeMasterIntoIntegration(qaVersion, commit_list)
+	await mergeMasterIntoIntegration(qaSoftVersion, commit_list)
+    }
+}
+
+main()
+
+async function addReviewerToPullRequest(prUrl) {
+     const reviewers = "../prmeta.json"
+     const prMeta = require(reviewers)
+
+     reviewersArray = { "reviewers": prMeta.qaReviewers.split(",") }
+
+     console.log(reviewersArray)
+     githubNewPullRequestUrl=prUrl + "/requested_reviewers"
+     console.log(githubNewPullRequestUrl)
+     const response = await fetch(githubNewPullRequestUrl, {
+        method: "post",
+        body: JSON.stringify(reviewersArray),
+        headers: { Authorization: githubAuth, Accept: "application/vnd.github.v3+json", "User-Agent": "RT-Project-Agent" },
+     })
+     return await response.json()
+}
+
+
+async function createNewPR(integrationBranch) {
+      
+      const title="PR from " + integrationBranch + " to master at code complete date."
+
+      const requestBody = {
+         title: `${title}`,
+         head: integrationBranch,
+         base: "master",
+         body: `Automated PR created at code complete date from ${integrationBranch} to master.!`,
+      }
+      console.log(requestBody)
+      console.log(githubPullRequestUrl)
+
+      const response = await fetch(githubPullRequestUrl, {
+         method: "post",
+         body: JSON.stringify(requestBody),
+         headers: { Authorization: githubAuth },
+      })
+  
+      return await response.json()
+
+}
+
+
+async function mergeMasterIntoIntegration(integrationVersion, commit_list) {
+
+
+      const fetchTarget = `git fetch`
+      const checkoutMaster = `git checkout master`
+      const pullMaster = `git pull origin master`
+      await exec(`${fetchTarget} && ${checkoutMaster} && ${pullMaster}`)
+
+      const integrationBranch = "integration_" + integrationVersion
+
+      console.log("Merging commit to " + integrationBranch )
+
+      const setEmail = `git config --global user.email "githubaction@spin.pm"`
+      const setIdentity = `git config --global user.name "Spin Github Action"`
+      const setPolicy = `git config pull.rebase false`
+      const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
+      const pullIntegrationBranch = `git pull origin ${integrationBranch}`
+      const setStrategy = `git config --global merge.ours.driver true`
+      const mergeMasterIntoIntegration = `git merge master -m "auto cherry-pick PR merge commit into ${integrationBranch} upon new commit into master"`
+      const pushIntegrationBranch = `git push origin ${integrationBranch}`
+
+      const addAll = `git add -A`
+      const commitAll = `git commit -m "Github Action commits conflict"`
+
+      await exec(`${setStrategy}`)
+
+      var mergeSuccess=false
+
+// Start
+
+      const prUrl = event.pull_request.self.href
+
+      try {
+            const { error, stdout, stderr } =await exec(`${fetchTarget} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${setEmail} && ${setIdentity}`)
+      } catch ( error ) {
+            console.log("error:", error)
+            return
+      }
+
+      var conflictHappened = false
+
+      for (index = 0; index < commit_list.length; index++) {
+           console.log("Applying commit " + commit_list[index] + " to branch " + newBranchName)
+           const cherryPick = `git cherry-pick -m 1 ${commit_list[index]}`
+           try {
+               const { error, stdout, stderr } = await exec(`${cherryPick}`)
+               cherryPickSuccess=true
+           } catch (error) {
+               if (error.message.includes("conflicts")) {
+                   conflictHappened = true
+                   console.log("Conflict occured while cherry picking, now pushing conflict " + commit_list[index] + " into new branch...")
+                   cherryPickSuccess=await commitConflict(addAll, commitAll)
+               }
+           }
+      }
+
+
+      if ( ! cherryPickSuccess ) {
+           return
+      }
+
+      var pushIntegrationBranchSuccess=false
+      try {
+            const { error, stdout, stderr } = await exec(`${fetchTarget} && ${pushIntegrationBranch}`)
+            pushIntegrationBranchSuccess=true
+      } catch (error) {
+            pushIntegrationBranchSuccess=false
+            console.log("error:", error)
+      }
+      if ( conflictHappened && pushIntegrationBranchSuccess) {
+                await postSlackMessage(channel, "Master changes upon " + prUrl + " has been pushed into " + integrationBranch + " but has conflicts. Please resolve conflicts...")
+                if ( jiraCreate ) {
+                   var createJiraResponse = await jiraUtils.createJiraIssueForConflict("RDE", "mustafa", "Bug", "Conflict occured while updating " + integrationBranch + " with latest merge of PR : " + prUrl + " into master")
+                   createJiraResponseJson = await createJiraResponse.json()
+                   console.log(createJiraResponseJson)
+                   if ( createJiraResponseJson.key )  {
+                       var jiraIssueUrl="https://spinbikes.atlassian.net/browse/" + createJiraResponseJson.key
+                       slack_response=await postSlackMessage(channel, "Conflict occured while merging master updates into " + integrationBranch + " Jira issue created. Check here: " + jiraIssueUrl)
+		   }
+                }
+      } else if ( pushIntegrationBranchSuccess ) {
+	  	console.log("Applied PR " + prUrl + " to master changes into " + integrationBranch + " without conflict")
+                slack_response=await postSlackMessage(channel, "Merged latest master changes from PR " + prurl + " into " + integrationBranch + " without conflict")
+      } else {
+                slack_response=await postSlackMessage(channel, "Merging master changes from PR " + prUrl + " into " + integrationBranch + " failed...")
+      }
+
+// End
+
+      return pushIntegrationBranchSuccess
+
+}
+
+async function releaseStart(versions) {
+      
+      const fetchTarget = `git fetch`
+      const checkoutMaster = `git checkout master`
+      await exec(`${fetchTarget} && ${checkoutMaster}`)
+
+      const masterVersion = versions.master
+      const qaVersion = versions.qa
+      const qaSoftVersion = versions.soft_qa
+
+      console.log("Master Version : " + masterVersion)
+      console.log("QA Version : " + qaVersion)
+      console.log("Soft QA Version : " + qaSoftVersion)
+
+      let major = parseInt(qaSoftVersion.replace(/(\d+)\.(\d+)\.(\d+)/, "$1"))
+      let minor = parseInt(qaSoftVersion.replace(/(\d+)\.(\d+)\.(\d+)/, "$2"))
+      let patch = parseInt(qaSoftVersion.replace(/(\d+)\.(\d+)\.(\d+)/, "$3"))
+
+      minor=minor
+      newMasterVersion = major + "." + minor + "." + patch
+      
+      minor=minor+1
+      newQAVersion = major + "." + minor + "." + patch
+     
+      minor=minor+1
+      newQASoftVersion = major + "." + minor + "." + patch
+
+      newIntegrationBranch="integration_" + qaSoftVersion
+
+      console.log(newIntegrationBranch)
+
+      const addVersionFile = `git add .release-version.json`
+      const commitVersionFile = `git commit -m "bumped application version in ${newIntegrationBranch} to ${newMasterVersion}"`
+      const setEmail = `git config --global user.email "githubaction@spin.pm"`
+      const setIdentity = `git config --global user.name "Spin Github Action"`
+      const createNewIntegrationBranch = `git checkout -b ${newIntegrationBranch}`
+      const pushNewIntegrationBranch = `git push origin ${newIntegrationBranch}`
+
+      newReleaseContent = { "master": newMasterVersion, "qa": newQAVersion, "soft_qa": newQASoftVersion }
+
+      let newReleaseContentJson = JSON.stringify(newReleaseContent)
+      fs.writeFileSync('.release-version.json', newReleaseContentJson)
+
+      var success=false
+      try {
+          const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutMaster} && ${setEmail} && ${setIdentity} && ${createNewIntegrationBranch} &&  ${addVersionFile} && ${commitVersionFile} && ${pushNewIntegrationBranch}`)
+          console.log('stdout:', stdout);
+          console.log('stderr:', stderr);
+          success=true
+      } catch (error) {
+          console.log("error:", error)
+          success=false
+      }
+
+      const newPullRequestBranch = "integration_" + qaVersion
+
+      if ( success ) {
+	  var prResponse = await createNewPR(newPullRequestBranch)
+          if ( prResponse.url ) {
+                reviewer_response=await addReviewerToPullRequest(prResponse.url)
+          	console.log("Reviewer Response : " + reviewer_response)
+          }
+          console.log("PR Creation Response : " + prResponse)
+          console.log(prResponse)
+      } 
+      return success
+}
+
+
+async function commitConflict(addAll, commitAll ) {
+  try {
+      const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll}`)
+      return true
+  } catch (error) {
+      console.log("error:", error)
+      return false
+  }
+}
+
+
+//
+// Post slack message into specified channel
+//
+async function postSlackMessage(channel, message) {
+
+  const requestBody = {
+        channel: channel,
+        text: message
+  }
+
+  const response = await fetch(slackUrl, {
+       method: "post",
+       body: JSON.stringify(requestBody),
+       headers: { Authorization: getSlackAuth, "Content-type": "application/json", "User-Agent": "RT-Project-Agent" },
+  })
+
+  return await response.json()
+
+}
+
+//
+// List all Commit SHA's in this PR. Input as commits url
+//
+async function getCommitListInPR(commits_url) {
+
+  const response = await fetch(commits_url, {
+    method: "get",
+    headers: { Authorization: githubAuth },
+  })
+
+  commits_list_response = await response.json()
+
+  sha_list = []
+
+  for (var commit in commits_list_response) {
+      sha_list.push(commits_list_response[commit].sha)
+  }
+
+  return sha_list
+
+}
+
