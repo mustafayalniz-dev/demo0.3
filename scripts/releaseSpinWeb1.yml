@@ -123,7 +123,7 @@ async function mergeMasterIntoIntegration(integrationVersion, commit_list) {
 
 // Start
 
-      const prUrl = event.pull_request.self.href
+      const prUrl = event.pull_request._links.self.href
 
       try {
             const { error, stdout, stderr } =await exec(`${fetchTarget} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${setEmail} && ${setIdentity}`)
