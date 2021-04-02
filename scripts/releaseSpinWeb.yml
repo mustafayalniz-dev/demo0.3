@@ -227,8 +227,8 @@ async function releaseStart(versions) {
                 reviewer_response=await addReviewerToPullRequest(prResponse.url)
           	console.log("Reviewer Response : " + reviewer_response)
           }
-          console.log("PR Creation Response : " + prResponse)
-          console.log(prResponse)
+//          console.log("PR Creation Response : " + prResponse)
+//          console.log(prResponse)
       } 
       return success
 }
