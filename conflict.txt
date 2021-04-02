@@ -1,6 +1,10 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 train 123 conflict line
 =======
 train 456 conflict line
 >>>>>>> 4cbe0fb (conflict)
+=======
+train 123 conflict line
+>>>>>>> 4c3cef7 (conf reso)
 another line
