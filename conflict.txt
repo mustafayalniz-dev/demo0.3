@@ -1,0 +1,2 @@
+conflict line 1
+conflict line 2
