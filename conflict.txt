@@ -1,2 +1,6 @@
+<<<<<<< HEAD
 train 123 conflict line
+=======
+train 456 conflict line
+>>>>>>> 4cbe0fb (conflict)
 another line
