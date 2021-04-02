@@ -1,7 +1,0 @@
-<<<<<<< HEAD
-this is first line conflict1
-this is the second line conflict1
-=======
-this is first line2 conflict2
-this is the second line2 conflict2
->>>>>>> 2306e34 (Merge pull request #513 from mustafayalniz-dev/unrel11)
