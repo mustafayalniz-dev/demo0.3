@@ -75,6 +75,7 @@ async function main() {
                const { error, stdout, stderr } = await exec(`${cherryPick}`)
                cherryPickSuccess=true
            } catch (error) {
+               console.log("Catched Error " + error )
                if (error.message.includes("conflicts")) {
                    conflictHappened = true
                    console.log("Conflict occured while cherry picking, now pushing conflict " + commit_list[index] + " into new branch...")
@@ -84,6 +85,7 @@ async function main() {
         }
 
         if ( ! cherryPickSuccess ) {
+                console.log("Cherry pick failed...")
 		continue
 	}
 
