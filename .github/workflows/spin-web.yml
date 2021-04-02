@@ -8,7 +8,7 @@ on:
 
 jobs:
   releaser:
-    name: "Merge master to integration"
+    name: "Spin-Web Release Start Workflow"
     if: github.event.pull_request.merged == true && contains(github.event.pull_request.head.ref, 'integration_')
     runs-on: ubuntu-latest
     steps:
