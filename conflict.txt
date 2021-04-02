@@ -1,2 +1,0 @@
-this is first line2 conflict2
-this is the second line2 conflict2
