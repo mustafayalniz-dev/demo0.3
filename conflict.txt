@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 conflict line 1
 conflict line 2
+=======
+conflict line 2
+conflict lkine 3
+>>>>>>> 5511554 (conflict)
