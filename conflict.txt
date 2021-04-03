@@ -1,2 +1,7 @@
+<<<<<<< HEAD
 this is line in train_123
 this is second line in train_123
+=======
+This is line in train 456
+This is second line in train 456
+>>>>>>> f3bc04d (conflict)
