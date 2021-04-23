@@ -28,6 +28,12 @@ const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/dem
 
 const getSlackAuth = "Bearer " + global.Buffer.from(SLACK_TOKEN).toString()
 
+const setEmail = `git config --global user.email "githubaction@spin.pm"`
+const setIdentity = `git config --global user.name "Spin Github Action"`
+const addAll = `git add -A`
+const commitAll = `git commit -m "Github Action commits conflict"`
+const setStrategy = `git config --global merge.ours.driver true`
+
 async function main() {
      
     const versionsJson = "../.release-version.json"
@@ -99,45 +105,12 @@ async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) 
 
       console.log("Merging commit to " + integrationBranch )
 
-      const setEmail = `git config --global user.email "githubaction@spin.pm"`
-      const setIdentity = `git config --global user.name "Spin Github Action"`
-      const setPolicy = `git config pull.rebase false`
-      const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
-      const pullIntegrationBranch = `git pull origin ${integrationBranch}`
-      const setStrategy = `git config --global merge.ours.driver true`
-      const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
-      const pushIntegrationBranch = `git push origin ${integrationBranch}`
-
-      const addAll = `git add -A`
-      const commitAll = `git commit -m "Github Action commits conflict"`
-
       await exec(`${setStrategy}`)
 
-      var mergeSuccess=false
-      var conflictHappened = false
-      try {
-          const { error, stdout, stderr } = await exec(`${fetchTarget} && ${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${cherryPick} && ${pushIntegrationBranch}`)
-          conflictHappened = false
-          mergeSuccess=true
-      } catch (error) {
-          console.log("error in push integration branch : " + error )
-          if (error.message.includes("conflicts")) {
-              conflictHappened = true
-              console.log("Conflict occured while merging master into " + integrationBranch + ", now pushing conflict content into new branch...")
-              mergeSuccess=await commitConflict(addAll, commitAll, pushIntegrationBranch)
-              if ( mergeSuccess && jiraCreate ) {
-                  var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "Conflict occured while merging master into " + integrationBranch)
-                  createJiraResponseJson = await createJiraResponse.json()
-                  if ( createJiraResponseJson.key )  {
-                        console.log("Jira issue created: " + createJiraResponseJson.key )
-                        var issueUrl=jiraUtils.baseUrl + jiraUtils.issueBaseUrl + createJiraResponseJson.key
-                        slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch + " Jira issue created. Check here: " + issueUrl)
-                  }
-              }
-          } else {
-              mergeSuccess=false
-          }
-      }
+      cherryPickResult = await executeCherryPick(integrationBranch, merge_commit_sha)
+
+      var mergeSuccess=cherryPickResult[0]
+      var conflictHappened = cherryPickResult[1]
 
       if ( mergeSuccess ) {
           if ( conflictHappened ) {
@@ -149,6 +122,60 @@ async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) 
           }
       }
       return mergeSuccess
+}
+
+async function executeCherryPick(integrationBranch, merge_commit_sha) {
+
+      const setPolicy = `git config pull.rebase false`
+      const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
+      const pullIntegrationBranch = `git pull origin ${integrationBranch}`
+      const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
+      const pushIntegrationBranch = `git push origin ${integrationBranch}`
+
+      var mergeSuccess = false
+      var conflictHappened = false
+
+      try {
+          const { error, stdout, stderr } = await exec(`${fetchTarget} && ${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${cherryPick} && ${pushIntegrationBranch}`)
+          conflictHappened = false
+          mergeSuccess=true
+      } catch (error) {
+          console.log("error in push integration branch : " + error )
+          cpErrorHandlingresult = await cherryPickFailureHandler(error, mergeSuccess, conflictHappened, pushIntegrationBranch)
+          mergeSuccess = cpErrorHandlingresult[0]
+          conflictHappened = cpErrorHandlingresult[1]
+      }
+
+      cpResult = [mergeSuccess, conflictHappened]
+
+      return cpResult
+
+}
+
+async function cherryPickFailureHandler(error, mergeSuccess, conflictHappened, pushIntegrationBranch) {
+
+      console.log("error in push integration branch : " + error )
+
+      if (error.message.includes("conflicts")) {
+          conflictHappened = true
+          console.log("Conflict occured while merging master into " + integrationBranch + ", now pushing conflict content into new branch...")
+          mergeSuccess=await commitConflict(addAll, commitAll, pushIntegrationBranch)
+          if ( mergeSuccess && jiraCreate ) {
+              var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "Conflict occured while merging master into " + integrationBranch)
+              createJiraResponseJson = await createJiraResponse.json()
+              if ( createJiraResponseJson.key )  {
+                    console.log("Jira issue created: " + createJiraResponseJson.key )
+                    var issueUrl=jiraUtils.baseUrl + jiraUtils.issueBaseUrl + createJiraResponseJson.key
+                    slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch + " Jira issue created. Check here: " + issueUrl)
+              }
+          }
+      } else {
+          mergeSuccess=false
+      }
+
+      cpErrorhandlingResult = [mergeSuccess, conflictHappened]
+
+      return cpErrorhandlingResult
 }
 
 async function releaseStart(versions) {
@@ -184,8 +211,6 @@ async function releaseStart(versions) {
 
       const addVersionFile = `git add .release-version.json`
       const commitVersionFile = `git commit -m "bumped application version in ${newIntegrationBranch} to ${newMasterVersion}"`
-      const setEmail = `git config --global user.email "githubaction@spin.pm"`
-      const setIdentity = `git config --global user.name "Spin Github Action"`
       const createNewIntegrationBranch = `git checkout -b ${newIntegrationBranch}`
       const pushNewIntegrationBranch = `git push origin ${newIntegrationBranch}`
 
