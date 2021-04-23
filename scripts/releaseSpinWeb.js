@@ -4,6 +4,10 @@ const fs = require("fs")
 const exec = promisify(require("child_process").exec)
 var jiraUtils = require("./jira-short")
 
+// Documentation https://spinbikes.atlassian.net/wiki/spaces/EN/pages/426901984/Release+Train#Spin-web-Integration-Branches%3A
+// Demo Spin-Web https://spinbikes.atlassian.net/wiki/spaces/EN/pages/1240335622/Rider+App+Automation+Demo+2
+// PRs that trigger this should have label: rt-2.0-spin-web
+
 const SLACK_TOKEN = process.env.SLACK_TOKEN
 const channel = "github-actiontest"
 
@@ -11,7 +15,6 @@ const jiraCreate=true
 
 const PUSH_GITHUB_USER = process.env.PUSH_GITHUB_USER
 const PERSONAL_ACCESS_TOKEN = process.env.PERSONAL_ACCESS_TOKEN
-const CREATE_BRANCH_TOKEN = process.env.CREATE_BRANCH_TOKEN
 const slackUrl="https://slack.com/api/chat.postMessage"
 const event = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8"))
 
@@ -55,9 +58,7 @@ async function addReviewerToPullRequest(prUrl) {
 
      reviewersArray = { "reviewers": prMeta.qaReviewers.split(",") }
 
-     console.log(reviewersArray)
      githubNewPullRequestUrl=prUrl + "/requested_reviewers"
-     console.log(githubNewPullRequestUrl)
      const response = await fetch(githubNewPullRequestUrl, {
         method: "post",
         body: JSON.stringify(reviewersArray),
@@ -77,8 +78,6 @@ async function createNewPR(integrationBranch) {
          base: "master",
          body: `Automated PR created at code complete date from ${integrationBranch} to master.!`,
       }
-      console.log(requestBody)
-      console.log(githubPullRequestUrl)
 
       const response = await fetch(githubPullRequestUrl, {
          method: "post",
@@ -93,12 +92,8 @@ async function createNewPR(integrationBranch) {
 
 async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) {
 
-
       const fetchTarget = `git fetch`
       const checkoutMaster = `git checkout master`
-//      const pullMaster = `git pull origin master --allow-unrelated-histories`
-      const pullMaster = `git pull origin master`
-//      await exec(`${fetchTarget} && ${checkoutMaster} && ${pullMaster}`)
 
       const integrationBranch = "integration_" + integrationVersion
 
@@ -108,11 +103,8 @@ async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) 
       const setIdentity = `git config --global user.name "Spin Github Action"`
       const setPolicy = `git config pull.rebase false`
       const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
-//      const pullIntegrationBranch = `git pull origin ${integrationBranch} --allow-unrelated-histories`
       const pullIntegrationBranch = `git pull origin ${integrationBranch}`
       const setStrategy = `git config --global merge.ours.driver true`
-//      const mergeMasterIntoIntegration = `git merge master -m "auto merge master into ${integrationBranch} upon new commit into master" --allow-unrelated-histories`
-      const mergeMasterIntoIntegration = `git merge master -m "auto cherry-pick PR merge commit into ${integrationBranch} upon new commit into master"`
       const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
       const pushIntegrationBranch = `git push origin ${integrationBranch}`
 
@@ -124,15 +116,11 @@ async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) 
       var mergeSuccess=false
       var conflictHappened = false
       try {
-//          const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${setPolicy} && ${pullIntegrationBranch} && ${cherryPick} && ${pushIntegrationBranch}`)
           const { error, stdout, stderr } = await exec(`${fetchTarget} && ${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${cherryPick} && ${pushIntegrationBranch}`)
-          console.log("stdout: here: " + stdout )
-          console.log("stderr: here: " + stderr )
           conflictHappened = false
           mergeSuccess=true
       } catch (error) {
-          console.log("error:here : " + error )
-          console.log("error.stdout:here : " + error.stdout )
+          console.log("error in push integration branch : " + error )
           if (error.message.includes("conflicts")) {
               conflictHappened = true
               console.log("Conflict occured while merging master into " + integrationBranch + ", now pushing conflict content into new branch...")
@@ -140,29 +128,27 @@ async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) 
               if ( mergeSuccess && jiraCreate ) {
                   var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "Conflict occured while merging master into " + integrationBranch)
                   createJiraResponseJson = await createJiraResponse.json()
-                  console.log(createJiraResponseJson.key)
                   if ( createJiraResponseJson.key )  {
-			console.log("Jira issue created: " + createJiraResponseJson.key )
+                        console.log("Jira issue created: " + createJiraResponseJson.key )
                         var issueUrl=jiraUtils.baseUrl + jiraUtils.issueBaseUrl + createJiraResponseJson.key
- 			slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch + " Jira issue created. Check here: " + issueUrl)
-		  }
+                        slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch + " Jira issue created. Check here: " + issueUrl)
+                  }
               }
           } else {
-	      mergeSuccess=false
-	  }
+              mergeSuccess=false
+          }
       }
 
       if ( mergeSuccess ) {
           if ( conflictHappened ) {
-	  	console.log("Master merged into " + integrationBranch + " with conflict")
+                console.log("Master merged into " + integrationBranch + " with conflict")
                 slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch )
-	  } else {
-	  	console.log("Master merged into " + integrationBranch + " without conflict")
+          } else {
+                console.log("Master merged into " + integrationBranch + " without conflict")
                 slack_response=await postSlackMessage(channel, "Merged master into " + integrationBranch + " without conflict")
-	  }
+          }
       }
       return mergeSuccess
-
 }
 
 async function releaseStart(versions) {
@@ -211,8 +197,6 @@ async function releaseStart(versions) {
       var success=false
       try {
           const { error, stdout, stderr } = await exec(`${fetchTarget} && ${checkoutMaster} && ${setEmail} && ${setIdentity} && ${createNewIntegrationBranch} &&  ${addVersionFile} && ${commitVersionFile} && ${pushNewIntegrationBranch}`)
-          console.log('stdout:', stdout);
-          console.log('stderr:', stderr);
           success=true
       } catch (error) {
           console.log("error:", error)
@@ -222,13 +206,11 @@ async function releaseStart(versions) {
       const newPullRequestBranch = "integration_" + qaVersion
 
       if ( success ) {
-	  var prResponse = await createNewPR(newPullRequestBranch)
+          var prResponse = await createNewPR(newPullRequestBranch)
           if ( prResponse.url ) {
                 reviewer_response=await addReviewerToPullRequest(prResponse.url)
-          	console.log("Reviewer Response : " + reviewer_response)
+                console.log("Reviewer Response : " + reviewer_response)
           }
-//          console.log("PR Creation Response : " + prResponse)
-//          console.log(prResponse)
       } 
       return success
 }
@@ -239,7 +221,7 @@ async function commitConflict(addAll, commitAll, pushIntegrationBranch) {
       const { error, stdout, stderr } = await exec(`${addAll} && ${commitAll} && ${pushIntegrationBranch}`)
       return true
   } catch (error) {
-      console.log("error:", error)
+      console.log("Error while commiting conflict:", error)
       return false
   }
 }
