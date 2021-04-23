@@ -34,6 +34,7 @@ const addAll = `git add -A`
 const commitAll = `git commit -m "Github Action commits conflict"`
 const setStrategy = `git config --global merge.ours.driver true`
 const fetchTarget = `git fetch`
+const checkoutMaster = `git checkout master`
 
 async function main() {
      
@@ -98,8 +99,6 @@ async function createNewPR(integrationBranch) {
 
 
 async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) {
-
-      const checkoutMaster = `git checkout master`
 
       const integrationBranch = "integration_" + integrationVersion
 
@@ -178,10 +177,7 @@ async function cherryPickFailureHandler(error, mergeSuccess, conflictHappened, p
       return cpErrorhandlingResult
 }
 
-async function releaseStart(versions) {
-      
-      const checkoutMaster = `git checkout master`
-      await exec(`${fetchTarget} && ${checkoutMaster}`)
+async function getNewReleaseContent(versions) {
 
       const masterVersion = versions.master
       const qaVersion = versions.qa
@@ -197,26 +193,19 @@ async function releaseStart(versions) {
 
       minor=minor
       newMasterVersion = major + "." + minor + "." + patch
-      
+
       minor=minor+1
       newQAVersion = major + "." + minor + "." + patch
-     
+
       minor=minor+1
       newQASoftVersion = major + "." + minor + "." + patch
 
-      newIntegrationBranch="integration_" + qaSoftVersion
+      newVersions = [newMasterVersion, newQAVersion, newQASoftVersion ]
 
-      console.log(newIntegrationBranch)
+      return newVersions
+}
 
-      const addVersionFile = `git add .release-version.json`
-      const commitVersionFile = `git commit -m "bumped application version in ${newIntegrationBranch} to ${newMasterVersion}"`
-      const createNewIntegrationBranch = `git checkout -b ${newIntegrationBranch}`
-      const pushNewIntegrationBranch = `git push origin ${newIntegrationBranch}`
-
-      newReleaseContent = { "master": newMasterVersion, "qa": newQAVersion, "soft_qa": newQASoftVersion }
-
-      let newReleaseContentJson = JSON.stringify(newReleaseContent)
-      fs.writeFileSync('.release-version.json', newReleaseContentJson)
+async pushAndCreatePR(qaVersion, createNewIntegrationBranch, addVersionFile, commitVersionFile, pushNewIntegrationBranch) {
 
       var success=false
       try {
@@ -235,7 +224,33 @@ async function releaseStart(versions) {
                 reviewer_response=await addReviewerToPullRequest(prResponse.url)
                 console.log("Reviewer Response : " + reviewer_response)
           }
-      } 
+      }
+      return success
+
+}
+
+async function releaseStart(versions) {
+      
+      await exec(`${fetchTarget} && ${checkoutMaster}`)
+
+      const qaVersion = versions.qa
+      const qaSoftVersion = versions.soft_qa
+
+      newIntegrationBranch="integration_" + qaSoftVersion
+
+      newVersions = await getNewReleaseContent(versions)
+
+      const addVersionFile = `git add .release-version.json`
+      const commitVersionFile = `git commit -m "bumped application version in ${newIntegrationBranch} to ${newVersions[0]}"`
+      const createNewIntegrationBranch = `git checkout -b ${newIntegrationBranch}`
+      const pushNewIntegrationBranch = `git push origin ${newIntegrationBranch}`
+
+      newReleaseContent = { "master": newVersions[0], "qa": newVersions[1], "soft_qa": newVersions[2] }
+      let newReleaseContentJson = JSON.stringify(newReleaseContent)
+      fs.writeFileSync('.release-version.json', newReleaseContentJson)
+
+      var success = await pushAndCreatePR(qaVersion, createNewIntegrationBranch, addVersionFile, commitVersionFile, pushNewIntegrationBranch)
+
       return success
 }
 
