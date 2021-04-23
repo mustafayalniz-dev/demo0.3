@@ -33,6 +33,7 @@ const setIdentity = `git config --global user.name "Spin Github Action"`
 const addAll = `git add -A`
 const commitAll = `git commit -m "Github Action commits conflict"`
 const setStrategy = `git config --global merge.ours.driver true`
+const fetchTarget = `git fetch`
 
 async function main() {
      
@@ -98,7 +99,6 @@ async function createNewPR(integrationBranch) {
 
 async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) {
 
-      const fetchTarget = `git fetch`
       const checkoutMaster = `git checkout master`
 
       const integrationBranch = "integration_" + integrationVersion
@@ -180,7 +180,6 @@ async function cherryPickFailureHandler(error, mergeSuccess, conflictHappened, p
 
 async function releaseStart(versions) {
       
-      const fetchTarget = `git fetch`
       const checkoutMaster = `git checkout master`
       await exec(`${fetchTarget} && ${checkoutMaster}`)
 
