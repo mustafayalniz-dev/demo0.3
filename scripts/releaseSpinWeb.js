@@ -205,7 +205,7 @@ async function getNewReleaseContent(versions) {
       return newVersions
 }
 
-async pushAndCreatePR(qaVersion, createNewIntegrationBranch, addVersionFile, commitVersionFile, pushNewIntegrationBranch) {
+async function pushAndCreatePR(qaVersion, createNewIntegrationBranch, addVersionFile, commitVersionFile, pushNewIntegrationBranch) {
 
       var success=false
       try {
