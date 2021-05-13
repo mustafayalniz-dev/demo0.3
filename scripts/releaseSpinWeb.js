@@ -45,12 +45,14 @@ async function main() {
     const qaVersion = versions.qa
     const qaSoftVersion = versions.soft_qa
 
+    isNotPatch = await isNotPatchVersion( event.pull_request.head.ref )
+
     const merge_commit_sha = event.pull_request.merge_commit_sha
 
     console.log("merge_commit_sha: " + merge_commit_sha)
     console.log("github.sha: " + commit )
 
-    if ( selectedFunction == "release-start") {
+    if ( selectedFunction == "release-start" && isNotPatch ) {
 	await releaseStart(versions)
     } else if (selectedFunction == "auto-merge") {
 	await mergeMasterIntoIntegration(qaVersion, merge_commit_sha)
@@ -59,6 +61,18 @@ async function main() {
 }
 
 main()
+
+async function isNotPatchVersion( branch ) {
+
+      let patch = parseInt(branch.replace(/integration_(\d+)\.(\d+)\.(\d+)/, "$3"))   
+
+      if ( patch == "0" ) {
+           return true
+      }
+
+      return false
+
+}
 
 async function addReviewerToPullRequest(prUrl) {
      const reviewers = "../prmeta.json"
