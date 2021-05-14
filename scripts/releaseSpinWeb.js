@@ -62,7 +62,7 @@ async function main() {
     const merge_commit_sha = event.pull_request.merge_commit_sha
 
     console.log("merge_commit_sha: " + merge_commit_sha)
-    console.log("github.sha: " + commit )
+//    console.log("github.sha: " + commit )
 
     if ( selectedFunction == "release-start" && releaseStart ) {
 	await releaseStart(versions)
@@ -70,6 +70,7 @@ async function main() {
 	await mergeMasterIntoIntegration(qaVersion, merge_commit_sha)
 	await mergeMasterIntoIntegration(qaSoftVersion, merge_commit_sha)
     }
+    console.log("Workflow executed")
 }
 
 main()
