@@ -45,16 +45,28 @@ async function main() {
     const qaVersion = versions.qa
     const qaSoftVersion = versions.soft_qa
 
-    isNotPatch = await isNotPatchVersion( event.pull_request.head.ref )
+//
+    var isIntegrationBranch = await isIntegration( event.pull_request.head.ref )
+
+    var isPatch = true
+
+    if ( isIntegrationBranch ) {
+       isPatch = await isPatchVersion( event.pull_request.head.ref )
+    }
+
+    var releaseStart = isIntegrationBranch && ! isPatch
+    var shouldMerge = ! isIntegrationBranch || isPatch
+
+//
 
     const merge_commit_sha = event.pull_request.merge_commit_sha
 
     console.log("merge_commit_sha: " + merge_commit_sha)
     console.log("github.sha: " + commit )
 
-    if ( selectedFunction == "release-start" && isNotPatch ) {
+    if ( selectedFunction == "release-start" && releaseStart ) {
 	await releaseStart(versions)
-    } else if (selectedFunction == "auto-merge") {
+    } else if (selectedFunction == "auto-merge" && shouldMerge ) {
 	await mergeMasterIntoIntegration(qaVersion, merge_commit_sha)
 	await mergeMasterIntoIntegration(qaSoftVersion, merge_commit_sha)
     }
@@ -62,15 +74,23 @@ async function main() {
 
 main()
 
-async function isNotPatchVersion( branch ) {
+async function isPatchVersion( branch ) {
 
       let patch = parseInt(branch.replace(/integration_(\d+)\.(\d+)\.(\d+)/, "$3"))   
 
       if ( patch == "0" ) {
-           return true
+           return false
       }
 
-      return false
+      return true
+
+}
+
+async function isIntegration( branch ) {
+
+      var res = branch.match(/integration_/gi);
+
+      return res
 
 }
 
