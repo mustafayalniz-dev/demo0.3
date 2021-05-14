@@ -9,7 +9,7 @@ on:
 jobs:
   releaser:
     name: "Auto Merge master to integration"
-    if: github.event.pull_request.merged == true && !contains(github.event.pull_request.head.ref, 'integration_')
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
