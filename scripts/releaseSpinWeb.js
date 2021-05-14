@@ -24,9 +24,17 @@ var commit = process.argv.slice(2)[1]
 const githubAuth =
   "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
 
-const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/demo0.3/pulls"
+const githubPullRequestUrl = "https://api.github.com/repos/spin-org/spin-web/pulls"
 
 const getSlackAuth = "Bearer " + global.Buffer.from(SLACK_TOKEN).toString()
+
+const setEmail = `git config --global user.email "githubaction@spin.pm"`
+const setIdentity = `git config --global user.name "Spin Github Action"`
+const addAll = `git add -A`
+const commitAll = `git commit -m "Github Action commits conflict"`
+const setStrategy = `git config --global merge.ours.driver true`
+const fetchTarget = `git fetch`
+const checkoutMaster = `git checkout master`
 
 async function main() {
      
@@ -51,7 +59,6 @@ async function main() {
     const merge_commit_sha = event.pull_request.merge_commit_sha
 
     console.log("merge_commit_sha: " + merge_commit_sha)
-    console.log("github.sha: " + commit )
 
     if ( selectedFunction == "release-start" && shouldReleaseStart ) {
 	await releaseStart(versions)
@@ -59,24 +66,29 @@ async function main() {
 	await mergeMasterIntoIntegration(qaVersion, merge_commit_sha)
 	await mergeMasterIntoIntegration(qaSoftVersion, merge_commit_sha)
     }
+    console.log("Workflow executed")
 }
 
 main()
 
 async function isPatchVersion( branch ) {
 
-      let patch = parseInt(branch.replace(/integration_(\d+)\.(\d+)\.(\d+)/, "$3"))
+      let patch = parseInt(branch.replace(/integration_(\d+)\.(\d+)\.(\d+)/, "$3"))   
+
       if ( patch == "0" ) {
            return false
       }
+
       return true
+
 }
 
 async function isIntegration( branch ) {
+
       var result = branch.match(/integration_/gi);
       return result
-}
 
+}
 
 async function addReviewerToPullRequest(prUrl) {
      const reviewers = "../prmeta.json"
@@ -118,52 +130,16 @@ async function createNewPR(integrationBranch) {
 
 async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) {
 
-      const fetchTarget = `git fetch`
-      const checkoutMaster = `git checkout master`
-
       const integrationBranch = "integration_" + integrationVersion
 
       console.log("Merging commit to " + integrationBranch )
 
-      const setEmail = `git config --global user.email "githubaction@spin.pm"`
-      const setIdentity = `git config --global user.name "Spin Github Action"`
-      const setPolicy = `git config pull.rebase false`
-      const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
-      const pullIntegrationBranch = `git pull origin ${integrationBranch}`
-      const setStrategy = `git config --global merge.ours.driver true`
-      const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
-      const pushIntegrationBranch = `git push origin ${integrationBranch}`
-
-      const addAll = `git add -A`
-      const commitAll = `git commit -m "Github Action commits conflict"`
-
       await exec(`${setStrategy}`)
 
-      var mergeSuccess=false
-      var conflictHappened = false
-      try {
-          const { error, stdout, stderr } = await exec(`${fetchTarget} && ${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${cherryPick} && ${pushIntegrationBranch}`)
-          conflictHappened = false
-          mergeSuccess=true
-      } catch (error) {
-          console.log("error in push integration branch : " + error )
-          if (error.message.includes("conflicts")) {
-              conflictHappened = true
-              console.log("Conflict occured while merging master into " + integrationBranch + ", now pushing conflict content into new branch...")
-              mergeSuccess=await commitConflict(addAll, commitAll, pushIntegrationBranch)
-              if ( mergeSuccess && jiraCreate ) {
-                  var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "Conflict occured while merging master into " + integrationBranch)
-                  createJiraResponseJson = await createJiraResponse.json()
-                  if ( createJiraResponseJson.key )  {
-                        console.log("Jira issue created: " + createJiraResponseJson.key )
-                        var issueUrl=jiraUtils.baseUrl + jiraUtils.issueBaseUrl + createJiraResponseJson.key
-                        slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch + " Jira issue created. Check here: " + issueUrl)
-                  }
-              }
-          } else {
-              mergeSuccess=false
-          }
-      }
+      cherryPickResult = await executeCherryPick(integrationBranch, merge_commit_sha)
+
+      var mergeSuccess=cherryPickResult[0]
+      var conflictHappened = cherryPickResult[1]
 
       if ( mergeSuccess ) {
           if ( conflictHappened ) {
@@ -177,11 +153,65 @@ async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) 
       return mergeSuccess
 }
 
-async function releaseStart(versions) {
-      
-      const fetchTarget = `git fetch`
-      const checkoutMaster = `git checkout master`
-      await exec(`${fetchTarget} && ${checkoutMaster}`)
+async function executeCherryPick(integrationBranch, merge_commit_sha) {
+
+      const setPolicy = `git config pull.rebase false`
+      const checkoutIntegrationBranch = `git checkout ${integrationBranch}`
+      const pullIntegrationBranch = `git pull origin ${integrationBranch}`
+      const cherryPick = `git cherry-pick -m 1 ${merge_commit_sha}`
+      const pushIntegrationBranch = `git push origin ${integrationBranch}`
+
+      var mergeSuccess = false
+      var conflictHappened = false
+
+      try {
+          const { error, stdout, stderr } = await exec(`${fetchTarget} && ${setEmail} && ${setIdentity} && ${checkoutIntegrationBranch} && ${pullIntegrationBranch} && ${cherryPick} && ${pushIntegrationBranch}`)
+          conflictHappened = false
+          mergeSuccess=true
+      } catch (error) {
+          console.log("error in push integration branch : " + error )
+          cpErrorHandlingresult = await cherryPickFailureHandler(error, mergeSuccess, conflictHappened, pushIntegrationBranch)
+          mergeSuccess = cpErrorHandlingresult[0]
+          conflictHappened = cpErrorHandlingresult[1]
+      }
+
+      cpResult = [mergeSuccess, conflictHappened]
+
+      return cpResult
+
+}
+
+async function cherryPickFailureHandler(error, mergeSuccess, conflictHappened, pushIntegrationBranch) {
+
+      console.log("error in push integration branch : " + error )
+
+      if (error.message.includes("conflicts")) {
+          conflictHappened = true
+          console.log("Conflict occured while merging master into " + integrationBranch + ", now pushing conflict content into new branch...")
+          mergeSuccess=await commitConflict(addAll, commitAll, pushIntegrationBranch)
+          if ( mergeSuccess && jiraCreate ) {
+              await jiraAndSlack(integrationBranch)
+          }
+      } else {
+          mergeSuccess=false
+      }
+
+      cpErrorhandlingResult = [mergeSuccess, conflictHappened]
+
+      return cpErrorhandlingResult
+}
+
+async function jiraAndSlack( integrationBranch ) {
+      var createJiraResponse = await jiraUtils.createJiraIssueForConflict("Rider Experience", "mustafa", "10004", "Conflict occured while merging master into " + integrationBranch)
+      createJiraResponseJson = await createJiraResponse.json()
+      if ( createJiraResponseJson.key )  {
+             console.log("Jira issue created: " + createJiraResponseJson.key )
+             var issueUrl=jiraUtils.baseUrl + jiraUtils.issueBaseUrl + createJiraResponseJson.key
+             slack_response=await postSlackMessage(channel, "Conflict occured while merging master into " + integrationBranch + " Jira issue created. Check here: " + issueUrl)
+      }
+}
+
+async function getNewReleaseContent(versions) {
 
       const masterVersion = versions.master
       const qaVersion = versions.qa
@@ -197,28 +227,21 @@ async function releaseStart(versions) {
 
       minor=minor
       newMasterVersion = major + "." + minor + "." + patch
-      
+
       minor=minor+1
       newQAVersion = major + "." + minor + "." + patch
-     
+
       minor=minor+1
       newQASoftVersion = major + "." + minor + "." + patch
 
-      newIntegrationBranch="integration_" + qaSoftVersion
+      newVersions = [newMasterVersion, newQAVersion, newQASoftVersion ]
 
-      console.log(newIntegrationBranch)
+      return newVersions
+}
+
+async function pushAndCreatePR(qaVersion, createNewIntegrationBranch, commitVersionFile, pushNewIntegrationBranch) {
 
       const addVersionFile = `git add .release-version.json`
-      const commitVersionFile = `git commit -m "bumped application version in ${newIntegrationBranch} to ${newMasterVersion}"`
-      const setEmail = `git config --global user.email "githubaction@spin.pm"`
-      const setIdentity = `git config --global user.name "Spin Github Action"`
-      const createNewIntegrationBranch = `git checkout -b ${newIntegrationBranch}`
-      const pushNewIntegrationBranch = `git push origin ${newIntegrationBranch}`
-
-      newReleaseContent = { "master": newMasterVersion, "qa": newQAVersion, "soft_qa": newQASoftVersion }
-
-      let newReleaseContentJson = JSON.stringify(newReleaseContent)
-      fs.writeFileSync('.release-version.json', newReleaseContentJson)
 
       var success=false
       try {
@@ -237,7 +260,32 @@ async function releaseStart(versions) {
                 reviewer_response=await addReviewerToPullRequest(prResponse.url)
                 console.log("Reviewer Response : " + reviewer_response)
           }
-      } 
+      }
+      return success
+
+}
+
+async function releaseStart(versions) {
+      
+      await exec(`${fetchTarget} && ${checkoutMaster}`)
+
+      const qaVersion = versions.qa
+      const qaSoftVersion = versions.soft_qa
+
+      newIntegrationBranch="integration_" + qaSoftVersion
+
+      newVersions = await getNewReleaseContent(versions)
+
+      const commitVersionFile = `git commit -m "bumped application version in ${newIntegrationBranch} to ${newVersions[0]}"`
+      const createNewIntegrationBranch = `git checkout -b ${newIntegrationBranch}`
+      const pushNewIntegrationBranch = `git push origin ${newIntegrationBranch}`
+
+      newReleaseContent = { "master": newVersions[0], "qa": newVersions[1], "soft_qa": newVersions[2] }
+      let newReleaseContentJson = JSON.stringify(newReleaseContent)
+      fs.writeFileSync('.release-version.json', newReleaseContentJson)
+
+      var success = await pushAndCreatePR(qaVersion, createNewIntegrationBranch, commitVersionFile, pushNewIntegrationBranch)
+
       return success
 }
 
