@@ -24,7 +24,7 @@ var commit = process.argv.slice(2)[1]
 const githubAuth =
   "Basic " + global.Buffer.from(PUSH_GITHUB_USER + ":" + PERSONAL_ACCESS_TOKEN).toString("base64")
 
-const githubPullRequestUrl = "https://api.github.com/repos/spin-org/spin-web/pulls"
+const githubPullRequestUrl = "https://api.github.com/repos/mustafayalniz-dev/demo0.3/pulls"
 
 const getSlackAuth = "Bearer " + global.Buffer.from(SLACK_TOKEN).toString()
 
