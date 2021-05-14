@@ -54,7 +54,7 @@ async function main() {
        isPatch = await isPatchVersion( event.pull_request.head.ref )
     }
 
-    var releaseStart = isIntegrationBranch && ! isPatch
+    var shouldReleaseStart = isIntegrationBranch && ! isPatch
     var shouldMerge = ! isIntegrationBranch || isPatch
 
 //
@@ -64,7 +64,7 @@ async function main() {
     console.log("merge_commit_sha: " + merge_commit_sha)
 //    console.log("github.sha: " + commit )
 
-    if ( selectedFunction == "release-start" && releaseStart ) {
+    if ( selectedFunction == "release-start" && shouldReleaseStart ) {
 	await releaseStart(versions)
     } else if (selectedFunction == "auto-merge" && shouldMerge ) {
 	await mergeMasterIntoIntegration(qaVersion, merge_commit_sha)
