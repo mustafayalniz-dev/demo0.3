@@ -73,7 +73,7 @@ main()
 
 async function isPatchVersion( branch ) {
 
-      let patch = parseInt(branch.replace(/integration_(\d+)\.(\d+)\.(\d+)/, "$3"))   
+      let patch = parseInt(branch.replace(/integration-(\d+)\.(\d+)\.(\d+)/, "$3"))   
 
       if ( patch == "0" ) {
            return false
@@ -85,7 +85,7 @@ async function isPatchVersion( branch ) {
 
 async function isIntegration( branch ) {
 
-      var result = branch.match(/integration_/gi);
+      var result = branch.match(/integration-/gi);
       return result
 
 }
@@ -130,7 +130,7 @@ async function createNewPR(integrationBranch) {
 
 async function mergeMasterIntoIntegration(integrationVersion, merge_commit_sha) {
 
-      const integrationBranch = "integration_" + integrationVersion
+      const integrationBranch = "integration-" + integrationVersion
 
       console.log("Merging commit to " + integrationBranch )
 
@@ -252,7 +252,7 @@ async function pushAndCreatePR(qaVersion, createNewIntegrationBranch, commitVers
           success=false
       }
 
-      const newPullRequestBranch = "integration_" + qaVersion
+      const newPullRequestBranch = "integration-" + qaVersion
 
       if ( success ) {
           var prResponse = await createNewPR(newPullRequestBranch)
@@ -272,7 +272,7 @@ async function releaseStart(versions) {
       const qaVersion = versions.qa
       const qaSoftVersion = versions.soft_qa
 
-      newIntegrationBranch="integration_" + qaSoftVersion
+      newIntegrationBranch="integration-" + qaSoftVersion
 
       newVersions = await getNewReleaseContent(versions)
 

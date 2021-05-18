@@ -9,7 +9,7 @@ on:
 jobs:
   releaser:
     name: "Spin-Web Release Start Workflow"
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.head.ref, 'integration_') && contains(github.event.pull_request.labels.*.name, 'rt-2.0-spin-web')
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.head.ref, 'integration-') && contains(github.event.pull_request.labels.*.name, 'rt-2.0-spin-web')
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
