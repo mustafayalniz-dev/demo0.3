@@ -9,15 +9,13 @@ on:
 jobs:
   releaser:
     name: "Auto Merge master to integration"
-    if: github.event.pull_request.merged == true && !contains(github.event.pull_request.head.ref, 'integration_')
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'rt-2.0-spin-web')
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
     - run: git config user.name github-actions
     - run: git config user.email github-actions@github.com
-    - name: Debug action
-      uses: hmarr/debug-action@v2.0.0
     - name: Commit on master triggers merge onto integration branch
       env:
         PERSONAL_ACCESS_TOKEN: ${{ secrets.MY_PERSONAL_ACCESS_TOKEN }}
@@ -27,4 +25,4 @@ jobs:
         SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
       run: |
         npm install compare-versions node-fetch fs inquirer
-        node scripts/releaseSpinWeb.yml auto-merge '${{  github.sha }}'
+        node scripts/releaseSpinWeb.js auto-merge '${{  github.sha }}'
