@@ -13,8 +13,8 @@ async function main() {
     const { lastCommit, stderrC } = await exec(`${_currentBranch}`);
 
 
-    const metadataJson = "../.metadata.json"
-    const metadata = require(metadataJson)
+//    const metadataJson = "../.metadata.json"
+//    const metadata = require(metadataJson)
 
     newMetadataContent = { "branch": currentBranch, "tag": currentTag, "commit": lastCommit }
     let newMetadataContentJson = JSON.stringify(newMetadataContent)
