@@ -20,7 +20,7 @@ async function main() {
     const setEmail = `git config --global user.email "githubaction@goldenheartsgames.com"`
     const setIdentity = `git config --global user.name "GHG Github Action"`
     const addAll = `git add .metadata.json`
-    const commitAll = `git commit -m "Github Action commits conflict"`
+    const commitAll = `git commit -m "Github Action commits metadata json"`
     const pushCurrentBranch = `git push origin ${currentBranch}`
 
 
