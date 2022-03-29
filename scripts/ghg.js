@@ -2,23 +2,11 @@ const fs = require("fs")
 const { promisify } = require("util")
 const exec = promisify(require("child_process").exec)
 
-const _currentBranch = `git rev-parse --abbrev-ref HEAD`
-const _currentTag = `git describe --tags --abbrev=0`
-const _lastCommit = `git rev-parse HEAD`
-
 async function main() {
 
-    const { errorB, currentBranch, stderrB } = await exec(`${_currentBranch}`);
-    const { errorT, currentTag, stderrT } = await exec(`${_currentBranch}`);
-    const { errorC, lastCommit, stderrC } = await exec(`${_currentBranch}`);
-
-    console.log(errorB)
-    console.log(currentBranch)
-    console.log(stderrB)
-    console.log(process.env.BRANCH_NAME)
-    console.log(process.env.RELEASE_VERSION)
-    console.log(process.env.COMMIT)
-
+    const currentBranch = process.env.BRANCH_NAME
+    const currentTag = process.env.RELEASE_VERSION
+    const lastCommit = process.env.COMMIT
 
 //    const metadataJson = "../.metadata.json"
 //    const metadata = require(metadataJson)
