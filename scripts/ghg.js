@@ -1,4 +1,5 @@
 const fs = require("fs")
+const exec = promisify(require("child_process").exec)
 
 const _currentBranch = `git rev-parse --abbrev-ref HEAD`
 const _currentTag = `git describe --tags --abbrev=0`

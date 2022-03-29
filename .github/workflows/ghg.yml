@@ -13,5 +13,5 @@ jobs:
     - uses: actions/setup-node@v1
     - name: Add metadata upon commit
       run: |
-        npm install fs
+        npm install fs promisify
         node scripts/ghg.js
