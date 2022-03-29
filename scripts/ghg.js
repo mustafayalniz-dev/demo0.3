@@ -8,9 +8,9 @@ const _lastCommit = `git rev-parse HEAD`
 
 async function main() {
 
-    const { currentBranch, stderrB } = await exec(`${_currentBranch}`);
-    const { currentTag, stderrT } = await exec(`${_currentBranch}`);
-    const { lastCommit, stderrC } = await exec(`${_currentBranch}`);
+    const { errorB, currentBranch, stderrB } = await exec(`${_currentBranch}`);
+    const { errorT, currentTag, stderrT } = await exec(`${_currentBranch}`);
+    const { errorC, lastCommit, stderrC } = await exec(`${_currentBranch}`);
 
     console.log(currentBranch)
     console.log(stderrB)
