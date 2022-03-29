@@ -6,9 +6,9 @@ const _lastCommit = `git rev-parse HEAD`
 
 async function main() {
 
-    const { currentBranch, stderr } = await exec(`${_currentBranch}`;     
-    const { currentTag, stderr } = await exec(`${_currentBranch}`;     
-    const { lastCommit, stderr } = await exec(`${_currentBranch}`;     
+    const { currentBranch, stderr } = await exec(`${_currentBranch}`);     
+    const { currentTag, stderr } = await exec(`${_currentBranch}`);     
+    const { lastCommit, stderr } = await exec(`${_currentBranch}`);     
 
 
     const metadataJson = "../.metadata.json"
