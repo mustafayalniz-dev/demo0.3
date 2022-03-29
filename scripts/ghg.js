@@ -12,6 +12,9 @@ async function main() {
     const { currentTag, stderrT } = await exec(`${_currentBranch}`);
     const { lastCommit, stderrC } = await exec(`${_currentBranch}`);
 
+    console.log(currentBranch)
+    console.log(stderrB)
+
 
 //    const metadataJson = "../.metadata.json"
 //    const metadata = require(metadataJson)
