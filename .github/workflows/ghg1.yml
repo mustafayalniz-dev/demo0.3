@@ -1,0 +1,17 @@
+name: "GHG Add Metadata"
+
+on:
+  push:
+    branches:
+      - '*'
+jobs:
+  metadata:
+    name: "GHG Add Metadata"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+    - name: Add metadata upon commit
+      run: |
+        npm install fs
+        node scripts/ghg.js
