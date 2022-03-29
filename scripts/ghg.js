@@ -15,6 +15,7 @@ async function main() {
     console.log(errorB)
     console.log(currentBranch)
     console.log(stderrB)
+    console.log(process.env.BRANCH_NAME)
 
 
 //    const metadataJson = "../.metadata.json"
