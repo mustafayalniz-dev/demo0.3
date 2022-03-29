@@ -12,6 +12,7 @@ async function main() {
     const { errorT, currentTag, stderrT } = await exec(`${_currentBranch}`);
     const { errorC, lastCommit, stderrC } = await exec(`${_currentBranch}`);
 
+    console.log(errorB)
     console.log(currentBranch)
     console.log(stderrB)
 
