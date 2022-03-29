@@ -22,6 +22,21 @@ async function main() {
 
     fs.writeFileSync('.metadata.json', newMetadataContentJson)
 
+    const setEmail = `git config --global user.email "githubaction@goldenheartsgames.com"`
+    const setIdentity = `git config --global user.name "GHG Github Action"`
+    const addAll = `git add -A`
+    const commitAll = `git commit -m "Github Action commits conflict"`
+    const pushCurrentBranch = `git push origin ${currentBranch}`
+
+
+    try {
+        const { error, stdout, stderr } = await exec(`${setEmail} && ${setIdentity} ${addAll} && ${commitAll} && ${pushCurrentBranch}`)
+        return true
+    } catch (error) {
+        console.log("Error while commiting metadata:", error)
+        return false
+    }
+
 }
 
 main()
