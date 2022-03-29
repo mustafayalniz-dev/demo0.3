@@ -17,6 +17,7 @@ async function main() {
     console.log(stderrB)
     console.log(process.env.BRANCH_NAME)
     console.log(process.env.RELEASE_VERSION)
+    console.log(process.env.COMMIT)
 
 
 //    const metadataJson = "../.metadata.json"
